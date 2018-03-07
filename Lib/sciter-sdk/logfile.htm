@@ -1,0 +1,347 @@
+﻿<html>
+  <head>
+    <title>4.* logfile</title>
+    <meta name="generator" content="blocknote.net v2.0"/>
+  </head>
+<body>
+  <h3>Sciter 4.* logfile:</h3>
+  <table border="1" cellpadding="3" cellspacing="1" width="100%">
+    <tbody><tr>
+      <td width="60" nowrap="" valign="top" align="center">Build#</td>
+      <td width="78" nowrap="" valign="top" align="center">Date</td>
+      <td align="center">Updates</td></tr>
+    <tr><td valign="top" bgcolor="#FFFADA">4.1.3.5728</td><td nowrap="" valign="top" align="center">02-02-2018</td><td>
+					<p>new:</p>
+					<ul><li>[script] &quot;That lambda&quot; function form: <code>|a,b| a + b;</code> - uses <code>this</code>&nbsp;of outer function.</li>
+						<li>[DOM] + <code>Graphics.transform(a,b,c,d,e,f)</code> method - canonical 2d affine transformation matrix.</li>
+						<li>+ <code>Graphics.Path.arc()</code> method.&nbsp;</li>
+						<li><code>System.Process.exec(,,#detached)</code> to start &quot;torn off&quot; child processes.&nbsp;</li></ul><p>fixes:</p>
+					<ul>
+						
+						
+						<li>[headers] <code>sciter::host&lt;T&gt;</code> and <code>sciter::window fixes</code> refactoring - proper window destruction sequence.</li><li>[script] <code>get</code>&nbsp;and <code>set</code>&nbsp;are treated as keywords only inside property declarations. Otherwise they are ordinary identifiers.</li><li>[css,rtl] fix of flow:vertical-wrap layout.</li><li>[script] for initialization fix, see: <a href="https://sciter.com/forums/topic/for-statement-initial-list-problem/">https://sciter.com/forums/topic/for-statement-initial-list-problem/</a>&nbsp;</li>
+						<li>[osx,linux] fix of <code>role=&quot;window-caption&quot;</code> mouse move handling.</li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.1.2.5717</td><td nowrap="" valign="top" align="center">24-01-2018</td><td><p>fixes:</p>
+					<ul><li>[css] <code>color:inherit;</code> is back.</li>
+						<li> <code>&lt;input|date&gt;</code> + method .showPopup();&nbsp;</li>
+						<li> <code>&lt;select|dropdown&gt;</code> + method .showPopup();</li>
+						<li>fix of AV in AppendMasterCSS : <a href="https://sciter.com/forums/topic/av-in-sciterappendmastercss-api/">https://sciter.com/forums/topic/av-in-sciterappendmastercss-api/</a>&nbsp;</li>
+						<li>[CSS] fix of dynamic position change handling;</li>
+						<li><code>SciterSetupDebugOutput(hwnd)</code>, attempt to fix.</li>
+						<li>[win,Skia] fix of @font-family handling.</li>
+						<li><code>&lt;select|tree&gt;</code> fix of expand/collapse click handling.</li>
+						<li>4.1.*.* regression, fix of AV on second window create/destroy. See: https://sciter.com/forums/topic/wm_destroy-access-violation-on-4-1-x-x/</li>
+						<li>&quot;popuprequest&quot; event generation is back.</li>
+						<li>[svg] fill=&quot;none&quot; fix.</li>
+						<li>[script] Fix of namespace a { include &quot;a.tis&quot; } case, see: <a href="https://sciter.com/forums/topic/tiscript-namespace-simulate-es6-import-export/">https://sciter.com/forums/topic/tiscript-namespace-simulate-es6-import-export/</a>&nbsp;</li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.1.1.5703</td><td nowrap="" valign="top" align="center">14-01-2018</td><td>
+					<p>new:</p>
+					<ul><li>[packfolder] <code>-i &quot;folder/*&quot;</code> option to explicitly include files or folders.&nbsp;</li></ul><p>fixes:</p>
+					<ul><li><code>&lt;textarea novalue&gt;</code> regression fix</li><li><code>tiscript::compile()</code> fix, see: <a href="https://sciter.com/forums/topic/tiscriptcompile-fail/">https://sciter.com/forums/topic/tiscriptcompile-fail/</a>&nbsp;</li>
+						<li>[charts] tooltip styling update.&nbsp;&nbsp;</li>
+						<li>[css,layout] handling vw,vh,vmin,vmax units in border-radius.</li>
+						<li>[script] proper escapement in <code>Element.$([value=&quot;{val}&quot;])</code> when val contains <code>&quot;</code>&nbsp;</li>
+						<li>[css] font-size handling fix in dynamic styles, see: <a href="https://sciter.com/forums/topic/bug-font-size/">https://sciter.com/forums/topic/bug-font-size/</a>&nbsp;</li>
+						<li><code>SC_POSTED_NOTIFICATION</code> is back</li>
+						<li>[column-resizer] fixes.</li>
+						<li>[win] support of multiple GUI threads in the same process.</li>
+						<li>[win] fix of API calls from external worker threads.</li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.1.0.5687</td><td nowrap="" valign="top" align="center">08-01-2018</td><td><p>new:</p>
+					<ul><li>Sciter uses libuv for almost all asynchronous I/O tasks. New functions<ul><li><code>System.dir(...)</code>&nbsp;function - scan folder for files;</li>
+								<li><code>System.watch(...)</code> function - monitor changes in folder;</li>
+								<li><code>System.unlink(...)</code> function - delete file;</li>
+								<li><code>System.rmdir(...)</code> function - delete folder;</li>
+								<li><code>System.mkdir(...)</code> function - create folder;</li>
+								<li><code>System.rename(...)</code> function - rename file or folder;</li>
+								<li><code>System.copyFile(...)</code> function - copy file;</li>
+								<li><code>System.stat(...)</code> function - get file stats - times, permissions, etc.;</li>
+								<li><code>System.utime(...)</code> function - touch file&nbsp;- change file access times;</li>
+								<li><code>System.exec() : Process</code> - start process asynchronously catching its stdin, stdout, stderr.</li>
+								<li>+ samples/file-system/folder-watch.htm - demonstrates these file system operations.</li>
+								</ul></li><li>New <code>Net</code> namespace that includes:<ul><li><code>Net.Socket</code> - raw asynchronous TCP/IP socket or named pipe connection. Replaces old <code>Stream.openSocket();</code> that is obsolote now.</li>
+								<li><code>Net.DataSocket</code> -&nbsp;asynchronous TCP/IP socket or named pipe connection that sends/receives [binary]JSON data. Debugee and inspector communicates now using named pipe objects that increases speed of communication.</li>
+								<li><code>Net.WebSocket</code> - web socket over HTTP connection.&nbsp;</li>
+								<li>+ samples/net/sockets.htm - demonstrates sockets communications, client and server.</li>
+								</ul></li>
+						<li>[script] new color declarations:<ul><li><code>color #fe0; color #ffee00;</code> - CSS alike color declarations</li><li> <code>color.cyan; color.red; </code> etc. -  declaring colors using HTML color names.</li>
+								</ul></li><li>[script, Color] + methods to transform one color into another:<ul><li><code>Color.hue(...)</code>,</li><li><code>Color.rotate(...)</code>,</li><li><code>Color.lightness(...)</code>,</li><li><code>Color.lighten(...)</code>,</li><li><code>Color.darken(...)</code>,</li><li><code>Color.saturation(...)</code>,</li><li><code>Color.saturate(...)</code>,</li><li><code>Color.desaturate(...)</code>,</li><li><code>Color.opacity(...)</code>,</li><li><code>Color.opacify(...)</code>,</li><li><code>Color.grayscale(...)</code></li></ul></li>
+						
+						<li>[script] <code>Date</code> objects comparison follows object comparison  rules: <code>date1 == date2</code> is true if they are equal, and <code>date1 === date2</code> is false if these are two different instances.&nbsp;</li>
+						<li>+ samples/charts/ - simple Line, Area and Bar charts implementation. More chart types to come there.</li>
+						<li>[dom] <code>Element.popup(pel,<i>placement</i>,x,y)</code> case support.</li>
+						
+						
+						
+						
+						</ul>
+					<p>fixes:</p>
+					<ul><li>[skia backend] fix of font metrics calculation.</li>
+						<li>fix of <code>new Image(,,element)</code> drawing : <a href="https://sciter.com/forums/topic/new-image-has-problem/">https://sciter.com/forums/topic/new-image-has-problem/</a>&nbsp;</li>
+						<li>[css] fix of transition from undefined color.</li>
+						<li>[script] fix of Length, Duration and Angle comparisons, like <code>1px &lt; 2px</code>.</li>
+						<li>fix of <code>String.printf(&quot;%.*f&quot;)</code> case handling (correct '*' interpretation).</li>
+						<li>svg as background image fill, scaling fix: <a href="https://sciter.com/forums/topic/scaling-svg-background/">https://sciter.com/forums/topic/scaling-svg-background/</a>&nbsp;</li>
+						<li>[windows,clipboard] support of CF_HDROP - putting and getting list of files from clipboard.</li>
+						<li><code>&lt;input|time&gt;</code> fix of :empty state handling.</li>
+						<li>Element.prototype property handling fix, see: <a href="https://sciter.com/forums/topic/formation-with-nested-repeatable-sample-is-broken/">https://sciter.com/forums/topic/formation-with-nested-repeatable-sample-is-broken/</a>&nbsp;</li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.8.5649</td><td nowrap="" valign="top" align="center">22-12-2017</td><td><p>fixes:</p>
+					<ul><li>[DOM,script] fix of <code>element.style[&quot;font-size&quot;] = px(...);</code> (any non points value)</li>
+						<li><code>&lt;input|date&gt;</code> adjustment again, see: <a href="https://sciter.com/forums/topic/the-dropdown-date-is-incorrect/">https://sciter.com/forums/topic/the-dropdown-date-is-incorrect/</a>&nbsp;</li>
+						<li>cssmap.htm doc update by <code>var()</code>, <code>length()</code>,&nbsp;<code>color()</code> and <code>morph()</code> definitions;</li>
+						<li>[plus] Better <code>Object.merge()</code> implementation. See: <a href="https://sciter.com/forums/topic/plus-why-observer-called-twice/">https://sciter.com/forums/topic/plus-why-observer-called-twice/</a>&nbsp;</li>
+						<li> <code>Image.toBytes()</code> implementation for raw pixmap and WebP formats;&nbsp;</li>
+						<li><code>Object.observe()</code>, fix of redundant notifications in vector updates.&nbsp;</li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.7.5637</td><td nowrap="" valign="top" align="center">19-12-2017</td><td>
+					<p>new:</p>
+					<ul><li>[script] spread operator in array literals and function calls : <code>[0,1,..otherArray] </code>and <code>foo(0,1,..otherArray)</code>.</li>
+						<li>[CSS] the <code>morph()</code> function, see: <a href="https://sciter.com/css-addons/">https://sciter.com/css-addons/</a>&nbsp;</li></ul><p>fixes:</p>
+					<ul>
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						<li>fix of time-zone issue in <code>&lt;input|calendar&gt;</code> and <code>&lt;input|date&gt;</code>&nbsp;</li><li>[API] fix of <code>sciter::image::from(value)</code>;</li><li>fix of refresh area calculation when root document has borders.</li><li>[script] <code>Array.reduce(cb[,initialValue])</code> - handling case when array is empty and no initial value is given - throws an error rather returning NULL.</li><li>[css rendering], disable subpixel positioning for bitmap images, see: <a href="https://sciter.com/forums/topic/image-background-foreground-position-error-rendering/">https://sciter.com/forums/topic/image-background-foreground-position-error-rendering/</a>&nbsp;</li><li>[windows, themes] fix of scrollbar rendering: <a href="https://sciter.com/forums/topic/scrollbars-look-weird-in-4-0-6/">https://sciter.com/forums/topic/scrollbars-look-weird-in-4-0-6/</a>&nbsp;</li><li>[Windows] use of custom WM_ANIMATE (artificial animation frame) is gone completely. </li><li>[DOM] speed up of <code>element.style.set {....}</code> , <code>element.style[&quot;prop&quot;] = ...</code> - all runtime style update cases.</li><li>[svg] fix of gradients rendering when stops defined in userspace units.</li>
+						<li>[svg] fix of &lt;style&gt; section parsing then they contain &lt;![CDATA[ sequences.</li><li>[css, style sets] fix of old issue when sets defined on doc level override stock sets only partially.</li><li>[SDK headers] fix of <code>aux::utf2w</code> (utf-8 to utf-16 conversion) for out-of-BMP codes.</li><li>[DOM,css] fix of <code>Element.style.variables {...}</code> update when they contain lengths (dimension change as a result), see: <a href="https://sciter.com/forums/topic/variable-changing-doesnt-causes-relayout/">https://sciter.com/forums/topic/variable-changing-doesnt-causes-relayout/</a>&nbsp;</li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.6.5590</td><td nowrap="" valign="top" align="center">03-12-2017</td><td>
+					<p>new:</p>
+					<ul><li>[DOM, script] view, &quot;close&quot; event: <code>window.on(&quot;close&quot;, function() {});</code></li>
+						<li>[DOM, script] view, &quot;closing&quot; event, generated before document destruction: <code>window.on(&quot;closing&quot;, function() { ... this.root ... });</code></li>
+						<li>[DirectX] sdk/demos.win/sciter-dx - one more DirectX demo, also shows FPS.&nbsp;</li>
+						<li>[CSS] <code>::marker</code> pseudo-element support;</li></ul><p>fixes:</p>
+					<ul>
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						<li>[osx] fix of <code>view.windowIcon</code> rendered upside down;</li><li>[css variables] fix of variables handling in font-size and line-height;</li><li>[css] fix of background/foreground image rendering when image position is in the middle of the pixel;</li><li>[d2d] fix of solid color brush management, overall rendering speed optimizations;&nbsp;</li>
+						<li>[d2d] more stable (frame rate) animations. VSYNC synchronised;</li><li>[css] <code>border-spacing</code> dynamic update fix, see: <a href="https://sciter.com/forums/topic/bug-dynamically-changing-css-border-spacing-doesnt-causes-relayout/">https://sciter.com/forums/topic/bug-dynamically-changing-css-border-spacing-doesnt-causes-relayout/</a>&nbsp;</li><li>[d2d] ALT+ENTER -&gt; full screen is muted. Functionality disabled.</li><li>[osx,linux] ux-theme refactoring to support high resolution;</li><li>[osx,SVG] <code>&lt;img src=&quot;some.svg&quot;&gt;</code> better resolution on Retina;</li><li><code>&lt;select|dropdown&gt;</code> fix of selection by touch pad;</li><li>reverting r5494 &quot;:moving not hit detectable&quot; - breaks existing code (D&amp;D in particular);&nbsp;</li><li>[css, drawing] fix of <code>{ outline : ...; transform : ... }</code> combination rendering. See: <a href="https://sciter.com/forums/topic/outline-not-affected-by-css-transform-with-positionabsolute/">https://sciter.com/forums/topic/outline-not-affected-by-css-transform-with-positionabsolute/</a>&nbsp;</li><li>[css] fix of <code>&lt;input|text novalue=&quot;...&quot;&gt;</code> positioning; &lt;input|text novalue&gt; reformulation as just&nbsp; <code>input:empty { content:attr(novalue); };</code>&nbsp;</li><li>fix of <code>html {min-width: xxx }</code> handling. See: <a href="https://sciter.com/forums/topic/min-width-min-height/">https://sciter.com/forums/topic/min-width-min-height/</a>&nbsp;</li><li>[sdk headers] aux-cvt w2utf conversion fix when utf16 contains characters out of BMP;</li><li>[osx] fix of setting focus on hidden window;</li><li>[d2d,windows] faster <code>background:repeat</code> drawing;</li><li>[API] <code>ValueToString(,XJSON)</code> fix of name output when name contains digits;</li><li>scrollbar handling, mouse capture fix;</li><li>fix of inline image rendering;</li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.5.5524</td><td nowrap="" valign="top" align="center">16-11-2017</td><td><p>fixes:</p>
+					<ul><li>SVG rendering&nbsp;</li>
+						<li>[DOM] fix of list item markers handling: <a href="https://sciter.com/forums/topic/plus-2/">https://sciter.com/forums/topic/plus-2/</a>&nbsp;</li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.5.5520</td><td nowrap="" valign="top" align="center">14-11-2017</td><td><p>new:</p>
+					<ul><li>[osx] tiscript - standalone script executable.</li>
+						<li>[CSS] support of <code>currentcolor</code> color value https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentColor_keyword;</li>
+						<li>mouse handling by scroll-indicator - it works now as normal scrollbar that is rendered on top of content.&nbsp;</li>
+						<li>css selector shortcut: recognizes <code>input(foo)</code> selector as <code>input[name=&quot;foo&quot;]</code>&nbsp;</li>
+						<li><code>&lt;table&gt;</code>, support of arbitrary block elements inside <code>&lt;tr&gt;</code>, see: /sdk/samples/flow-flex/flow-table-plus.htm&nbsp;</li>
+						<li><code>Element.update(callback, transitionParams)</code>, supports transitionParams parameter, see: /sdk/samples/effects/animated-content-change.htm</li>
+						<li><code>Graphics.pushLayer(...,filter);</code> - CSS filter: drop-shadow, blur, saturation, etc. See: /sdk/samples/graphics/test-layer-filters.htm
+</li><li>[script] switch statement - pattern  
+matching: <pre>  switch(v) {
+   case &lt;literal&gt; : ... break;
+   like &lt;regexp&gt; : ... break;
+   like {...} : ... break;
+   like [...] : ... break;
+   instanceof Integer: ... break;
+   in [...]: ... break;
+  }</pre></li>
+						</ul>
+					<p>fixes:</p>
+					<ul><li>[CSS] box-shadow, drawing optimization.</li>
+						<html> fix</html><li>fix of <code>Element.text = &quot;val&quot;;</code> implementation;</li>
+						<li>fix CSS filter bug: <a href="https://sciter.com/forums/topic/css3-filters-bug/">https://sciter.com/forums/topic/css3-filters-bug/</a>&nbsp;</li>
+						<li>Preventing <code>state.moved</code> element to be hit detectable. See: https://sciter.com/forums/topic/cant-receive-event-x_drag_leave-sometimes/</li>
+						<li>[osx,skia] RTL support with Skia backend.</li>
+						<li>[svg] fix of gradientTransform in Skia backend.&nbsp;</li>
+						<li>[script] <code>Storage.open()</code>&nbsp;accepts file urls: <code>Storage.open(&quot;file://some/path%20to%20storage/t.db&quot;)</code>;</li>
+						<li>[css] Fix of cascaded (multiple) text-decoration rendering;</li>
+						<li>Fix of <code>htmlarea.text</code> handling.</li>
+						<li>[html] <code>&lt;input|slider&gt;</code> - better mouse click handling.</li>
+						<li>[+plus] fix of &quot;class&quot; binding inside repeatables.&nbsp;</li>
+						<li>ux-theme fix on non-standard DPI.</li>
+						<li>[css] fix of <code>var()</code> usage in gradients and transforms.</li>
+						<li>[css selectors] fix of <code>:only-of-type</code> and <code>:has-child-of-type(TAG)</code> selectors.</li></ul>
+					<p/></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.5.5482</td><td nowrap="" valign="top" align="center">22-10-2017</td><td><p>new:</p>
+					<ul><li>WebP image format support;</li>
+						<li><code>view.selectFolder(...,defaultFolder)</code> parameter;</li>
+						<li>[osx,CoreGraphics backend] RTL support and better font handling, on par with Windows implementation;</li>
+						<li>[css] + <code>@imixin</code>'s with parameters. See: <a href="https://sciter.com/forums/topic/parameters-for-mixin/">https://sciter.com/forums/topic/parameters-for-mixin/</a> and sample sdk/samples/css++/@mixin-with-params.htm</li>
+						<li>tiscript - standalone script compiler and&nbsp;VM, now on MacOS and Linux.
+</li>
+						</ul>
+					<p>fixes:</p>
+					<ul><li><code>&lt;input|text&gt;</code> - selects all text if got focus by TAB navigation;</li>
+						<li><code>&lt;input|masked&gt;</code> fix of value retrieval;</li>
+						<li><code>&lt;table&gt;</code>'s, fix of dynamic update of cell geometry: <a href="https://sciter.com/forums/topic/tds-width-not-work/">https://sciter.com/forums/topic/tds-width-not-work/</a>&nbsp;</li>
+						<li>[VM] GC/BrokenHeart issue in CsEventObjectFire;</li>
+						<li>[Windows] more responsive animations;</li>
+						<li>marquee, fix of dynamic behavior update;</li>
+						<li>Fix of <code>Element.text = &quot;something&quot;;</code> when element has behavior attached;</li>
+						<li>Fix of <code>Element.clone()</code> to preserve :disabled and :readonly state flags;</li>
+						<li>[+plus] allowing Repetable to be bound with undefined elements of array;</li>
+						<li>[css] fix of <code>:empty:disabled</code> state combination handling.</li>
+						<li>[richtext] AV on deletion in empty &lt;htmlarea&gt;</li>
+						<li><code>&lt;select|dropdown&gt;</code> event <code>change</code> generation fix (popup closed without changing selection);</li>
+						<li>+ cursor: copy, drag-copy, drag-move</li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.4.5428</td><td nowrap="" valign="top" align="center">07-10-2017</td><td>
+					
+					<p>new:</p>
+					<ul><li>[css] nested mixin support, see: https://sciter.com/forums/topic/nesting-mixin/</li></ul><p>fixes:</p><ul>
+						
+						
+						
+						
+						
+						
+						
+						<li>[richtext/plaintext] fix of keyboard handling when popup is present.</li><li>[notes] Insert image button functionality.</li><li><code>element.execCommand(&quot;edit:insert-html&quot;, html)</code> fix for single elements.</li><li>CTRL/CMD+RIGHT/LEFT in richtext and plaintext.</li><li>fix of <code>&lt;plaintext&gt;</code> empty strings while copy-pasting.</li><li>[popup] fix of closing popup while click on scrollbar.</li><li>[regression] popup positioning fix.</li><li>[+formation] repeatable fix.</li><li>[regression] fix of inline span styling of <code>&lt;a&gt;</code>'s, colorizer samples, etc.</li><li>[textarea] support of tabs in <code>ta.insertText(&quot;\t&quot;);</code></li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.4.5413</td><td nowrap="" valign="top" align="center">02-10-2017</td><td><p>new:&nbsp;</p>
+					<ul><li>CTRL+INSERT (copy) and SHIFT+INSERT (paste) are back.&nbsp;</li>
+						</ul>
+					<p>fixes:</p>
+					<ul>
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						<li><p>[DOM,script] forcing deletion of html::element instance on removed elements (Element.remove(), Element.clear(), etc). Use Element.detach() if you want DOM element to be removed from DOM tree but preserved from deletion.</p><p>NOTE: this may affect existing code. plus.tis and vlist.tis are updated to use template.detach() in repeatables.</p></li><li>[drawing] fix of text color used while drawing of floats and other edge cases.&nbsp;</li>
+						<li>[svg] support of opacity as attribute.</li>
+						<li>fix of AV in <code>element.timer()</code> when the function is called on deleted element.</li>
+						<li><code>view.msgbox()</code> - host screen location</li>
+						<li>[gtk] &lt;circle&gt; rendering fix</li>
+						<li>[script] fix of GC issues related to async and generator functions</li>
+						<li>[script] Fix of Bytes.load(name) damages name content.&nbsp;</li>
+						<li>[DOM,layout] fix of layout re-calculation after dynamic &lt;td&gt; content update.</li>
+						<li>[win,touch screen] default handling of touch pan gesture on scrollables.</li>
+						<li>[richtext] IME is back.</li>
+						<li>[richtext, editing] fix of deletion of sequences of atomic boxes like &lt;br&gt;&lt;br&gt;&lt;br&gt; or &lt;img&gt;&lt;img&gt;&lt;img&gt;</li>
+						<li>[doc] Date.toLocaleString([longFormat[,andTime]]) is documented.&nbsp;</li>
+						<li><code>Date.parse(&quot;iso-date&quot;,now Date())</code> fix when ISO date contains timezone shift.</li>
+						<li>[CSS,DOM] fix of { content:attr(alt) } update on dynamic change of alt (or any other) attribute.</li><li>[script, DOM] forcing element removed from the DOM be invisible for GC.</li><li>[+plus] fix of memory buildup in repeatables, see: <a href="https://sciter.com/forums/topic/memory-leak-in-plus-repeatable/">https://sciter.com/forums/topic/memory-leak-in-plus-repeatable/</a>&nbsp;</li><li>html-to-text conversion &lt;img alt=&quot;:)&quot;&gt; tweak.</li><li>[windows] drawing artifacts on window-frame=&quot;extended&quot;, see: <a href="https://sciter.com/forums/topic/white-background-flash-to-screen-in-window-frameextended-2/">https://sciter.com/forums/topic/white-background-flash-to-screen-in-window-frameextended-2/</a>&nbsp;</li><li>[inspector] fix of the case then debugee is the view itself (but not document in frame as in sciter.exe)</li><li>[script] fix of GC issue: array with deleted elements prevents deleted elements from GC.&nbsp;&nbsp;</li><li>[+plus] fix to support <code>&lt;</code>,<code>&gt;</code> conditionals in @bound attributes like:&nbsp; &lt;input|decimal(val) min=&quot;0&quot; max=&quot;1.0&quot; step=&quot;0.1&quot; @disabled=&quot;val &lt; 0.5&quot;/&gt;</li><li>[windows,d2d] fix of transition:blend on transparent popups.</li><li>[richtext] fix of AV on &lt;pre&gt; on/off in empty paragraph.</li><li>[formation] making it friendlier to vlist&nbsp;</li><li>[windows,d2d] fix of color brush hash table overload issue: <a href="https://sciter.com/forums/topic/css-var-and-transition-have-memory-leak/">https://sciter.com/forums/topic/css-var-and-transition-have-memory-leak/</a>&nbsp;</li><li>[scrollbars] mouse hover handling fix.</li><li>[tooltip] removing tooltips before showing context menu.&nbsp;</li><li>[richtext] Fix of multiline text pasting.&nbsp;</li><li><code>Element.request()</code> fix of doubled request.</li><li>[select] fix of doubled onValueChanged notification.</li><li>[css] fix of vertical-align: middle; in flow:default|vertical;</li>
+						<li>&lt;input|decimal&gt; fix of value rendering.</li>
+						</ul>
+					<p>NOTE: sciter.dlls, sciter.exe and notes.exe  Windows executables in SDK <b>are digitally signed</b> now. MacOS SDK executables are also signed.</p></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.3.5348</td><td nowrap="" valign="top" align="center">09-09-2017</td><td>
+					<p>new:</p>
+					<ul>
+						<li><p>[script] <code>await/yield</code> syntax compatibility with JS:</p><p><code>await</code> is allowed to be in <code>async function()</code>&nbsp;only, see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function</p>
+							<p><code>yield</code> is allowed to be in <code>function*()</code>&nbsp;only, see: https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Statements/function* </p>
+							<p>Existing code that uses <code>await</code>/<code>yield</code> shall work as it is but with compile time warnings.</p></li><li>[osx] IME support (Far East languages input method in particular).</li>
+						<li>[win] support of mouse devices with MOUSE WHEEL deltas &lt; 120.</li>
+						<li>[config.h] <code>#define HTTP_SUPPORT</code>&nbsp; - enables/disables internal HTTP client. Without it no external resources are loaded and http client is excluded from compilation completely.</li>
+						<li>+ [html5] <code>&lt;mark&gt;</code> element support.</li>
+						<li>+ [gtk] notes project.</li>
+						<li>+ [gtk] HTML clipboard support.</li>
+						<li><code>behavior:frame</code> <code>saveDocument()</code> method implementation.</li>
+						<li>[API] <code>DOCUMENT_PARSED</code> event. Generated after parsing but before <code>DOCUMENT_READY</code>.</li>
+						<li><code>Element.popup()</code> update to support &quot;auto flip&quot; modes.</li>
+						<li>New samples:<ul><li>+ sdk/samples/ideas/effects/particles sample. See: <a href="https://sciter.com/forums/topic/particles-js/">https://sciter.com/forums/topic/particles-js/</a>&nbsp;</li><li>+ sdk/samples/games/flappy-bird &nbsp;by Ramon the Great. See: <a href="https://sciter.com/forums/topic/flappy-bird/">https://sciter.com/forums/topic/flappy-bird/</a>&nbsp;</li><li>+ sdk/samples/ideas/notifications/demo.htm - in window notifications.</li></ul></li>
+						
+						
+						
+						<li>[script] <code>bytes1 == bytes2</code>, comparison of two byte vectors works in the same way as <code>string1 == string2</code> - content equality.</li>
+						<li>[behavior:video] support of <code>video.style.foregroundImage</code> to access current frame.</li>
+						<li>[css and window-blurbehind attribute ] : </li>
+						<pre>@media blur-behind {} 
+@media !blur-behind {} 
+@media blur-behind==&quot;ultra-dark&quot; {} 
+@media blur-behind==&quot;dark&quot; {} 
+@media blur-behind==&quot;light&quot; {} 
+@media blur-behind==&quot;ultra-light&quot; {}
+</pre></ul><p>fixes:</p>
+					<ul>
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						<li>[DOM,script] <code>element.clone()</code> to preserve <code>:synthetic</code> state flag in cloned elements.</li><li>[win,printing] fix of printing on printers with device name larger than 31 characters. Thanks to Miloš Opálek</li><li>[css] <code>:nth-child(an+b)</code> selector fix.</li><li>[pager] documentation update at sdk/samples/printing/doc/pager-behavior.htm</li>
+						<li> [pager] restored printing functionality with GDI+ backend, thanks to Miloš Opálek</li><li>[win] fix of <code>view.windowState = WINDOW_FULL_SCREEN;</code> rendering.</li><li>[layout] handling of inline elements in <code>&lt;pre&gt;</code></li><li>[script] <code>&quot;abc\n&quot;.split(&quot;\n&quot;) == 2</code> fix to comply with JS.</li><li>[plaintext, textarea] Handling <code>ALTGR + Q</code> and the like combinations in national keyboards: <a href="https://sciter.com/forums/topic/bug-altgr-inputs-not-working-on-plaintext/">https://sciter.com/forums/topic/bug-altgr-inputs-not-working-on-plaintext/</a>&nbsp;</li><li>[CSS] Support of <code>@SOMECONST</code> in <code>calc()</code>'s inside style sets.</li><li>[richtext] insert inline images fix.&nbsp;</li>
+						<li>[script,storage] Fix of handling record deletion under iterator.</li>
+						<li>[script,storage.Index] + method <code>clear()</code> to remove all elements from index.</li><li>input|number focus handling fix.</li><li>[css] support of font: system, MyAwesome, sans-serif; constructs.</li><li>STATIC_LIB + plain C header compatibility.</li><li>[css] position:absolute element, width calculation fix.</li><li>[API] Generating <code>event_handler::detached()</code> call on window destruction (if it has DOM handlers set).</li>
+						<li>[API] <code>sciter::image::load()</code> implementation.</li><li>fix of ellipsis rendering.</li><li><code>&lt;frame|pager&gt;</code> fixes.</li><li>regression fix of <code>DOCUMENT_COMPLETE</code> event generation, introduced in r5273.</li><li>[win] fix of AV in samples/dialogs+windows/windowed-element.htm</li><li><p>[DOM, <code>&lt;table&gt;</code>], parser forces <code>&lt;tbody&gt;</code> insertion for <code>&lt;tr&gt;</code> containment (if not provided).<b>&nbsp;</b></p><p><b>Note:</b>&nbsp; could be a&nbsp;breaking change if selectors like: <code>table &gt; tr &gt; td</code> are used (to fix it use: table &gt; tbody&gt; tr &gt; td )&nbsp;</p></li><li>[richtext] + table editing commands: insert/delete row/column, merge cell range, split spanned cell.</li>
+						<li>[gtk] far east languages/fonts rendering.</li><li>[context menus] fix of getting focus back, see : <a href="https://sciter.com/forums/topic/input/">https://sciter.com/forums/topic/input/</a>&nbsp;</li><li>[win] Fix of crash on ALT+ENTER
+.
+</li><li>[win] fix of &quot;D3DGear bug&quot; - crash when D3DGear is running.</li><li><code>cr/lf</code> handling in plaintext editing.</li><li>Fix of click on <code>&lt;label&gt;</code> when bound input&nbsp;is disabled.&nbsp;</li><li>[tooltips] - better tooltips handling - now tooltip gets removed only when mouse leaves tooltip's owner element.&nbsp;</li><li>[osx] CMD+A handling fix.</li><li>[pager] fix of <code>Pager.onRequest()</code> handling.</li><li>[css] <code>min/max-width: 100%</code> fix.</li><li><code>&lt;select|dropdown&gt;</code>, fix of &quot;change&quot; event generation when popup is shown. &quot;change&quot; is postponed until popup dismissal.</li><li>[editing] fix of <code>VK_LEFT/VK_RIGHT</code> handling.</li><li>more responsive handling of set focus on element.</li><li>[editing] fix of surrogate pairs handling.</li>
+						<li>[textarea] fox of selection by mouse handling.</li>
+						<li>[textarea, edit] fix of dynamic @novalue handling</li>
+						</ul>
+					<p>NOTE: sciter.dlls, sciter.exe and notes.exe  Windows executables in SDK <b>are digitally signed</b> now. On MacOS you may need to run SDK executables directly from console as they are not signed too.</p></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.2.5262</td><td nowrap="" valign="top" align="center">03-08-2017</td><td><p>fixes:</p>
+				<ul><li>fixes internal <code>promise()</code> implementation;</li>
+					<li>[CSS] fix of column width calculation in <code>flow:vertical-wrap;</code> containers;</li></ul></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.2.5257</td><td nowrap="" valign="top" align="center">02-08-2017</td><td><p>new:</p>
+				<ul><li>new version numbering schema that includes SVN revision;</li>
+					<li>new Sciter platform demo: Sciter Notes application <a href="https://sciter.com/sciter-notes">https://sciter.com/sciter-notes</a>&nbsp;</li>
+					<li>[script] new <code>Request</code> DOM object and <code>onRequest(request)</code> and <code>onRequestResponse(request)</code> methods on <code>&lt;frame&gt;</code> and <code>&lt;richtext&gt;</code> elements. Allows to fulfil or reject data requests from script;</li>
+					<li>[script] <code>&lt;img&gt;</code>&nbsp;or <code>&lt;picture&gt;</code>, <code>elem.value = ... byte array ...;</code> containing image data:&nbsp;png,jpeg,etc. bytes;</li>
+					<li>[+plus] support of <code>&lt;some model=... each=...&gt;</code> (model and each on the same element);</li>
+					<li>[+plus] <code>@readonly=&quot;expr&quot;</code> - allows to bind element.state.readonly;</li>
+					<li><code>Element.state.flowType</code> property, reports current layout type of the element;</li>
+					<li>[+formation] + ability to set element attributes from data model, see: <a href="https://sciter.com/forums/topic/dynamic-sub-menu/#post-52034">https://sciter.com/forums/topic/dynamic-sub-menu/#post-52034</a>&nbsp;</li>
+					<li><code>Element.execCommand(&quot;edit:insert-text&quot;, &quot;foo&quot;)</code> for &lt;plaintext&gt; and &lt;htmlarea&gt;</li>
+					<li>[richtext] Transaction.split() and Transaction.wrap() methods;</li>
+					<li><code>Element.$o(selector)</code> method - get owners of popup element by selector;</li>
+					<li>[CSS3] <code>text-decoration-line</code>, <code>text-decoration-color</code>, <code>text-decoration-style</code> support;</li>
+					<li>[CSS] + transition of max-width, min-width, max-height, min-height, visibility and display properties;</li>
+					<li>[css] back/foreground-size property animation;</li>
+					<li>[css, variables] <code>color(name)</code> and <code>length(name)</code> variable functions - equivalent of <code>var(name,10px)</code> and <code>var(name,#f00)</code> but without need of providing default value;</li>
+					<li><code>view.mediaVar(&quot;name&quot;)</code> method to get single variable value;</li>
+					</ul>
+				<p>fixes:</p>
+				<ul>
+					<li>[inspector] single instance operation - starting second instance is causing first one to be activated;</li><li>[script] Fix of <code>&quot;AAA&quot;.split(&quot;A&quot;)</code> implementation to be conformant with JS spec.</li><li>Changes for compatibility with Bullseye code coverage tool;</li><li>Fix of issues detected by PVS studio;</li><li>Fix of mouse hit test issue in hyperlinks, see <a href="https://sciter.com/forums/topic/blind-spots-in-hyperlink/">https://sciter.com/forums/topic/blind-spots-in-hyperlink/</a> ;</li><li><code>Element.attributes</code> add/remove work&nbsp;faster;</li><li>[inspector] fix of bug with inner frames handling;</li><li>[script] fix GC issue with persistable objects;</li><li>[osx] fix of Korean font rendering;</li><li>[osx] fix of blur behind handling;</li><li>[textarea, edit, richtext] hiding caret when readonly is set;</li><li>[layout] min-content calculation fix in flow:horizontal; elements;</li><li>[textarea.richtext] positioning of context menu relative to the caret when menu is invoked from keyboard;</li><li>[osx] getting html from clipboard;</li><li>Execution of <code>Element.scrollTo()</code> and <code>Element.scrollToView()</code> delayed until layout is valid.&nbsp;</li><li>[layout] fix of <code>text-align:center;</code> see: <a href="https://sciter.com/forums/topic/incorrect-text-line-centering/">https://sciter.com/forums/topic/incorrect-text-line-centering/</a>&nbsp;</li><li>[osx,CG] fix of border-radius rendering;</li><li>[printing] fix of partial run rendering;</li><li>[osx,CoreGraphics] handling of TAB characters in plaintext editor;</li><li><code>behavior:plaintext</code>, fix of CTRL-A -&gt; DELETE;</li><li>[xgl] fix of samples\graphics\test-graphics-path-ops.htm (broken red lines), samples\graphics\test-immediate-mode.htm (dashed lines, different shapes);</li><li>and samples\graphics\test-layer-image-mask.htm (hangs)</li><li>[css] fix of filter:none; interpretation;</li><li>[svg] fix of fill-style attribute inheritance;</li><li>[CSS] honoring display:table | table-row | table-cell;</li><li>sdk/samples/ideas/lightbox-dialog/ update to use blur behind;</li><li>flow:grid inline-block's adjustment;</li><li>[win] font ascent/decent calculation adjustment;</li><li>SW_CONTROLS flag in SciterCreateWindow affects window icon and close button. SW_RESIZABLE adds thick border and min/max buttons;</li><li><code>element.unsubscribe(&quot;event&quot;,&quot;selector&quot;)</code> fix, see: <a href="https://sciter.com/forums/topic/unsubscribe-issuse/">https://sciter.com/forums/topic/unsubscribe-issuse/</a>&nbsp;</li><li>[ddm2] fix of the case: https://sciter.com/forums/topic/event-mouse_leave/&nbsp;</li><li>Fix of side effects in method <code>Element.parseHtml(html) : Array of Nodes</code>&nbsp;&nbsp;&nbsp;</li><li><code>behavior:textarea</code> and <code>edit</code>, VK_LEFT and VK_RIGHT handling on selection;</li><li>fix of <code>Element.state[&quot;statename&quot;]</code> for &quot;expanded&quot;,&quot;collapsed&quot;, &quot;checked&quot; and &quot;unchecked&quot;;</li><li>fix of <code>border-collapse:collapse;</code> rendering;</li><li>[+formation] <code>&lt;menu&gt;</code> added to the list of repeatables;</li><li><code>&lt;input|number&gt;</code>, compatibility with <code>Element.clone()</code>;&nbsp;</li><li>[script] <code>view.request{}</code>, forcing it to be always async (requirement for await);&nbsp;</li><li>[menus] closing popups when host window looses focus;</li><li>removing unnecessary layout updates while set focus handling;</li><li>FontAwesome, sample upgraded to version 4.7.0;</li><li>[win, gdi] fix in window closing procedure;</li><li>[editing] UTF16 surrogates handling fix. See: <a href="https://sciter.com/forums/topic/textarea-unicode/">https://sciter.com/forums/topic/textarea-unicode/</a>&nbsp;</li><li>[css] <code>var(test): rgba(255,255,255,0.4);</code> parsing fix;</li><li>[dom] fix of <code>$p(selector)</code> for code running in frames;</li><li><code>&lt;select&gt;</code> auto value parsing fix in case <code>&lt;option value=&quot;1m&quot;&gt;</code>;</li><li>[skia] fix of <code>Graphics.arc()</code> and <code>Graphics.ellipse()</code> rendering.</li><li>fix of multiple tooltips appearance issue;</li><li>[menu] fix of keyboard navigation handling by behavior:menu;</li><li>[textarea][richtext] fix of setting focus after popup menu.</li>
+					</ul>
+				<p><strong>NOTE</strong>: Windows executables in SDK <strong>are not signed</strong> so you may encounter security warnings on W8 and W10. On MacOS you may need to run SDK executables directly from console as they are not signed too.</p></td></tr><tr><td valign="top" bgcolor="#FFFADA">4.0.1.1</td><td nowrap="" valign="top" align="center">11-06-2017</td><td>new:
+				<ul><li><code>Graphics.strokeDash(array[,offset])</code> - custom dashes support;</li>
+					<li>[API] <code>SciterAttachHwndToElement(element,hwnd)</code>, support case when&nbsp; hwnd == NULL ( to detach );</li>
+					<li>[API] <code>sciter::value::is_color()</code> , <code>sciter::value::is_duration()</code> , <code>sciter::value::is_angle()</code>, etc.</li>
+					<li>[css] <code>cursor: drag-copy | drag-move</code> types;</li>
+					<li>[osx,skia] auto fallback to CPU rendering if no OpenGL on platform (like when OSX is being run on VMWare);</li>
+					<li>+ <code>Node.commonParent(other:Node) : Element</code> method;</li></ul><p>fixes:</p>
+				<ul>
+					<li>samples/ideas/virtual-list - &quot;virtual tape&quot; implementation fixes;</li><li>[win] fix of child windows replacement artefacts;</li><li>[win] tooltip window screen order fix, see: <a href="https://sciter.com/forums/topic/popup-is-hidden-behind-another-popup-z-index-doesnt-work/">https://sciter.com/forums/topic/popup-is-hidden-behind-another-popup-z-index-doesnt-work/</a>&nbsp;</li><li>context menu, fix of keyboard handling;</li><li><code>style.documentRules { content:&quot;string&quot; }</code> fix, see <a href="https://sciter.com/forums/topic/assigning-css-content/">https://sciter.com/forums/topic/assigning-css-content/</a>&nbsp;</li><li><code>behavior:textarea</code>, fix of new line handling;</li><li>[sdk samples] <code>behavior:tabs</code> fix;</li><li>zlib upgrade to 1.2.11 ( CVE-2016-9840, CVE-2016-9842 );</li><li>[win] fix of popup rendering on Direct2D backend on &quot;Windows 10 build 16199 via RDP session&quot;;</li><li>[win,skia] fix of font handle leak;</li><li>[osx,xgl,skia] fix of memory leak on window creation/destruction;</li><li> [+plus] better notifications handling on secondary windows, see: <a href="https://sciter.com/forums/topic/plus-mode/">https://sciter.com/forums/topic/plus-mode/</a>&nbsp;</li><li>Fix of <code>border-collapse:collapse</code> in tables with cells that use paddings;</li>
+					</ul>
+				<p><strong>NOTE</strong>: Windows executables in SDK <strong>are not signed</strong> so you may encounter security warnings on W8 and W10. On MacOS you may need to run SDK executables directly from console as they are not signed too.</p></td></tr></tbody></table>
+	<p>Previous log items: <a href="logfile-1.htm">logfile-1.htm</a>.</p>
+</body>
+</html>

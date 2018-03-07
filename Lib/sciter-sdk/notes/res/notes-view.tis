@@ -1,0 +1,193 @@
+
+include "libs/vlist.tis";
+
+class List : Element 
+{
+  function attached() { 
+
+    function setupNoteView(recordNo,note, el) {
+      el.attributes["book-color"] = note.book.color || 0; 
+    }
+
+     // item template
+    VirtualList{ container: this, setupItemView: setupNoteView, bufferSize:20 };
+    var records = [];
+    PopulteNotesList(records); 
+    this.value = records;
+    var me = this;
+
+    function resetList() { me.reset( :records: UpdateNotesList(records) ); }
+
+    self << event note-created { resetList() };
+    self << event notes-filter-changed { resetList() };
+    self << event book-selected  { resetList() };
+    self << event book-updated (evt) { var book = evt.data; for(var item in me) item.onBookUpdate(book); }
+    self << event tag-updated (evt) { var tag = evt.data; for(var item in me) item.onTagUpdate(tag); }
+
+    self << event events-changed(evt) {  }
+
+    self << event book-assigned (evt) { 
+      var data = evt.data;
+      var book = data[0]; 
+      var note = data[1];
+      if( book === db.getDeletedBook() && currentBook !== db.getDeletedBook()) 
+        // note "deleted" so
+        records.removeByValue(note);
+      else if( currentBook && book !== currentBook )
+        // note moved out of current book
+        records.removeByValue(note);
+      else 
+        for(var li in me) {
+          if( li.note === note ) {
+            li.onBookUpdate(book);
+            break;
+          }
+        }
+    }
+
+  }
+  property animating(v) {
+    get return this.state.animating;
+  }
+
+  event change {
+    var note = this.currentRecord;
+    this.postEvent("show-note", note);
+    return true;
+  }
+
+  event tooltiprequest $(li) (evt,item) {
+    // suppress tooltips 
+    return true;
+  }
+
+}
+
+class NotesView : Element 
+{
+  function attached() {
+
+    const list = this.$(notes-list);
+    const me = this;
+
+    const btnAddNew = this.$(knob#add-new-note);
+
+    self << event show-note (evt) { btnAddNew.state.disabled = false; list.currentRecord = evt.data; }  
+    self << event start-new-note (evt) { btnAddNew.state.disabled = true; list.currentRecord = null; }  
+    self << event note-updated (evt) { btnAddNew.state.disabled = false; /*list.currentRecord = evt.data;*/ }  
+    self << event notes-filter-changed { 
+      var ln = $(input#lookup-note);
+      if( !ln.state.focus ) ln.value = filterWords? filterWords.join(" ") : "";
+    }
+    self << event events-status-changed (evt) {
+      me.attributes.toggleClass("has-events", evt.data.totalEvents > 0);
+    }
+  }
+
+  event click $(knob#add-new-note) { 
+    this.postEvent("start-new-note"); // relay the click as logical event
+    return true; // consume click
+  }
+
+  event change $(knob[name=order-toggle]) (evt,knob)
+  {
+    var on = knob.attributes["value"] == "edate";
+    setFilterEvents(on, true);
+    return true;
+  }  
+  
+  event change $(input#lookup-note) {
+    this.timer(600ms, this.updateLookupText);
+  }
+
+  function updateLookupText() {
+    //stdout.println("lookup", this.$(input#lookup-note).value);
+    setFilterText(this.$(input#lookup-note).value);
+  }
+ 
+}
+
+
+// that's represantation of single note in the list
+class ListNote : Element 
+{
+  property value(note) {
+    get { return this.note; } 
+    set { 
+      this.note = note;
+      this.$(picture).value = note.preview;
+      this.$(caption).value = note.caption;
+      if( var urlFrom = note.getMeta("urlFrom") )
+        this.$(text).$content(from:<span.www>{URL.parse(urlFrom).hostname}</span>);
+      else
+        this.$(text).clear();
+      this.attributes.toggleClass("active-event", note.hasActiveEvent);
+      this.onTagsChange(note);
+    } 
+  }
+
+  function onTagsChange(onNote) {
+    if( this.note !== onNote ) return;
+    var tags = this.$(tags);
+    tags.clear();
+    for( var tag in onNote.tags )
+      if(tag.isCustom && tag.color)
+        tags.$append(<tag color={tag.color}>{tag.name}</tag>);
+  }
+
+  function onTagUpdate(tag) {
+    if(this.note.containsTags(tag))
+      this.onTagsChange(this.note);
+  }
+  function onBookUpdate(book) {
+    if(this.note.book === book)
+      this.attributes["book-color"] = book.color || 0; 
+  }
+}
+
+class EventsKnob : Element 
+{
+  this var breathing; // animating
+
+  function attached() 
+  {
+    var me = this;
+    self << event events-status-changed (evt) { me.onEventsStatusChanged(evt.data); }
+  }
+
+  function onEventsStatusChanged(desc) {
+    //desc is { startedEvents: int,  - num notes with just started events 
+    //          activeEvents: int,  - active event notes with note.startDate < now < note.endNote
+    //          totalEvents : int } - all pending events - with now < note.endNote including those in future
+    //if( desc.startedEvents ) this.startHeartBeat();
+
+    if( desc.totalEvents == 0 ) 
+      this.clear();
+    else if( desc.activeEvents )
+      this.$content(<span.active>{desc.activeEvents}</span>
+                    <span.total>{desc.totalEvents}</span>);
+    else 
+      this.$content(<span.total>{desc.totalEvents}</span>);
+  }
+
+  /*function startHeartBeat() {
+    if(this.breathing) return;
+    this.breathing = 20; // # of cycles
+    this.timer(1s,heartBeat);
+  }*/
+
+  // timer function
+  /*function heartBeat() {
+    if( --this.breathing == 0 )
+      return false; // stop
+    if( this.state.expanded ) this.state.expanded = false;
+    else this.state.expanded = true;
+    return true; // keep breathing
+  }*/
+
+  /*event click {
+    this.breathing = 0;
+    this.state.expanded = false;
+  }*/
+
+}

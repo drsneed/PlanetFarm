@@ -1,0 +1,235 @@
+
+class BooksView : Element 
+{
+  function attached() {
+    this.$content(<option#all><i color=0>&nbsp;</i><span.name>All</span><span.count>{ db.getBookItemsCount(null) }</span></option>);
+    var optionAll = this[0];
+    //this[0].book = null;
+    var me = this;
+    self << event book-selected { me.show();  } 
+    self << event notes-filter-changed { me.show(); } 
+    self << event book-assigned { me.updateCounters(); } 
+    self << event book-removed { me.show(); }
+    self << event book-updated { me.show(); }
+    self << event book-created { me.show(); }
+
+    this.show();
+    optionAll.execCommand("set-current");
+  }
+
+  function show() 
+  {
+    var books = db.getBooks();
+    var i = 1;
+    var selopt = this[0];
+    for( var book in books) 
+    {
+      var elBook = this[i];
+      if( !elBook || (elBook.book !== book))
+        this.insert("<option/>", i);  
+      this[i].setBook(book);
+      if( book === currentBook ) 
+        selopt = this[i];
+      ++i;
+    }
+    while(i < this.length) this[i].remove();
+    if( !selopt.state.current )
+      selopt.execCommand("set-current");
+  }
+
+  event change (evt) {
+    if( evt.target !== this ) 
+      return;
+    var option = this.$(option:current);  
+    if( option.book )
+      setCurrentBook(option.book); 
+    else {
+      setCurrentBook(null);
+      setFilterTags(null);
+      setFilterText(null);
+    }
+    return true;
+  }
+
+  function updateCounters() {
+    for( var option in this )
+      option.updateCounter(); 
+  }
+
+  event click $(menu#book > li[name=add-book])  (evt) 
+  {
+    this.insert("<option><i> </i><span.name> </span></option>",1);
+    var option = this[1];
+    this.post(::option.EditBookName());
+    return true;
+  }
+
+}
+
+// single book in book view
+class BookView : Element 
+{
+  this var book;
+
+  function firstCharOf(text) {
+    for(var ucode in text)
+      return String.fromCharCode(ucode);
+  }
+
+  function setBook(book) {
+    this.book = book;
+    if( book ) {
+      if(book.isDeleted) {
+        this.$content(<i.trash> </i><span.name>{book.name}</span><span.count>{book.itemsCount}</span>);
+        this.attributes.addClass("trash");
+      }
+      else
+        this.$content(<i color={book.color || 0}>{firstCharOf(book.name)}</i><span.name>{book.name}</span><span.count>{book.itemsCount}</span>);
+    }
+    else 
+      this.html = "<i> </i><span.name> </span><span.count></span>";   
+  }
+
+  function updateCounter() {
+    this.$(.count).text = db.getBookItemsCount(this.book); 
+  }
+
+  // static method, used by NoteView.populateBooks()
+  function bookBriefHtml(book) {
+    if(book.id == DELETED_BOOK_ID)
+      return String.$(<option value="{book.id}"><span.name.deleted-notes>Deleted</span></option>);
+    else
+      return String.$(<option value="{book.id}"><span.name color={book.color || 0}>{book.name.toHtmlString()}</span></option>);
+  }
+
+  function EditBookName() 
+  {
+    var option = this;
+    var book = option.book;
+    var caption = option.$(span.name);
+    caption.attributes.addClass("editing");
+    caption.post( function() { caption.state.focus = true; });
+    function commit(text) {
+      caption.attributes.removeClass("editing"); 
+      caption.off(".booknameedit");
+      text = text.trim();
+      if( !book && text ) 
+        db.addBook( option.book = book = new Book(db.getUniqueBookName(text)) );
+      else if( book && text && book.name != text)
+        book.update{ name: db.getUniqueBookName(text) };
+      option.parent.show();
+    }
+    caption.on("focusout.booknameedit", function() { commit(this.value) });
+    caption.on("keydown.booknameedit", function(evt) { 
+      switch( evt.keyCode ) {
+        case Event.VK_RETURN: commit( this.value ); option.execCommand("set-current"); setCurrentBook(book); return true;
+        case Event.VK_ESCAPE: commit( book ? book.name: "" ); return true;
+      }
+    });
+  }
+
+  event popuprequest $(menu.context#book) (evt,menu) {
+
+    var option = this;
+    var thisbook = option.book;
+    var books = db.getBooks();
+
+    if( thisbook && books.length >= 2 && thisbook.itemsCount != 0) {
+      menu.$(li[name=move-notes]).state.disabled = false;
+      var moveMenu = menu.$(menu#move-notes-to);
+      moveMenu.clear();
+      for(var book in books) {
+        if( book !== thisbook )
+          moveMenu.$append(<li bookid={book.id}>{book.name}</li>);
+      }
+    } else
+      menu.$(li[name=move-notes]).state.disabled = true;
+
+    if( var ci = menu.$(li[color]:checked))
+       ci.state.checked = false;
+
+    if(thisbook)
+    {
+      menu.$(li[name=delete-book]).state.disabled = thisbook.itemsCount > 0;      
+      menu.$(li[color={thisbook.color || 0}]).state.checked = true; 
+    }
+  }
+
+  event click $(menu#move-notes-to > li[bookid]) (evt,li) {
+    //stdout.println(li, li.attributes["bookid"]);
+    var option = this;
+    var fromBook = option.book;
+    var toBook = db.getBook(li.attributes["bookid"]);
+    db.mergeBookItems(fromBook, toBook); 
+    db.commit();
+    this.parent.updateCounters();
+  }
+
+  event click $(menu#book > li[name=rename-book]) (evt) {
+    this.EditBookName(); 
+    return true;
+  }
+
+  event click $(menu#book li[color]) (evt,ic) {
+    var option = this;
+    var book = option.book;
+    if( book ) 
+      book.update {color: ic.index}
+    return true;
+  }
+
+  event click $(menu#book > li[name=delete-book]) (evt) {
+    var option = this;
+    var book = option.book;
+    db.deleteBook(book);
+    return true;
+  }
+
+
+  // system D&D
+/* not yet 
+  event dragenter (evt) 
+  {
+    if(this.id == "all") return false;
+    if(evt.draggingDataType in [#file,#html,#text])
+    {
+      this.attributes.addClass("active-target");
+      return true;
+    }
+  };  
+
+  event dragleave (evt) 
+  {
+    this.attributes.removeClass("active-target");    
+    if(this.id == "all") return false;
+    return true;
+  }; 
+
+  event drag (evt) 
+  {
+    if(this.id == "all") return false;
+
+    return true;
+  };  
+
+  event drop (evt) 
+  {
+    this.attributes.removeClass("active-target");
+    if(this.id == "all") return false;
+
+    switch(evt.draggingDataType) {
+      case #file: {
+        var fn = evt.dragging;
+        view.msgbox(#information, String.printf("Dropped:%V",fn));
+        return true;
+      }
+      case #html:
+      case #text: break;
+    }
+
+    return true;
+  };  
+*/
+
+}
+

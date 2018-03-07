@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Source\Camera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Cube.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DebugTools.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\FirstPersonCamera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Font.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsWindow.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Grid.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ICamera.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Logger.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MapRenderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Player.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shader.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\StringOps.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TextRenderer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Texture.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Timer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\tinyxml2.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Camera.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ColorConverter.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Config.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Cube.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DebugTools.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Embed.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FirstPersonCamera.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Font.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GraphicsWindow.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Grid.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Hash.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ICamera.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\IWindow.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Logger.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\MapRenderer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Player.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Shader.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\StdIncludes.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\StringOps.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TextRenderer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Texture.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Threadpool.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Timer.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\UniqueHandle.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\tinyxml2.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Lib">
+      <UniqueIdentifier>{2101505d-5126-4243-a9f5-3aa3b57a6fb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Embed">
+      <UniqueIdentifier>{6a8a0542-dcdd-4175-a98f-e3d3a4b6d8d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bin">
+      <UniqueIdentifier>{3ef618e7-a6f5-4b0c-bf05-992f3147e960}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bin\Data">
+      <UniqueIdentifier>{735fe7e8-3b67-4ed6-97f9-f39a64bd7744}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{1ea4e704-d0b3-4265-92e4-c73aadc72da8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

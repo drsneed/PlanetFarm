@@ -1,0 +1,34 @@
+<html window-resizable >
+  <head>
+    <title>Hello world!</title>
+    <style>
+    
+      button { display:block; }
+    
+    </style>
+    <script type="text/tiscript">
+
+   
+    function self.ready() {
+      view.state = View.WINDOW_SHOWN;
+      $(#resizable).value = view.windowResizable;
+      $(#minimizable).value = view.windowMinimizable;
+      $(#maximizable).value = view.windowMaximizable;
+    }
+
+    event click $(#resizable)   { view.windowResizable = this.value }
+    event click $(#minimizable) { view.windowMinimizable = this.value }
+    event click $(#maximizable) { view.windowMaximizable = this.value }
+  
+    </script>
+  </head>
+<body>
+  Dynmaic frame styles:
+  
+  <button|checkbox id="resizable" >resizable</button>
+  <button|checkbox id="minimizable" >minimizable</button>
+  <button|checkbox id="maximizable" >maximizable</button>
+  
+  
+</body>
+</html>
