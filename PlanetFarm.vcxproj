@@ -76,7 +76,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Bin\$(Configuration)\.obj\</IntDir>
-    <IncludePath>$(ProjectDir)Lib;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Lib;$(ProjectDir)Source;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -85,6 +85,7 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Binaries\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Binaries\$(Configuration)\BuildArtifacts\</IntDir>
+    <IncludePath>$(ProjectDir)Lib;$(ProjectDir)Source;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -146,50 +147,44 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Lib\tinyxml2.cpp" />
-    <ClCompile Include="Source\Camera.cpp" />
-    <ClCompile Include="Source\Cube.cpp" />
-    <ClCompile Include="Source\DebugTools.cpp" />
-    <ClCompile Include="Source\FirstPersonCamera.cpp" />
-    <ClCompile Include="Source\Font.cpp" />
-    <ClCompile Include="Source\GraphicsWindow.cpp" />
-    <ClCompile Include="Source\Grid.cpp" />
-    <ClCompile Include="Source\ICamera.cpp" />
-    <ClCompile Include="Source\Logger.cpp" />
+    <ClCompile Include="Source\Core\DebugTools.cpp" />
+    <ClCompile Include="Source\Core\Font.cpp" />
+    <ClCompile Include="Source\Core\GraphicsWindow.cpp" />
+    <ClCompile Include="Source\Core\Logger.cpp" />
+    <ClCompile Include="Source\Core\Shader.cpp" />
+    <ClCompile Include="Source\Core\StringOps.cpp" />
+    <ClCompile Include="Source\Core\Texture.cpp" />
+    <ClCompile Include="Source\Core\Timer.cpp" />
+    <ClCompile Include="Source\Game\FlyCamera.cpp" />
+    <ClCompile Include="Source\Game\MapRenderer.cpp" />
+    <ClCompile Include="Source\Game\Models\Cube.cpp" />
+    <ClCompile Include="Source\Game\Models\Grid.cpp" />
+    <ClCompile Include="Source\Game\TextRenderer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
-    <ClCompile Include="Source\MapRenderer.cpp" />
-    <ClCompile Include="Source\Player.cpp" />
-    <ClCompile Include="Source\Shader.cpp" />
-    <ClCompile Include="Source\StringOps.cpp" />
-    <ClCompile Include="Source\TextRenderer.cpp" />
-    <ClCompile Include="Source\Texture.cpp" />
-    <ClCompile Include="Source\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lib\tinyxml2.h" />
-    <ClInclude Include="Source\Camera.h" />
-    <ClInclude Include="Source\ColorConverter.h" />
-    <ClInclude Include="Source\Config.h" />
-    <ClInclude Include="Source\Cube.h" />
-    <ClInclude Include="Source\DebugTools.h" />
-    <ClInclude Include="Source\Embed.h" />
-    <ClInclude Include="Source\FirstPersonCamera.h" />
-    <ClInclude Include="Source\Font.h" />
-    <ClInclude Include="Source\GraphicsWindow.h" />
-    <ClInclude Include="Source\Grid.h" />
-    <ClInclude Include="Source\Hash.h" />
-    <ClInclude Include="Source\ICamera.h" />
-    <ClInclude Include="Source\IWindow.h" />
-    <ClInclude Include="Source\Logger.h" />
-    <ClInclude Include="Source\MapRenderer.h" />
-    <ClInclude Include="Source\Player.h" />
-    <ClInclude Include="Source\Shader.h" />
-    <ClInclude Include="Source\StdIncludes.h" />
-    <ClInclude Include="Source\StringOps.h" />
-    <ClInclude Include="Source\TextRenderer.h" />
-    <ClInclude Include="Source\Texture.h" />
-    <ClInclude Include="Source\Threadpool.h" />
-    <ClInclude Include="Source\Timer.h" />
-    <ClInclude Include="Source\UniqueHandle.h" />
+    <ClInclude Include="Source\Core\ColorConverter.h" />
+    <ClInclude Include="Source\Core\DebugTools.h" />
+    <ClInclude Include="Source\Core\Embed.h" />
+    <ClInclude Include="Source\Core\Font.h" />
+    <ClInclude Include="Source\Core\GraphicsWindow.h" />
+    <ClInclude Include="Source\Core\Hash.h" />
+    <ClInclude Include="Source\Core\IWindow.h" />
+    <ClInclude Include="Source\Core\Logger.h" />
+    <ClInclude Include="Source\Core\Shader.h" />
+    <ClInclude Include="Source\Core\StdIncludes.h" />
+    <ClInclude Include="Source\Core\StringOps.h" />
+    <ClInclude Include="Source\Core\Texture.h" />
+    <ClInclude Include="Source\Core\Threadpool.h" />
+    <ClInclude Include="Source\Core\Timer.h" />
+    <ClInclude Include="Source\Core\UniqueHandle.h" />
+    <ClInclude Include="Source\Game\CameraBase.h" />
+    <ClInclude Include="Source\Game\FlyCamera.h" />
+    <ClInclude Include="Source\Game\MapRenderer.h" />
+    <ClInclude Include="Source\Game\Models\Cube.h" />
+    <ClInclude Include="Source\Game\Models\Grid.h" />
+    <ClInclude Include="Source\Game\TextRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Lib\DirectXTex\DirectXTex_Desktop_2015.vcxproj">

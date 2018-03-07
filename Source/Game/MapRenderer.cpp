@@ -1,5 +1,5 @@
 #include "MapRenderer.h"
-#include "ColorConverter.h"
+#include <Core/ColorConverter.h>
 
 WorldRenderer::WorldRenderer()
 	: m_gridShader(LR"(Data/Grid.fx)", Shader::Vertex | Shader::Pixel)
@@ -27,7 +27,7 @@ WorldRenderer::~WorldRenderer()
 		m_gridInputLayout->Release();
 }
 
-void WorldRenderer::RenderGrid(std::shared_ptr<ICamera> camera)
+void WorldRenderer::RenderGrid(std::shared_ptr<CameraBase>& camera)
 {
 	auto context = GraphicsWindow::GetInstance()->GetContext();
 

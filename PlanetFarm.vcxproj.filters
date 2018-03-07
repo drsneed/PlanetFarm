@@ -1,136 +1,118 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Source\Camera.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Cube.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DebugTools.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\FirstPersonCamera.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Font.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\GraphicsWindow.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Grid.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\ICamera.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Logger.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="Lib\tinyxml2.cpp">
+      <Filter>Lib</Filter>
     </ClCompile>
     <ClCompile Include="Source\Main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source\MapRenderer.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="Source\Core\DebugTools.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Player.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="Source\Core\Font.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Shader.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="Source\Core\GraphicsWindow.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\StringOps.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="Source\Core\Logger.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TextRenderer.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="Source\Core\Shader.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Texture.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="Source\Core\StringOps.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Timer.cpp">
-      <Filter>Source</Filter>
+    <ClCompile Include="Source\Core\Texture.cpp">
+      <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Lib\tinyxml2.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="Source\Core\Timer.cpp">
+      <Filter>Source\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\MapRenderer.cpp">
+      <Filter>Source\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\TextRenderer.cpp">
+      <Filter>Source\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\Models\Cube.cpp">
+      <Filter>Source\Game\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\Models\Grid.cpp">
+      <Filter>Source\Game\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\FlyCamera.cpp">
+      <Filter>Source\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Camera.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ColorConverter.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Config.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Cube.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\DebugTools.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Embed.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\FirstPersonCamera.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Font.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\GraphicsWindow.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Grid.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Hash.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\ICamera.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\IWindow.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Logger.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\MapRenderer.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Player.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Shader.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\StdIncludes.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\StringOps.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\TextRenderer.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Texture.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Threadpool.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Timer.h">
-      <Filter>Source</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\UniqueHandle.h">
-      <Filter>Source</Filter>
-    </ClInclude>
     <ClInclude Include="Lib\tinyxml2.h">
       <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\ColorConverter.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\DebugTools.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Embed.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Font.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\GraphicsWindow.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Hash.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\IWindow.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Logger.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Shader.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\StdIncludes.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\StringOps.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Texture.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Threadpool.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Timer.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\UniqueHandle.h">
+      <Filter>Source\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\MapRenderer.h">
+      <Filter>Source\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\TextRenderer.h">
+      <Filter>Source\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Models\Cube.h">
+      <Filter>Source\Game\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Models\Grid.h">
+      <Filter>Source\Game\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\FlyCamera.h">
+      <Filter>Source\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\CameraBase.h">
+      <Filter>Source\Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +130,21 @@
     </Filter>
     <Filter Include="Source">
       <UniqueIdentifier>{1ea4e704-d0b3-4265-92e4-c73aadc72da8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core">
+      <UniqueIdentifier>{95f24b7e-55fb-4439-863d-193ac7138ff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Gui">
+      <UniqueIdentifier>{f5f9830f-91cb-4d86-b261-91c13d3c403f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Game">
+      <UniqueIdentifier>{35cc5f38-3bfb-42e6-be8d-b249ee1867b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\TileEngine">
+      <UniqueIdentifier>{4caee2a1-03f5-4b6b-b800-88e5894e6435}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Game\Models">
+      <UniqueIdentifier>{7f96be59-ed46-4f90-931c-9d9160862a53}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

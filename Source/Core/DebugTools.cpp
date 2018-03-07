@@ -1,4 +1,3 @@
-#include "StdIncludes.h"
 #include "DebugTools.h"
 #include "UniqueHandle.h"
 #include "Logger.h"

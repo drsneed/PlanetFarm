@@ -1,21 +1,25 @@
 // PlanetFarm.cpp : Defines the entry point for the application.
 //
 
-#include "StdIncludes.h"
-#include "Embed.h"
-#include "GraphicsWindow.h"
-#include "Logger.h"
-#include <DirectXColors.h>
-#include "Font.h"
-#include "TextRenderer.h"
 
-#include "Camera.h"
-#include "MapRenderer.h"
+
+#include <DirectXColors.h>
+#include <Core/StdIncludes.h>
+#include <Core/Embed.h>
+#include <Core/GraphicsWindow.h>
+#include <Core/Logger.h>
+
+#include <Core/Font.h>
+
+#include <Game/TextRenderer.h>
+
+
+#include <Game/MapRenderer.h>
 #include <random>
 #include <ctime>
-#include "ColorConverter.h"
-#include "FirstPersonCamera.h"
-#include "Player.h"
+#include <Core/ColorConverter.h>
+#include <Game/FlyCamera.h>
+
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
@@ -48,13 +52,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			window->Close();
 		}
 
-
-		Player me;
 		auto worldRenderer = std::make_unique<WorldRenderer>();
 
 		//camera->RotateY(XMConvertToRadians(-135.0f));
 		//camera->Pitch(XMConvertToRadians(30.f));
-
+		auto fly_cam = std::make_shared<FlyCamera>();
 
 		const FLOAT bg[4] = { 0.14f, 0.34f, 0.34f, 1.0f };
 
@@ -73,15 +75,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 					window->Close();
 				}
 				// Dispatch windowEvent to subsystems
-				me.HandleEvent(windowEvent);
+				fly_cam->HandleEvent(windowEvent);
 
 
 			}
 
-			auto dt = window->GetTimer()->GetDeltaTime();
+			auto delta_time = window->GetTimer()->GetDeltaTime();
 
 			// Perform Updating
-			me.Update(dt, false);
+			fly_cam->Tick(delta_time);
 
 
 			// Perform Rendering
@@ -89,9 +91,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			{
 				window->Clear(bg);
 				
-				worldRenderer->RenderGrid(me.GetCamera());
+				worldRenderer->RenderGrid(std::static_pointer_cast<CameraBase>(fly_cam));
 
-				auto pos = me.GetCamera()->GetPosition();
+				auto pos = fly_cam->GetPosition();
 				text_renderer->PreparePipeline();
 				text_renderer->Printf(10.f, 10.f, 0.01, 0xFFFFFFFF, 1.0f, "Camera Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
 				text_renderer->Printf(10.f, 40.f, 0.01, 0xDBB600FF, 1.0f, "FPS: %.2f", window->GetTimer()->GetFPS());
@@ -99,7 +101,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 				window->Present();
 			}
 
-			me.EndFrame();
+			fly_cam->GetChanges().Reset();
 
 			// Perform error checking
 			if (D3DErrorOccurred())

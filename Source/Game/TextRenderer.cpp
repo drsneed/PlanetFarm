@@ -1,6 +1,6 @@
 #include "TextRenderer.h"
-#include "DebugTools.h"
-#include "ColorConverter.h"
+#include <Core/DebugTools.h>
+#include <Core/ColorConverter.h>
 
 // topLeft, bottomRight, bottomLeft, topLeft, topRight, bottomRight
 

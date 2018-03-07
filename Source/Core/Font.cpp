@@ -1,5 +1,5 @@
 #include "StdIncludes.h"
-#include"Font.h"
+#include "Font.h"
 #include "StringOps.h"
 
 Font::Font(const char* fontDefinitionFile)

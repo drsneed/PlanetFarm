@@ -1,11 +1,12 @@
 #pragma once
-#include "ICamera.h"
+#include "CameraBase.h"
 
-class FirstPersonCamera : public ICamera
+class FlyCamera : public CameraBase
 {
 	float m_yaw;
 	float m_pitch;
 	float m_roll;
+	float m_velocity;
 	XMFLOAT3 m_up;
 	XMFLOAT3 m_look;
 	XMFLOAT3 m_right;
@@ -16,14 +17,14 @@ class FirstPersonCamera : public ICamera
 	void _ResetWindowMousePos();
 
 public:
-	FirstPersonCamera();
-	~FirstPersonCamera();
+	FlyCamera();
+	~FlyCamera();
 
 	void Yaw(float amount);
 	void Pitch(float amount);
 	void Roll(float amount);
 
-	virtual void Update(float dt, bool uiHasFocus) override;
+	virtual void Tick(float dt) override;
 	virtual void HandleEvent(GraphicsWindow::Event& event) override;
 
 	XMVECTOR GetLookVectorXM() const { return XMLoadFloat3(&m_look); }

@@ -1,6 +1,6 @@
 #pragma once
-#include "StdIncludes.h"
-#include "GraphicsWindow.h"
+#include <Core/StdIncludes.h>
+#include <Core/GraphicsWindow.h>
 
 class WorldGrid
 {

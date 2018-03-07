@@ -1,9 +1,9 @@
 #pragma once
 #pragma once
-#include "StdIncludes.h"
-#include "Texture.h"
-#include "Shader.h"
-#include "Font.h"
+#include <Core/StdIncludes.h>
+#include <Core/Texture.h>
+#include <Core/Shader.h>
+#include <Core/Font.h>
 
 #define DRAW_DEPTH_DECREMENT 0.0001f
 #define DRAW_DEPTH_START 0.5f

@@ -1,10 +1,9 @@
 #include "StdIncludes.h"
 #include "GraphicsWindow.h"
-#include "../Embed/Resource.h"
+#include "../../Embed/Resource.h"
 #include "DebugTools.h"
 #include "Logger.h"
 #include <sstream>
-
 
 #pragma comment(lib, "d3d11")
 extern "C" IMAGE_DOS_HEADER __ImageBase;

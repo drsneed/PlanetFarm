@@ -1,10 +1,13 @@
-#include "FirstPersonCamera.h"
+#include "FlyCamera.h"
 
-FirstPersonCamera::FirstPersonCamera()
-	: ICamera()
+#define DEFAULT_VELOCITY 20.0f
+
+FlyCamera::FlyCamera()
+	: CameraBase()
 	, m_yaw(0) 
 	, m_pitch(0)
 	, m_roll(0)
+	, m_velocity(DEFAULT_VELOCITY)
 	, m_lastMouseX(0)
 	, m_lastMouseY(0)
 	, m_up(0.0f, 1.0f, 0.0f)
@@ -15,16 +18,61 @@ FirstPersonCamera::FirstPersonCamera()
 	_ResetWindowMousePos();
 }
 
-FirstPersonCamera::~FirstPersonCamera()
+FlyCamera::~FlyCamera()
 {
 }
 
-void FirstPersonCamera::Update(float dt, bool uiHasFocus)
+void FlyCamera::Tick(float dt)
 {
+	auto window = GraphicsWindow::GetInstance();
+	auto position = GetPositionXM();
+	auto look = GetLookVectorXM();
+	auto right = GetRightVectorXM();
+	auto up = GetUpVectorXM();
+	auto distance = m_velocity * dt;
+	bool moved = false;
+	if (window->IsKeyDown('W'))
+	{
+		position += look * distance;
+		moved = true;
+	}
+	if (window->IsKeyDown('S'))
+	{
+		position += look * -distance;
+		moved = true;
+	}
+	if (window->IsKeyDown('A'))
+	{
+		position += right * -distance;
+		moved = true;
+	}
+	if (window->IsKeyDown('D'))
+	{
+		position += right * distance;
+		moved = true;
+	}
+	if (window->IsKeyDown('Q'))
+	{
+		position += up * distance;
+		moved = true;
+	}
+	if (window->IsKeyDown('E'))
+	{
+		position += up * -distance;
+		moved = true;
+	}
+
+	if (moved)
+	{
+		XMFLOAT3 newPosition;
+		XMStoreFloat3(&newPosition, position);
+		SetPosition(newPosition);
+	}
+
 	_HandleMatrixUpdate();
 }
 
-void FirstPersonCamera::_ResetWindowMousePos()
+void FlyCamera::_ResetWindowMousePos()
 {
 	auto window = GraphicsWindow::GetInstance();
 	int width, height;
@@ -33,7 +81,7 @@ void FirstPersonCamera::_ResetWindowMousePos()
 	window->GetMousePosition(m_lastMouseX, m_lastMouseY);
 }
 
-void FirstPersonCamera::HandleEvent(GraphicsWindow::Event& event)
+void FlyCamera::HandleEvent(GraphicsWindow::Event& event)
 {
 	switch (event.type)
 	{
@@ -51,7 +99,7 @@ void FirstPersonCamera::HandleEvent(GraphicsWindow::Event& event)
 	}
 }
 
-void FirstPersonCamera::_HandleMatrixUpdate()
+void FlyCamera::_HandleMatrixUpdate()
 {
 	if (m_changes.Any())
 	{
@@ -120,19 +168,19 @@ void FirstPersonCamera::_HandleMatrixUpdate()
 	}
 }
 
-void FirstPersonCamera::Yaw(float amount)
+void FlyCamera::Yaw(float amount)
 {
 	m_yaw += amount;
 	m_changes.Rotation = true;
 }
 
-void FirstPersonCamera::Pitch(float amount)
+void FlyCamera::Pitch(float amount)
 {
 	m_pitch += amount;
 	m_changes.Rotation = true;
 }
 
-void FirstPersonCamera::Roll(float amount)
+void FlyCamera::Roll(float amount)
 {
 	m_roll += amount;
 	m_changes.Rotation = true;

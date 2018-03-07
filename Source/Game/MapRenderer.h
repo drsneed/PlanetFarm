@@ -1,9 +1,9 @@
 #pragma once
-#include "StdIncludes.h"
-#include "Texture.h"
-#include "Shader.h"
-#include "Camera.h"
-#include "Grid.h"
+#include <Core/StdIncludes.h>
+#include <Core/Texture.h>
+#include <Core/Shader.h>
+#include "CameraBase.h"
+#include "Models/Grid.h"
 
 class WorldRenderer
 {
@@ -16,5 +16,5 @@ public:
 	~WorldRenderer();
 
 	//void RenderVoxel(const VoxelModel::VoxelInstance& cube, std::shared_ptr<Texture>& texture, std::shared_ptr<Camera> camera);
-	void RenderGrid(std::shared_ptr<ICamera> camera);
+	void RenderGrid(std::shared_ptr<CameraBase>& camera);
 };
