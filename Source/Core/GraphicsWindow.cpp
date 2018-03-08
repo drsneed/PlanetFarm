@@ -291,7 +291,7 @@ void GraphicsWindow::_D3DInitialize()
 
 bool GraphicsWindow::_D3DCreateDevice()
 {
-	UINT createDeviceFlags = 0;
+	UINT createDeviceFlags = D3D10_CREATE_DEVICE_BGRA_SUPPORT;
 #ifdef _DEBUG
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -710,14 +710,17 @@ void GraphicsWindow::Clear(const FLOAT* rgba)
 	ASSERT(m_swapChain);
 
 	m_context->ClearRenderTargetView(m_renderTargetView, rgba);
-	_RenderSciterBackLayer();
 	m_context->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 }
 
+BOOL GraphicsWindow::RenderSciterUI()
+{
+	return SciterRenderOnDirectXWindow(m_window, m_layer1, TRUE);
+}
+
 void GraphicsWindow::Present()
 {
-	_RenderSciterForeLayer();
 	D3DCheck(m_swapChain->Present(0, 0), L"ID3D11SwapChain::Present");
 }
 
@@ -744,30 +747,6 @@ void GraphicsWindow::ShowCursor(bool show)
 	::ShowCursor(show);
 }
 
-void GraphicsWindow::_RenderSciterBackLayer()
-{
-	/*
-	if (m_dom_back_layer && m_dom_fore_layer)
-	{
-		SciterRenderOnDirectXWindow(m_window, m_dom_back_layer, FALSE);
-	}
-	else
-	{
-		SciterRenderOnDirectXWindow(m_window, nullptr, FALSE);
-	}
-	*/
-}
-
-void GraphicsWindow::_RenderSciterForeLayer()
-{
-	if (m_layer1)
-	{
-		//ENSURE(SciterRenderOnDirectXWindow(m_window, m_layer1, TRUE), TRUE);
-		SciterRenderOnDirectXWindow(m_window, m_layer1, TRUE);
-	}
-		
-}
-
 void GraphicsWindow::Tick()
 {
 	MSG message;
@@ -785,10 +764,10 @@ void GraphicsWindow::Tick()
 BOOL GraphicsWindow::_InitSciterEngine()
 {
 	// 1. create engine instance on the window with the swap chain:
-	ENSURE(SciterCreateOnDirectXWindow(m_window, m_swapChain), TRUE);
+	ENSURE(SciterCreateOnDirectXWindow(m_window, m_swapChain));
 
 #ifdef _DEBUG
-	ENSURE(SciterSetOption(m_window, SCITER_SET_DEBUG_MODE, TRUE), TRUE);
+	ENSURE(SciterSetOption(m_window, SCITER_SET_DEBUG_MODE, TRUE));
 #endif
 
 	SciterSetupDebugOutput(nullptr, nullptr, SciterDebugCallback);
@@ -799,7 +778,7 @@ BOOL GraphicsWindow::_InitSciterEngine()
 	sciter::attach_dom_event_handler(m_window, &m_dom_event_handler);
 
 	// 3. load HTML content in it:
-	ENSURE(SciterLoadFile(m_window, L"W:/Code/PlanetFarm/Bin/Data/calendar.htm"), TRUE);
+	ENSURE(SciterLoadFile(m_window, L"Data/Calendar.htm"));
 
 	// 4. get layer elements:
 	sciter::dom::element root = sciter::dom::element::root_element(m_window);

@@ -146,8 +146,6 @@ private:
 	Event::Code _TranslateEventCode(WPARAM key, LPARAM flags);
 
 	BOOL _InitSciterEngine();
-	void _RenderSciterBackLayer();
-	void _RenderSciterForeLayer();
 
 
 public:
@@ -161,6 +159,7 @@ public:
 	void Tick();
 	const Timer* GetTimer() const { return &m_timer; }
 	void Clear(const FLOAT* rgba);
+	BOOL RenderSciterUI();
 	void Present();
 	bool IsOpen() const { return m_isOpen; }
 	bool IsMinimized() const { return m_minimized; }

@@ -85,13 +85,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			window->Clear(bg);
 
-			//worldRenderer->RenderGrid(std::static_pointer_cast<CameraBase>(fly_cam));
-
+			worldRenderer->RenderGrid(std::static_pointer_cast<CameraBase>(fly_cam));
+			window->RenderSciterUI();
+			//ENSURE(window->RenderSciterUI());
+			/*
 			auto pos = fly_cam->GetPosition();
-			/*text_renderer->PreparePipeline();
+			text_renderer->PreparePipeline();
 			text_renderer->Printf(10.f, 10.f, 0.01f, 0xFFFFFFFF, 1.0f, "Camera Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
 			text_renderer->Printf(10.f, 40.f, 0.01f, 0xDBB600FF, 1.0f, "FPS: %.2f", window->GetTimer()->GetFPS());
 			text_renderer->RestorePipeline();*/
+
+
 			window->Present();
 		}
 
