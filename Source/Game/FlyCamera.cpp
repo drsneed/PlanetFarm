@@ -77,21 +77,42 @@ void FlyCamera::_ResetWindowMousePos()
 	auto window = GraphicsWindow::GetInstance();
 	int width, height;
 	window->GetSize(width, height);
-	window->SetMousePosition(width / 2, height / 2);
+	//window->SetMousePosition(width / 2, height / 2);
 	window->GetMousePosition(m_lastMouseX, m_lastMouseY);
 }
 
 void FlyCamera::HandleEvent(GraphicsWindow::Event& event)
 {
+	static bool ctrl = false;
+
 	switch (event.type)
 	{
+	case GraphicsWindow::Event::Type::MouseClick:
+		if (event.code == GraphicsWindow::Event::Code::MouseLeft)
+		{
+			ctrl = true;
+			m_lastMouseX = event.x;
+			m_lastMouseY = event.y;
+		}
+		break;
+	case GraphicsWindow::Event::Type::MouseRelease:
+		if (ctrl && event.code == GraphicsWindow::Event::Code::MouseLeft)
+		{
+			ctrl = false;
+		}
+		break;
 	case GraphicsWindow::Event::Type::MouseMotion:
 	{
-		auto dx = XMConvertToRadians(0.25f * static_cast<float>(event.x - m_lastMouseX));
-		auto dy = XMConvertToRadians(0.25f * static_cast<float>(event.y - m_lastMouseY));
-		Pitch(dy);
-		Yaw(dx);
-		_ResetWindowMousePos();
+		
+		if(ctrl)
+		{
+			auto dx = XMConvertToRadians(0.25f * static_cast<float>(event.x - m_lastMouseX));
+			auto dy = XMConvertToRadians(0.25f * static_cast<float>(event.y - m_lastMouseY));
+			Pitch(dy);
+			Yaw(dx);
+			_ResetWindowMousePos();
+		}
+
 		break;
 	}
 	default: 

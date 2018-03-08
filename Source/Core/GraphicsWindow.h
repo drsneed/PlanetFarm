@@ -97,8 +97,8 @@ private:
 	};
 	
 	DomEventHandler m_dom_event_handler;
-	HELEMENT m_dom_back_layer;
-	HELEMENT m_dom_fore_layer;
+	//HELEMENT m_dom_back_layer;
+	HELEMENT m_layer1;
 
 	D3D_DRIVER_TYPE m_driverType;
 	D3D_FEATURE_LEVEL m_featureLevel;

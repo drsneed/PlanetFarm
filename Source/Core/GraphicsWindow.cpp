@@ -59,6 +59,11 @@ namespace
 		}
 		return 0;
 	}
+
+	void SC_CALLBACK SciterDebugCallback(LPVOID param, UINT subsystem /*OUTPUT_SUBSYTEMS*/, UINT severity, LPCWSTR text, UINT text_length)
+	{
+		OutputDebugStringW(text);
+	}
 }
 
 
@@ -580,7 +585,7 @@ void GraphicsWindow::_D3DResizeEvent(int width, int height)
 		m_depthStencilBuffer->Release();
 
 	// resize the swap chain and recreate the render target view
-	if (!D3DCheck(m_swapChain->ResizeBuffers(1, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0), 
+	if (!D3DCheck(m_swapChain->ResizeBuffers(1, width, height, DXGI_FORMAT_UNKNOWN, 0), 
 		L"ID3D11SwapChain::ResizeBuffers")) return;
 
 	ID3D11Texture2D* backBuffer;
@@ -741,6 +746,7 @@ void GraphicsWindow::ShowCursor(bool show)
 
 void GraphicsWindow::_RenderSciterBackLayer()
 {
+	/*
 	if (m_dom_back_layer && m_dom_fore_layer)
 	{
 		SciterRenderOnDirectXWindow(m_window, m_dom_back_layer, FALSE);
@@ -749,12 +755,17 @@ void GraphicsWindow::_RenderSciterBackLayer()
 	{
 		SciterRenderOnDirectXWindow(m_window, nullptr, FALSE);
 	}
+	*/
 }
 
 void GraphicsWindow::_RenderSciterForeLayer()
 {
-	if (m_dom_back_layer && m_dom_fore_layer)
-		SciterRenderOnDirectXWindow(m_window, m_dom_fore_layer, TRUE);
+	if (m_layer1)
+	{
+		//ENSURE(SciterRenderOnDirectXWindow(m_window, m_layer1, TRUE), TRUE);
+		SciterRenderOnDirectXWindow(m_window, m_layer1, TRUE);
+	}
+		
 }
 
 void GraphicsWindow::Tick()
@@ -774,12 +785,13 @@ void GraphicsWindow::Tick()
 BOOL GraphicsWindow::_InitSciterEngine()
 {
 	// 1. create engine instance on the window with the swap chain:
-	BOOL r = SciterCreateOnDirectXWindow(m_window, m_swapChain);
-	if (!r) return FALSE;
+	ENSURE(SciterCreateOnDirectXWindow(m_window, m_swapChain), TRUE);
 
 #ifdef _DEBUG
-	SciterSetOption(m_window, SCITER_SET_DEBUG_MODE, TRUE);
+	ENSURE(SciterSetOption(m_window, SCITER_SET_DEBUG_MODE, TRUE), TRUE);
 #endif
+
+	SciterSetupDebugOutput(nullptr, nullptr, SciterDebugCallback);
 	// 2. setup callback (resource loading, etc):
 	SciterSetCallback(m_window, SciterCallback, this);
 
@@ -787,14 +799,14 @@ BOOL GraphicsWindow::_InitSciterEngine()
 	sciter::attach_dom_event_handler(m_window, &m_dom_event_handler);
 
 	// 3. load HTML content in it:
-	SciterLoadFile(m_window, L"res:Data/facade.htm");
+	ENSURE(SciterLoadFile(m_window, L"W:/Code/PlanetFarm/Bin/Data/calendar.htm"), TRUE);
 
 	// 4. get layer elements:
 	sciter::dom::element root = sciter::dom::element::root_element(m_window);
 	ASSERT(root != nullptr);
-	m_dom_back_layer = root.find_first("section#back-layer");
-	m_dom_fore_layer = root.find_first("section#fore-layer");
-	ASSERT(m_dom_back_layer && m_dom_fore_layer);
+	//m_dom_back_layer = root.find_first("section#back-layer");
+	m_layer1 = root.find_first("section#layer1");
+	ASSERT(m_layer1);
 
 	// done
 	return true;

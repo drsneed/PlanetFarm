@@ -34,7 +34,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 
 	auto window = GraphicsWindow::CreateInstance(800, 600, false);
-	window->ShowCursor(false);
+	//window->ShowCursor(false);
 	auto font = std::make_shared<Font>("Data\\Cantarell.fnt");
 	auto text_renderer = std::make_unique<TextRenderer>(font.get());
 
@@ -85,13 +85,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			window->Clear(bg);
 
-			worldRenderer->RenderGrid(std::static_pointer_cast<CameraBase>(fly_cam));
+			//worldRenderer->RenderGrid(std::static_pointer_cast<CameraBase>(fly_cam));
 
 			auto pos = fly_cam->GetPosition();
-			text_renderer->PreparePipeline();
+			/*text_renderer->PreparePipeline();
 			text_renderer->Printf(10.f, 10.f, 0.01f, 0xFFFFFFFF, 1.0f, "Camera Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
 			text_renderer->Printf(10.f, 40.f, 0.01f, 0xDBB600FF, 1.0f, "FPS: %.2f", window->GetTimer()->GetFPS());
-			text_renderer->RestorePipeline();
+			text_renderer->RestorePipeline();*/
 			window->Present();
 		}
 

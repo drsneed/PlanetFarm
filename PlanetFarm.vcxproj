@@ -74,8 +74,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)Bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Bin\$(Configuration)\.obj\</IntDir>
+    <OutDir>$(SolutionDir)Bin\</OutDir>
+    <IntDir>$(SolutionDir)Bin\.obj\</IntDir>
     <IncludePath>$(ProjectDir)Lib\sciter-sdk\include;$(ProjectDir)Lib;$(ProjectDir)Source;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -84,7 +84,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Binaries\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Binaries\$(Configuration)\BuildArtifacts\</IntDir>
+    <IntDir>$(SolutionDir)Binaries\$(Configuration)\.obj\</IntDir>
     <IncludePath>$(ProjectDir)Lib\sciter-sdk\include;$(ProjectDir)Lib;$(ProjectDir)Source;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -114,6 +114,9 @@
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)Lib\sciter-sdk\bin\64\sciter.dll" "$(TargetDir)sciter.dll"</Command>
     </PostBuildEvent>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
