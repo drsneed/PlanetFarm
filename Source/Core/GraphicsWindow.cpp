@@ -13,7 +13,55 @@ extern "C" IMAGE_DOS_HEADER __ImageBase;
 namespace
 {
 	GraphicsWindow* _instance = nullptr;
+
+	// handle SC_LOAD_DATA requests - get data from resources of this application
+	UINT DoLoadData(LPSCN_LOAD_DATA pnmld, LPVOID callbackParam)
+	{
+		LPCBYTE pb = 0; UINT cb = 0;
+		aux::wchars wu = aux::chars_of(pnmld->uri);
+		if (wu.like(WSTR("res:*")))
+		{
+			auto window = reinterpret_cast<GraphicsWindow*>(callbackParam);
+			ASSERT(window != nullptr);
+			// then by calling possibly overloaded load_resource_data method
+			if (sciter::load_resource_data(window->GetHInstance(), wu.start + 4, pb, cb))
+				::SciterDataReady(pnmld->hwnd, pnmld->uri, pb, cb);
+		}
+		else if (wu.like(WSTR("this://app/*"))) {
+			// try to get them from archive (if any, you need to call sciter::archive::open() first)
+			aux::bytes adata = sciter::archive::instance().get(wu.start + 11);
+			if (adata.length)
+				::SciterDataReady(pnmld->hwnd, pnmld->uri, adata.start, adata.length);
+		}
+		return LOAD_OK;
+	}
+
+	// fulfill SC_ATTACH_BEHAVIOR request 
+	UINT DoAttachBehavior(LPSCN_ATTACH_BEHAVIOR lpab)
+	{
+		sciter::event_handler *pb = sciter::behavior_factory::create(lpab->behaviorName, lpab->element);
+		if (pb)
+		{
+			lpab->elementTag = pb;
+			lpab->elementProc = sciter::event_handler::element_proc;
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	UINT SC_CALLBACK SciterCallback(LPSCITER_CALLBACK_NOTIFICATION pns, LPVOID callbackParam)
+	{
+		// here are all notifiactions
+		switch (pns->code)
+		{
+		case SC_LOAD_DATA:          return DoLoadData((LPSCN_LOAD_DATA)pns, callbackParam);
+		case SC_ATTACH_BEHAVIOR:    return DoAttachBehavior((LPSCN_ATTACH_BEHAVIOR)pns);
+		}
+		return 0;
+	}
 }
+
+
 
 GraphicsWindow* GraphicsWindow::GetInstance()
 {
@@ -657,12 +705,14 @@ void GraphicsWindow::Clear(const FLOAT* rgba)
 	ASSERT(m_swapChain);
 
 	m_context->ClearRenderTargetView(m_renderTargetView, rgba);
+	_RenderSciterBackLayer();
 	m_context->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 }
 
 void GraphicsWindow::Present()
 {
+	_RenderSciterForeLayer();
 	D3DCheck(m_swapChain->Present(0, 0), L"ID3D11SwapChain::Present");
 }
 
@@ -689,6 +739,24 @@ void GraphicsWindow::ShowCursor(bool show)
 	::ShowCursor(show);
 }
 
+void GraphicsWindow::_RenderSciterBackLayer()
+{
+	if (m_dom_back_layer && m_dom_fore_layer)
+	{
+		SciterRenderOnDirectXWindow(m_window, m_dom_back_layer, FALSE);
+	}
+	else
+	{
+		SciterRenderOnDirectXWindow(m_window, nullptr, FALSE);
+	}
+}
+
+void GraphicsWindow::_RenderSciterForeLayer()
+{
+	if (m_dom_back_layer && m_dom_fore_layer)
+		SciterRenderOnDirectXWindow(m_window, m_dom_fore_layer, TRUE);
+}
+
 void GraphicsWindow::Tick()
 {
 	MSG message;
@@ -702,10 +770,50 @@ void GraphicsWindow::Tick()
 	m_timer.Tick();
 }
 
+// create Sciter engine instance for the window:
+BOOL GraphicsWindow::_InitSciterEngine()
+{
+	// 1. create engine instance on the window with the swap chain:
+	BOOL r = SciterCreateOnDirectXWindow(m_window, m_swapChain);
+	if (!r) return FALSE;
+
+#ifdef _DEBUG
+	SciterSetOption(m_window, SCITER_SET_DEBUG_MODE, TRUE);
+#endif
+	// 2. setup callback (resource loading, etc):
+	SciterSetCallback(m_window, SciterCallback, this);
+
+	// 2b. setup DOM event handler:
+	sciter::attach_dom_event_handler(m_window, &m_dom_event_handler);
+
+	// 3. load HTML content in it:
+	SciterLoadFile(m_window, L"res:Data/facade.htm");
+
+	// 4. get layer elements:
+	sciter::dom::element root = sciter::dom::element::root_element(m_window);
+	ASSERT(root != nullptr);
+	m_dom_back_layer = root.find_first("section#back-layer");
+	m_dom_fore_layer = root.find_first("section#fore-layer");
+	ASSERT(m_dom_back_layer && m_dom_fore_layer);
+
+	// done
+	return true;
+}
+
 LRESULT GraphicsWindow::MessageHandler(const UINT message, const WPARAM wparam, const LPARAM lparam)
 {
 	static int tmpWidthHolder = 0;
 	static int tmpHeightHolder = 0;
+
+	// Insert Sciter hook and let it have first dibs on the message.
+	// If it does not use the message we will take it from there
+	if (message != WM_CREATE)
+	{
+		BOOL handled = FALSE;
+		LRESULT lr = SciterProcND(m_window, message, wparam, lparam, &handled);
+		if (handled)
+			return lr;
+	}
 
 	switch (message)
 	{
@@ -725,6 +833,7 @@ LRESULT GraphicsWindow::MessageHandler(const UINT message, const WPARAM wparam, 
 		break;
 	case WM_CREATE:
 		_D3DInitialize();
+		_InitSciterEngine();
 		break;
 	case WM_SIZE:
 	{

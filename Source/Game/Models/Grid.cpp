@@ -9,12 +9,12 @@ WorldGrid::WorldGrid()
 	for (int x = -GRID_LENGTH; x < GRID_LENGTH +1; ++x)
 	{
 		Vertex s, t;
-		s.x = x;
+		s.x = static_cast<FLOAT>(x);
 		s.y = 0;
 		s.z = -GRID_LENGTH;
 
 
-		t.x = x;
+		t.x = static_cast<FLOAT>(x);
 		t.y = 0;
 		t.z = GRID_LENGTH;
 
@@ -48,11 +48,11 @@ WorldGrid::WorldGrid()
 		Vertex s, t;
 		s.x = -GRID_LENGTH;
 		s.y = 0;
-		s.z = z;
+		s.z = static_cast<FLOAT>(z);
 
 		t.x = GRID_LENGTH;
 		t.y = 0;
-		t.z = z;
+		t.z = static_cast<FLOAT>(z);
 
 		if (z == 0)
 		{
@@ -109,7 +109,7 @@ WorldGrid::WorldGrid()
 	v.b = 0.0f;
 	verts.push_back(v);
 
-	m_vertexCount = verts.size();
+	m_vertexCount = static_cast<int>(verts.size());
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));

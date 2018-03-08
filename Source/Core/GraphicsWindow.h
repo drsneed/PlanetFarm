@@ -6,6 +6,7 @@
 #include <wrl.h>
 #include <stack>
 #include "Timer.h"
+#include <sciter-x.h>
 
 #define MAX_LOADSTRING 100
 using namespace Microsoft::WRL;
@@ -74,6 +75,31 @@ private:
 	WCHAR m_windowClass[MAX_LOADSTRING]; // the main window class name
 	bool m_isOpen = false;
 
+
+	struct DomEventHandler : public sciter::event_handler 
+	{
+		BEGIN_FUNCTION_MAP
+			FUNCTION_1("setRotationSpeed", setRotationSpeed)
+			FUNCTION_1("setColorSpeed", setColorSpeed)
+		END_FUNCTION_MAP
+
+		sciter::value setRotationSpeed(sciter::value speed)
+		{
+			//g_rotationSpeed = (FLOAT)speed.get(1.0);
+			return sciter::value(true);
+		}
+		sciter::value setColorSpeed(sciter::value speed)
+		{
+			//g_colorSpeed = (FLOAT)speed.get(1.0);
+			return sciter::value(true);
+		}
+
+	};
+	
+	DomEventHandler m_dom_event_handler;
+	HELEMENT m_dom_back_layer;
+	HELEMENT m_dom_fore_layer;
+
 	D3D_DRIVER_TYPE m_driverType;
 	D3D_FEATURE_LEVEL m_featureLevel;
 	ID3D11Device* m_device;
@@ -119,6 +145,10 @@ private:
 
 	Event::Code _TranslateEventCode(WPARAM key, LPARAM flags);
 
+	BOOL _InitSciterEngine();
+	void _RenderSciterBackLayer();
+	void _RenderSciterForeLayer();
+
 
 public:
 	static GraphicsWindow* GetInstance();
@@ -135,6 +165,7 @@ public:
 	bool IsOpen() const { return m_isOpen; }
 	bool IsMinimized() const { return m_minimized; }
 	HWND GetHandle() const { return m_window; }
+	HINSTANCE GetHInstance() const { return m_hInst; }
 	void GetSize(int& outWidth, int& outHeight) const;
 	virtual LRESULT MessageHandler(const UINT message, const WPARAM wparam, const LPARAM lparam) override;
 	bool PollEvent(Event& event);
