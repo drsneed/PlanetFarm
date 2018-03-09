@@ -1,0 +1,23 @@
+#pragma once
+#include <Core/StdIncludes.h>
+#include <Core/DebugTools.h>
+#include <cstdint>
+// Tile coordinates are stored as byte-encoded quad keys.
+// The key is stored as a 32 bit unsigned integer.
+// Each coordinate gets 14 bits of space and the zoom level gets 4 bits.
+// Therefore, the maximum coordinate value is 2^14(16384) minus one (zero-based)
+// The zoom level is stored in the 4 least significant bits. 
+// This allows a maximum of 16 zoom levels, however with only 14 bits per coordinate, 
+// we can only go to zoom level 14
+
+struct Tile
+{
+	Tile(uint16_t x, uint16_t y, uint8_t z)
+		: x(x), y(y), z(z) {}
+	Tile(uint32_t key);
+	auto ToBinaryQuadKey() -> uint32_t;
+	auto ToQuadKey() -> std::string;
+	uint16_t x;
+	uint16_t y;
+	uint8_t z;
+};
