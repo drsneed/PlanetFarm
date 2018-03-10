@@ -74,10 +74,10 @@ GraphicsWindow* GraphicsWindow::GetInstance()
 	return _instance;
 }
 
-GraphicsWindow* GraphicsWindow::CreateInstance(int width, int height, bool fullscreen)
+GraphicsWindow* GraphicsWindow::CreateInstance(const wchar_t* window_title, int width, int height, bool fullscreen)
 {
 	ASSERT(!_instance);
-	_instance = new GraphicsWindow(width, height, fullscreen);
+	_instance = new GraphicsWindow(window_title, width, height, fullscreen);
 	return _instance;
 }
 
@@ -90,7 +90,7 @@ void GraphicsWindow::DestroyInstance()
 	}
 }
 
-GraphicsWindow::GraphicsWindow(int width, int height, bool fullscreen)
+GraphicsWindow::GraphicsWindow(const wchar_t* window_title, int width, int height, bool fullscreen)
 	: m_width(width)
 	, m_height(height)
 	, m_device(nullptr)
@@ -118,8 +118,7 @@ GraphicsWindow::GraphicsWindow(int width, int height, bool fullscreen)
 	, m_mouseDiffY(0)
 {
 	m_hInst = reinterpret_cast<HINSTANCE>(&__ImageBase);
-	// Initialize global strings
-	LoadStringW(m_hInst, IDS_APP_TITLE, m_title, MAX_LOADSTRING);
+	
 	
 	wsprintf(m_windowClass, L"GameWindow");
 	// Register class
@@ -147,12 +146,13 @@ GraphicsWindow::GraphicsWindow(int width, int height, bool fullscreen)
 	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
 	RegisterClassExW(&wcex);
-
+	//WCHAR title[MAX_LOADSTRING];
+	//LoadStringW(m_hInst, IDS_APP_TITLE, title, MAX_LOADSTRING);
 	ASSERT(!m_window);
-	ENSURE(CreateWindowW(m_windowClass, m_title, WS_OVERLAPPEDWINDOW,
+	ENSURE(CreateWindowW(m_windowClass, nullptr, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, width, height,
 		nullptr, nullptr, m_hInst, this));
-
+	SetWindowTextW(m_window, window_title);
 	ASSERT(m_window);
 
 	m_timer.Reset();
@@ -160,6 +160,10 @@ GraphicsWindow::GraphicsWindow(int width, int height, bool fullscreen)
 
 GraphicsWindow::~GraphicsWindow()
 {
+	if (m_context)
+	{
+		m_context->ClearState();
+	}
 	if (m_depthStencilBuffer)
 	{
 		m_depthStencilBuffer->Release();
@@ -249,6 +253,7 @@ GraphicsWindow::~GraphicsWindow()
 		m_device->Release();
 		m_device = nullptr;
 	}
+	
 }
 
 void GraphicsWindow::Show()
@@ -716,7 +721,9 @@ void GraphicsWindow::Clear(const FLOAT* rgba)
 
 BOOL GraphicsWindow::RenderSciterUI()
 {
-	return SciterRenderOnDirectXWindow(m_window, m_layer1, TRUE);
+	BOOL toolbar_rendered = SciterRenderOnDirectXWindow(m_window, m_section_toolbar, TRUE);
+	BOOL statusbar_rendered = SciterRenderOnDirectXWindow(m_window, m_section_statusbar, TRUE);
+	return toolbar_rendered && statusbar_rendered;
 }
 
 void GraphicsWindow::Present()
@@ -750,7 +757,7 @@ void GraphicsWindow::ShowCursor(bool show)
 void GraphicsWindow::Tick()
 {
 	MSG message;
-	// Process Win32 messages
+
 	while (PeekMessage(&message, m_window, 0, 0, PM_REMOVE))
 	{
 		TranslateMessage(&message);
@@ -778,14 +785,15 @@ BOOL GraphicsWindow::_InitSciterEngine()
 	sciter::attach_dom_event_handler(m_window, &m_dom_event_handler);
 
 	// 3. load HTML content in it:
-	ENSURE(SciterLoadFile(m_window, L"Data/Calendar.htm"));
+	ENSURE(SciterLoadFile(m_window, L"Data/UI/Interface.htm"));
 
 	// 4. get layer elements:
 	sciter::dom::element root = sciter::dom::element::root_element(m_window);
 	ASSERT(root != nullptr);
 	//m_dom_back_layer = root.find_first("section#back-layer");
-	m_layer1 = root.find_first("section#layer1");
-	ASSERT(m_layer1);
+	m_section_toolbar = root.find_first("section#toolbar");
+	m_section_statusbar = root.find_first("section#statusbar");
+	ASSERT(m_section_toolbar && m_section_statusbar);
 
 	// done
 	return true;
@@ -809,13 +817,8 @@ LRESULT GraphicsWindow::MessageHandler(const UINT message, const WPARAM wparam, 
 	switch (message)
 	{
 	case WM_DESTROY:
-		// Don't send WM_QUIT if there are errors because that will force the subsequent
-		// error window to close prematurely
-		if (!D3DErrorOccurred())
-		{
-			PostQuitMessage(0);
-		}
 		m_isOpen = false;
+		PostQuitMessage(0);
 		break;
 	case WM_PAINT:
 		PAINTSTRUCT ps;

@@ -153,4 +153,7 @@
       <UniqueIdentifier>{7f96be59-ed46-4f90-931c-9d9160862a53}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Embed\PlanetFarm.rc" />
+  </ItemGroup>
 </Project>

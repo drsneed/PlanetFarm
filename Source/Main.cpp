@@ -17,6 +17,7 @@
 #include <ctime>
 #include <Core/ColorConverter.h>
 #include <Game/FlyCamera.h>
+#include <TileEngine/Tile.h>
 
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
@@ -32,8 +33,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
+	OleInitialize(NULL);
 
-	auto window = GraphicsWindow::CreateInstance(800, 600, false);
+	auto window = GraphicsWindow::CreateInstance(L"Planet Farm", 800, 600, false);
 	//window->ShowCursor(false);
 	auto font = std::make_shared<Font>("Data\\Cantarell.fnt");
 	auto text_renderer = std::make_unique<TextRenderer>(font.get());
@@ -53,6 +55,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	auto fly_cam = std::make_shared<FlyCamera>();
 
 	const FLOAT bg[4] = { 0.14f, 0.34f, 0.34f, 1.0f };
+
+	//RunTileTest();
 
 	GraphicsWindow::Event windowEvent;
 	while (window->IsOpen())
@@ -86,7 +90,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			window->Clear(bg);
 
 			worldRenderer->RenderGrid(std::static_pointer_cast<CameraBase>(fly_cam));
-			ENSURE(window->RenderSciterUI());
+
 			
 			auto pos = fly_cam->GetPosition();
 			text_renderer->PreparePipeline();
@@ -94,7 +98,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			text_renderer->Printf(10.f, 40.f, 0.01f, 0xDBB600FF, 1.0f, "FPS: %.2f", window->GetTimer()->GetFPS());
 			text_renderer->RestorePipeline();
 
-
+			window->RenderSciterUI();
 			window->Present();
 		}
 

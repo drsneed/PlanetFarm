@@ -103,17 +103,41 @@ auto Tile::ToQuadKey() -> std::string
 	return result;
 }
 
-//pub fn parent_child_match(parent_key: u32, child_key : u32) -> bool {
-//	debug_assert!(parent_key < MAX_KEY, "parent_key ({}) must be less than {}", parent_key, MAX_KEY);
-//	debug_assert!(child_key < MAX_KEY, "child_key ({}) must be less than {}", child_key, MAX_KEY);
-//	let parent_zoom = parent_key & ZOOM_MASK;
-//	debug_assert!(parent_zoom < MAX_ZOOM, "parent_zoom ({}) must be less than {}", parent_zoom, MAX_ZOOM);
-//	let child_zoom = child_key & ZOOM_MASK;
-//	debug_assert!(child_zoom < MAX_ZOOM, "child_zoom ({}) must be less than {}", child_zoom, MAX_ZOOM);
-//
-//	if child_zoom <= parent_zoom{
-//		return false;
-//	}
-//	let mask_index = parent_zoom as usize;
-//	(parent_key & COORDINATE_MASKS[mask_index]) == (child_key & COORDINATE_MASKS[mask_index])
-//}
+auto Tile::IsParentChildRelation(uint32_t parent_key, uint32_t child_key) -> bool
+{
+	auto parent_zoom = parent_key & ZOOM_MASK;
+	auto child_zoom = child_key & ZOOM_MASK;
+
+	ASSERT(parent_key < MAX_KEY);
+	ASSERT(child_key < MAX_KEY);
+	ASSERT(parent_zoom < MAX_ZOOM);
+	ASSERT(child_zoom < MAX_ZOOM);
+	
+	if(child_zoom <= parent_zoom)
+		return false;
+	return (parent_key & COORDINATE_MASKS[parent_zoom]) == (child_key & COORDINATE_MASKS[parent_zoom]);
+}
+
+void RunTileTest()
+{
+	auto parent_tile = Tile(25, 43, 6);
+	auto child_tile = Tile(51, 87, 7);
+	auto parent_qk = parent_tile.ToQuadKey();
+	auto child_qk = child_tile.ToQuadKey();
+	char buffer[256];
+
+	if (Tile::IsParentChildRelation(parent_tile.ToBinaryQuadKey(), child_tile.ToBinaryQuadKey()))
+	{
+		wsprintfA(buffer, "%s is the parent of %s\n", parent_qk.c_str(), child_qk.c_str());
+		OutputDebugStringA(buffer);
+	}
+	else
+	{
+		wsprintfA(buffer, "%s is NOT the parent of %s\n", parent_qk.c_str(), child_qk.c_str());
+		OutputDebugStringA(buffer);
+	}
+
+	auto new_tile = Tile(16383, 16383, 14);
+	auto quadkey = new_tile.ToQuadKey();
+	OutputDebugStringA(quadkey.c_str());
+}

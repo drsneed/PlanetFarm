@@ -71,7 +71,6 @@ public:
 private:
 
 	HINSTANCE m_hInst;                   // current instance
-	WCHAR m_title[MAX_LOADSTRING];       // The title bar text
 	WCHAR m_windowClass[MAX_LOADSTRING]; // the main window class name
 	bool m_isOpen = false;
 
@@ -98,7 +97,8 @@ private:
 	
 	DomEventHandler m_dom_event_handler;
 	//HELEMENT m_dom_back_layer;
-	HELEMENT m_layer1;
+	HELEMENT m_section_toolbar;
+	HELEMENT m_section_statusbar;
 
 	D3D_DRIVER_TYPE m_driverType;
 	D3D_FEATURE_LEVEL m_featureLevel;
@@ -141,7 +141,7 @@ private:
 	bool _D3DCreateRasterizerStates();
 	void _D3DSetDefaultStates();
 	void _D3DResizeEvent(int width, int height);
-	GraphicsWindow(int width, int height, bool fullscreen);
+	GraphicsWindow(const wchar_t* window_title, int width, int height, bool fullscreen);
 
 	Event::Code _TranslateEventCode(WPARAM key, LPARAM flags);
 
@@ -150,7 +150,7 @@ private:
 
 public:
 	static GraphicsWindow* GetInstance();
-	static GraphicsWindow* CreateInstance(int width, int height, bool fullscreen);
+	static GraphicsWindow* CreateInstance(const wchar_t* window_title, int width, int height, bool fullscreen);
 	static void DestroyInstance();
 	~GraphicsWindow();
 
