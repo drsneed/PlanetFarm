@@ -43,11 +43,14 @@
     <ClCompile Include="Source\Game\Models\Grid.cpp">
       <Filter>Source\Game\Models</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\FlyCamera.cpp">
-      <Filter>Source\Game</Filter>
-    </ClCompile>
     <ClCompile Include="Source\TileEngine\Tile.cpp">
       <Filter>Source\TileEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TileEngine\TileEngine.cpp">
+      <Filter>Source\TileEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\CameraBehaviorFly.cpp">
+      <Filter>Source\Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -111,14 +114,18 @@
     <ClInclude Include="Source\Game\Models\Grid.h">
       <Filter>Source\Game\Models</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Game\FlyCamera.h">
-      <Filter>Source\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Game\CameraBase.h">
-      <Filter>Source\Game</Filter>
-    </ClInclude>
     <ClInclude Include="Source\TileEngine\Tile.h">
       <Filter>Source\TileEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TileEngine\TileEngine.h">
+      <Filter>Source\TileEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\CameraBehavior.h" />
+    <ClInclude Include="Source\Game\Camera.h">
+      <Filter>Source\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\CameraBehaviorFly.h">
+      <Filter>Source\Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +161,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Embed\PlanetFarm.rc" />
+    <ResourceCompile Include="Embed\PlanetFarm.rc">
+      <Filter>Embed</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

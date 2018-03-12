@@ -10,13 +10,29 @@
 // This allows a maximum of 16 zoom levels, however with only 14 bits per coordinate, 
 // we can only go to zoom level 14
 
+enum class TileDataType : uint8_t
+{
+	Point,
+	Line,
+	Polygon
+};
+
+struct TileData
+{
+	TileDataType data_type;
+	std::vector<XMFLOAT2> data;
+};
+
 struct Tile
 {
 	Tile(uint16_t x, uint16_t y, uint8_t z)
-		: x(x), y(y), z(z) {}
+		: data(nullptr), x(x), y(y), z(z) {}
 	Tile(uint32_t key);
 	auto ToBinaryQuadKey() -> uint32_t;
 	auto ToQuadKey() -> std::string;
+	
+	std::unique_ptr<TileData> data;
+
 	uint16_t x;
 	uint16_t y;
 	uint8_t z;

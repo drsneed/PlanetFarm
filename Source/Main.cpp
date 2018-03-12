@@ -16,7 +16,8 @@
 #include <random>
 #include <ctime>
 #include <Core/ColorConverter.h>
-#include <Game/FlyCamera.h>
+#include <Game/Camera.h>
+#include <Game/CameraBehaviorFly.h>
 #include <TileEngine/Tile.h>
 
 
@@ -35,7 +36,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	OleInitialize(NULL);
 
-	auto window = GraphicsWindow::CreateInstance(L"Planet Farm", 800, 600, false);
+	auto window = GraphicsWindow::CreateInstance(L"Planet Farm", 1366, 768, false);
 	//window->ShowCursor(false);
 	auto font = std::make_shared<Font>("Data\\Cantarell.fnt");
 	auto text_renderer = std::make_unique<TextRenderer>(font.get());
@@ -52,7 +53,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	//camera->RotateY(XMConvertToRadians(-135.0f));
 	//camera->Pitch(XMConvertToRadians(30.f));
-	auto fly_cam = std::make_shared<FlyCamera>();
+	auto fly_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorFly>());
+	fly_cam->SetPosition(0.0f, 6.0f, 0.0f);
 
 	const FLOAT bg[4] = { 0.14f, 0.34f, 0.34f, 1.0f };
 
@@ -89,7 +91,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			window->Clear(bg);
 
-			worldRenderer->RenderGrid(std::static_pointer_cast<CameraBase>(fly_cam));
+			worldRenderer->RenderGrid(fly_cam);
 
 			
 			auto pos = fly_cam->GetPosition();
@@ -101,8 +103,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			window->RenderSciterUI();
 			window->Present();
 		}
-
-		fly_cam->GetChanges().Reset();
 
 		// Perform error checking
 		if (D3DErrorOccurred())

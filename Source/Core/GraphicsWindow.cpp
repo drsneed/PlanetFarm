@@ -510,6 +510,19 @@ bool GraphicsWindow::_D3DCreateDepthStencilStates()
 	return true;
 }
 
+void GraphicsWindow::ReloadUi()
+{
+	ENSURE(SciterLoadFile(m_window, L"Data/UI/Interface.htm"));
+
+	// 4. get layer elements:
+	sciter::dom::element root = sciter::dom::element::root_element(m_window);
+	ASSERT(root != nullptr);
+	//m_dom_back_layer = root.find_first("section#back-layer");
+	m_section_toolbar = root.find_first("section#toolbar");
+	m_section_statusbar = root.find_first("section#statusbar");
+	ASSERT(m_section_toolbar && m_section_statusbar);
+}
+
 bool GraphicsWindow::_D3DCreateSamplerStates()
 {
 
@@ -785,15 +798,7 @@ BOOL GraphicsWindow::_InitSciterEngine()
 	sciter::attach_dom_event_handler(m_window, &m_dom_event_handler);
 
 	// 3. load HTML content in it:
-	ENSURE(SciterLoadFile(m_window, L"Data/UI/Interface.htm"));
-
-	// 4. get layer elements:
-	sciter::dom::element root = sciter::dom::element::root_element(m_window);
-	ASSERT(root != nullptr);
-	//m_dom_back_layer = root.find_first("section#back-layer");
-	m_section_toolbar = root.find_first("section#toolbar");
-	m_section_statusbar = root.find_first("section#statusbar");
-	ASSERT(m_section_toolbar && m_section_statusbar);
+	ReloadUi();
 
 	// done
 	return true;

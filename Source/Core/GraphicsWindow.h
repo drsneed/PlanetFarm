@@ -78,13 +78,13 @@ private:
 	struct DomEventHandler : public sciter::event_handler 
 	{
 		BEGIN_FUNCTION_MAP
-			FUNCTION_1("setRotationSpeed", setRotationSpeed)
-			FUNCTION_1("setColorSpeed", setColorSpeed)
+			FUNCTION_0("ReloadUi", ReloadUi)
 		END_FUNCTION_MAP
 
-		sciter::value setRotationSpeed(sciter::value speed)
+		sciter::value ReloadUi()
 		{
-			//g_rotationSpeed = (FLOAT)speed.get(1.0);
+			auto window = GraphicsWindow::GetInstance();
+			window->ReloadUi();
 			return sciter::value(true);
 		}
 		sciter::value setColorSpeed(sciter::value speed)
@@ -172,6 +172,7 @@ public:
 	auto SetCurrentCursor(const GraphicsWindow::Cursor cursor) -> void;
 	void SetMousePosition(int x, int y);
 	bool IsKeyDown(int key) const;
+	void ReloadUi();
 	static void ShowCursor(bool show);
 	enum class RasterizerState : uint8_t
 	{

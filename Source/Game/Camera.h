@@ -1,29 +1,82 @@
 #pragma once
-#include <Core/StdIncludes.h>
 #include <Core/GraphicsWindow.h>
+#include "CameraBehavior.h"
 
-class CameraBase
+class Camera
 {
 public:
-	struct Changes
+	XMVECTOR GetLookVectorXM() const { return XMLoadFloat3(&m_look); }
+	XMVECTOR GetUpVectorXM() const { return XMLoadFloat3(&m_up); }
+	XMVECTOR GetRightVectorXM() const { return XMLoadFloat3(&m_right); }
+	void Yaw(float amount) { m_yaw += amount; }
+	void Pitch(float amount) { m_pitch += amount; }
+	void Roll(float amount) { m_roll += amount; }
+
+	void UpdateGpuBuffer()
 	{
-		bool Position : 1;
-		bool Projection : 1;
-		bool Rotation : 1;
+		m_up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		m_look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+		m_right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
-		bool Any()
-		{
-			return Position || Projection || Rotation;
-		}
+		XMVECTOR look = XMLoadFloat3(&m_look);
+		XMVECTOR up = XMLoadFloat3(&m_up);
+		XMVECTOR right = XMLoadFloat3(&m_right);
 
-		void Reset()
-		{
-			Position = Projection = Rotation = false;
-		}
-	};
+		auto pos = XMLoadFloat3(&m_position);
 
-	Changes& GetChanges() { return m_changes; };
+		auto yawMatrix = XMMatrixRotationAxis(up, m_yaw);
+		look = XMVector3Transform(look, yawMatrix);
+		right = XMVector3Transform(right, yawMatrix);
 
+		auto pitchMatrix = XMMatrixRotationAxis(right, m_pitch);
+		look = XMVector3Transform(look, pitchMatrix);
+		up = XMVector3Transform(up, pitchMatrix);
+
+		/*		auto rollMatrix = XMMatrixRotationAxis(look, m_roll);
+		right = XMVector3Transform(right, rollMatrix);
+		up = XMVector3Transform(up, rollMatrix);*/
+
+		FLOAT s_dot1, s_dot2, s_dot3;
+		XMStoreFloat(&s_dot1, -XMVector3Dot(pos, right));
+		XMStoreFloat(&s_dot2, -XMVector3Dot(pos, up));
+		XMStoreFloat(&s_dot3, -XMVector3Dot(pos, look));
+
+		XMStoreFloat3(&m_right, right);
+		XMStoreFloat3(&m_look, look);
+		XMStoreFloat3(&m_up, up);
+
+
+		XMStoreFloat4x4(&m_viewMatrix, XMMatrixIdentity());
+
+		m_viewMatrix._11 = m_right.x;
+		m_viewMatrix._21 = m_right.y;
+		m_viewMatrix._31 = m_right.z;
+
+		m_viewMatrix._12 = m_up.x;
+		m_viewMatrix._22 = m_up.y;
+		m_viewMatrix._32 = m_up.z;
+
+		m_viewMatrix._13 = m_look.x;
+		m_viewMatrix._23 = m_look.y;
+		m_viewMatrix._33 = m_look.z;
+
+		m_viewMatrix._41 = s_dot1;
+		m_viewMatrix._42 = s_dot2;
+		m_viewMatrix._43 = s_dot3;
+
+		__declspec(align(16)) ConstantBuffer cameraBuffer;
+		cameraBuffer.ViewMatrix = XMMatrixTranspose(GetViewMatrix());
+		cameraBuffer.ViewProjectionMatrix = XMMatrixTranspose(GetViewProjectionMatrix());
+		cameraBuffer.ProjectionMatrix = XMMatrixTranspose(GetProjectionMatrix());
+		cameraBuffer.ViewportMatrix = XMMatrixTranspose(GetViewportMatrix());
+
+		D3D11_MAPPED_SUBRESOURCE mappedRes;
+		auto context = GraphicsWindow::GetInstance()->GetContext();
+		if (!D3DCheck(context->Map(m_gpuCameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedRes),
+			L"ID3D11DeviceContext::Map (Camera Matrix Update)")) return;
+		memcpy_s(mappedRes.pData, sizeof(ConstantBuffer), &cameraBuffer, sizeof(ConstantBuffer));
+		context->Unmap(m_gpuCameraBuffer, 0);
+	}
 protected:
 	ID3D11Buffer* m_gpuCameraBuffer;
 	XMFLOAT4X4 m_viewMatrix;
@@ -33,6 +86,11 @@ protected:
 	XMFLOAT3 m_right;
 	XMFLOAT3 m_up;
 	XMFLOAT3 m_look;
+	float m_yaw;
+	float m_pitch;
+	float m_roll;
+
+	std::shared_ptr<CameraBehavior> m_behavior;
 
 	struct ConstantBuffer
 	{
@@ -44,15 +102,22 @@ protected:
 		float padding;
 	};
 
-	Changes m_changes;
+
+	
 
 public:
-	CameraBase()
+
+	Camera(std::shared_ptr<CameraBehavior> behavior)
 		: m_gpuCameraBuffer(nullptr)
 		, m_position(6.0f, 20.0f, 6.0f)
 		, m_right(1.0f, 0.0f, 0.0f)
 		, m_up(0.0f, 1.0f, 0.0f)
 		, m_look(0.0f, 0.0f, 1.0f)
+		, m_yaw(0)
+		, m_pitch(0)
+		, m_roll(0)
+		, m_behavior(behavior)
+
 	{
 		D3D11_BUFFER_DESC bd;
 		ZeroMemory(&bd, sizeof(bd));
@@ -69,14 +134,22 @@ public:
 		OnResize(width, height);
 	}
 
-	virtual ~CameraBase()
+	~Camera()
 	{
 		if (m_gpuCameraBuffer)
 			m_gpuCameraBuffer->Release();
 	}
 
-	virtual void Tick(float dt) = 0;
-	virtual void HandleEvent(GraphicsWindow::Event& event) = 0;
+	void Tick(float dt) 
+	{ 
+		m_behavior->Tick(this, dt);
+		UpdateGpuBuffer();
+	}
+
+	void HandleEvent(GraphicsWindow::Event& event) 
+	{ 
+		m_behavior->HandleEvent(this, event); 
+	};
 
 	void ComputeRayFromMousePointer(XMFLOAT3& origin, XMFLOAT3& direction)
 	{
@@ -112,8 +185,6 @@ public:
 	{
 		XMMATRIX P = XMMatrixPerspectiveFovLH(fovY, aspect, zn, zf);
 		XMStoreFloat4x4(&m_projMatrix, P);
-
-		m_changes.Projection = true;
 	}
 
 	void OnResize(int width, int height)
@@ -140,12 +211,10 @@ public:
 	void SetPosition(float x, float y, float z)
 	{
 		m_position = XMFLOAT3(x, y, z);
-		m_changes.Position = true;
 	}
 	void SetPosition(const XMFLOAT3& position)
 	{
 		m_position = position;
-		m_changes.Position = true;
 	}
 
 };

@@ -164,12 +164,13 @@
     <ClCompile Include="Source\Core\StringOps.cpp" />
     <ClCompile Include="Source\Core\Texture.cpp" />
     <ClCompile Include="Source\Core\Timer.cpp" />
-    <ClCompile Include="Source\Game\FlyCamera.cpp" />
+    <ClCompile Include="Source\Game\CameraBehaviorFly.cpp" />
     <ClCompile Include="Source\Game\MapRenderer.cpp" />
     <ClCompile Include="Source\Game\Models\Cube.cpp" />
     <ClCompile Include="Source\Game\Models\Grid.cpp" />
     <ClCompile Include="Source\Game\TextRenderer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\TileEngine\TileEngine.cpp" />
     <ClCompile Include="Source\TileEngine\Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -189,13 +190,15 @@
     <ClInclude Include="Source\Core\Threadpool.h" />
     <ClInclude Include="Source\Core\Timer.h" />
     <ClInclude Include="Source\Core\UniqueHandle.h" />
-    <ClInclude Include="Source\Game\CameraBase.h" />
-    <ClInclude Include="Source\Game\FlyCamera.h" />
+    <ClInclude Include="Source\Game\Camera.h" />
+    <ClInclude Include="Source\Game\CameraBehavior.h" />
+    <ClInclude Include="Source\Game\CameraBehaviorFly.h" />
     <ClInclude Include="Source\Game\MapRenderer.h" />
     <ClInclude Include="Source\Game\Models\Cube.h" />
     <ClInclude Include="Source\Game\Models\Grid.h" />
     <ClInclude Include="Source\Game\TextRenderer.h" />
     <ClInclude Include="Source\TileEngine\Tile.h" />
+    <ClInclude Include="Source\TileEngine\TileEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Lib\DirectXTex\DirectXTex_Desktop_2015.vcxproj">

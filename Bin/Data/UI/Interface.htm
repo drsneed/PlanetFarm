@@ -1,29 +1,31 @@
 <html>
     <head>
-        <title>Game UI</title>
         <style>
 
-          body { 
-            margin:0; 
-            background:white; 
-            size:*; // spans all space left from toolbar and statusbar
-          }
-
           toolbar { 
-             display:block;
-             flow:horizontal;
-             background:#eee; 
+             flow:vertical;
+             height: 97%;
+             width: 80px;
+             background:#555; 
           }
-          toolbar > button { size:34dip; 
-                             foreground-repeat:no-repeat;
-                             foreground-position:50% 50%;
-                             foreground-size:16dip; }
+          toolbar > button {  
 
-          toolbar > button.cut { foreground-image: url(sciter:cut.png); }
-          toolbar > button.copy { foreground-image: url(sciter:copy.png); }
+
+ 		}
+
+          toolbar > button.copy { 
+          	foreground:transparent;
+          	foreground-image: url(sciter:copy.png);
+			size:34dip;
+			foreground-repeat:no-repeat;
+			foreground-position:50% 50%;
+			foreground-size:16dip;
+         }
 
           statusbar { 
              display:block;
+             width: 100%;
+             height: 3%;
              flow:horizontal;
              background:#f4f4f4; 
           }
@@ -32,15 +34,23 @@
           statusbar > span:last-child { margin-left:*; } // attached to the right 
 
         </style>
+
+        <script type="text/tiscript">
+	      
+	      $(button#open).on("click", function(){
+	      
+	        var fn = view.ReloadUi();
+	      });
+    
+    </script>
         
     </head>
     <section id="toolbar">
-        <toolbar><button.cut />
-             <button.copy /></toolbar>
+        <toolbar>
+    			<button #open>Reload UI</button> 
+            <button.copy />
+       	</toolbar>
     </section>
-
-    <body>
-    </body>
     <section id="statusbar">
         <statusbar><span>left</span>
                <span>right</span></statusbar>

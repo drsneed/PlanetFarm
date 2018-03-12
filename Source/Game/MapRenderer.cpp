@@ -27,7 +27,7 @@ WorldRenderer::~WorldRenderer()
 		m_gridInputLayout->Release();
 }
 
-void WorldRenderer::RenderGrid(std::shared_ptr<CameraBase>& camera)
+void WorldRenderer::RenderGrid(std::shared_ptr<Camera>& camera)
 {
 	auto context = GraphicsWindow::GetInstance()->GetContext();
 
