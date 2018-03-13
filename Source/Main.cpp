@@ -17,7 +17,7 @@
 #include <ctime>
 #include <Core/ColorConverter.h>
 #include <Game/Camera.h>
-#include <Game/CameraBehaviorFly.h>
+#include <Game/CameraBehaviorMap.h>
 #include <TileEngine/Tile.h>
 
 
@@ -53,8 +53,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	//camera->RotateY(XMConvertToRadians(-135.0f));
 	//camera->Pitch(XMConvertToRadians(30.f));
-	auto fly_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorFly>());
+	auto fly_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorMap>());
 	fly_cam->SetPosition(0.0f, 6.0f, 0.0f);
+	fly_cam->Pitch(90.0f);
 
 	const FLOAT bg[4] = { 0.14f, 0.34f, 0.34f, 1.0f };
 

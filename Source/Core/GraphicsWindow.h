@@ -79,12 +79,27 @@ private:
 	{
 		BEGIN_FUNCTION_MAP
 			FUNCTION_0("ReloadUi", ReloadUi)
+			FUNCTION_0("Yaw", Yaw)
+			FUNCTION_0("Pitch", Pitch)
+			FUNCTION_0("Roll", Roll)
 		END_FUNCTION_MAP
 
 		sciter::value ReloadUi()
 		{
 			auto window = GraphicsWindow::GetInstance();
 			window->ReloadUi();
+			return sciter::value(true);
+		}
+		sciter::value Yaw()
+		{
+			return sciter::value(true);
+		}
+		sciter::value Pitch()
+		{
+			return sciter::value(true);
+		}
+		sciter::value Roll()
+		{
 			return sciter::value(true);
 		}
 		sciter::value setColorSpeed(sciter::value speed)
@@ -182,6 +197,12 @@ public:
 	};
 	void GetMouseFrameDifference(int& diffX, int& diffY);
 	void GetMousePosition(int& mouseX, int& mouseY);
+	XMFLOAT2 GetMousePosition()
+	{
+		int x, y;
+		GetMousePosition(x, y);
+		return XMFLOAT2(static_cast<float>(x), static_cast<float>(y));
+	};
 	void SetRasterizerState(const RasterizerState state);
 	void EnableAlphaBlending(bool enable);
 	ID3D11SamplerState* GetStandardSamplerState() const { return m_standardSamplerState; }

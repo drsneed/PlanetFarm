@@ -8,9 +8,9 @@ public:
 	XMVECTOR GetLookVectorXM() const { return XMLoadFloat3(&m_look); }
 	XMVECTOR GetUpVectorXM() const { return XMLoadFloat3(&m_up); }
 	XMVECTOR GetRightVectorXM() const { return XMLoadFloat3(&m_right); }
-	void Yaw(float amount) { m_yaw += amount; }
-	void Pitch(float amount) { m_pitch += amount; }
-	void Roll(float amount) { m_roll += amount; }
+	void Yaw(float amount) { m_yaw += XMConvertToRadians(amount); }
+	void Pitch(float amount) { m_pitch += XMConvertToRadians(amount); }
+	void Roll(float amount) { m_roll += XMConvertToRadians(amount); }
 
 	void UpdateGpuBuffer()
 	{

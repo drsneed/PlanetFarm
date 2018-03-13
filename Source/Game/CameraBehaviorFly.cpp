@@ -94,10 +94,8 @@ void CameraBehaviorFly::HandleEvent(Camera* camera, GraphicsWindow::Event& event
 		
 		if(ctrl)
 		{
-			auto dx = XMConvertToRadians(0.25f * static_cast<float>(event.x - m_lastMouseX));
-			auto dy = XMConvertToRadians(0.25f * static_cast<float>(event.y - m_lastMouseY));
-			camera->Pitch(dy);
-			camera->Yaw(dx);
+			camera->Pitch(0.25f * static_cast<float>(event.y - m_lastMouseY));
+			camera->Yaw(0.25f * static_cast<float>(event.x - m_lastMouseX));
 			_CaptureMousePos();
 		}
 
