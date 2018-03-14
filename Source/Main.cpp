@@ -49,13 +49,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		window->Close();
 	}
 
-	auto worldRenderer = std::make_unique<WorldRenderer>();
+	auto map_renderer = std::make_unique<MapRenderer>();
 
 	//camera->RotateY(XMConvertToRadians(-135.0f));
 	//camera->Pitch(XMConvertToRadians(30.f));
-	auto fly_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorMap>());
-	fly_cam->SetPosition(0.0f, 6.0f, 0.0f);
-	fly_cam->Pitch(90.0f);
+	auto map_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorMap>());
+	map_cam->SetPosition(0.0f, 100.f, 0.0f);
+	map_cam->Pitch(90.0f);
 
 	const FLOAT bg[4] = { 0.14f, 0.34f, 0.34f, 1.0f };
 
@@ -76,7 +76,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 				window->Close();
 			}
 			// Dispatch windowEvent to subsystems
-			fly_cam->HandleEvent(windowEvent);
+			map_cam->HandleEvent(windowEvent);
 
 
 		}
@@ -84,7 +84,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		auto delta_time = window->GetTimer()->GetDeltaTime();
 
 		// Perform Updating
-		fly_cam->Tick(delta_time);
+		map_cam->Tick(delta_time);
 
 
 		// Perform Rendering
@@ -92,10 +92,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			window->Clear(bg);
 
-			worldRenderer->RenderGrid(fly_cam);
+			//map_renderer->DrawGrid(map_cam);
 
-			
-			auto pos = fly_cam->GetPosition();
+			map_renderer->DrawSquare(map_cam, XMFLOAT2(0.0f, 0.0f), 10.0f, 0xFF7700FF);
+
+			auto pos = map_cam->GetPosition();
 			text_renderer->PreparePipeline();
 			text_renderer->Printf(10.f, 10.f, 0.01f, 0xFFFFFFFF, 1.0f, "Camera Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
 			text_renderer->Printf(10.f, 40.f, 0.01f, 0xDBB600FF, 1.0f, "FPS: %.2f", window->GetTimer()->GetFPS());

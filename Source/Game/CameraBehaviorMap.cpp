@@ -13,6 +13,7 @@ CameraBehaviorMap::CameraBehaviorMap()
 	: _velocity(0.0f, 0.0f)
 	, _mouse_pointer_pan_start(0.0f, 0.0f)
 	, _ease_timer(0.0f)
+	, _state(State::Idle)
 {
 	_mouse_pointer_last = GraphicsWindow::GetInstance()->GetMousePosition();
 }
@@ -156,6 +157,10 @@ void CameraBehaviorMap::HandleEvent(Camera* camera, GraphicsWindow::Event& event
 				_velocity.y = (dif.y / _ease_timer);
 				_ease_timer = 1.0f;
 			}
+			else
+			{
+				_state = State::Idle;
+			}
 		}
 		break;
 	case GraphicsWindow::Event::Type::MouseMotion:
@@ -170,7 +175,7 @@ void CameraBehaviorMap::HandleEvent(Camera* camera, GraphicsWindow::Event& event
 			XMFLOAT2 difference;
 			XMStoreFloat2(&difference, dif);
 
-			if (difference.x > 0.0 || difference.y > 0.0)
+			if (difference.x != 0.0 || difference.y != 0.0)
 			{
 				auto new_pos = camera->GetPosition();
 				new_pos.x += difference.x;

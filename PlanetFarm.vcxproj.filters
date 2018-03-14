@@ -52,6 +52,8 @@
     <ClCompile Include="Source\Game\CameraBehaviorFly.cpp">
       <Filter>Source\Game</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Game\CameraBehaviorMap.cpp" />
+    <ClCompile Include="Source\Game\Models\Square.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lib\tinyxml2.h">
@@ -127,6 +129,8 @@
     <ClInclude Include="Source\Game\CameraBehaviorFly.h">
       <Filter>Source\Game</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Game\CameraBehaviorMap.h" />
+    <ClInclude Include="Source\Game\Models\Square.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lib">

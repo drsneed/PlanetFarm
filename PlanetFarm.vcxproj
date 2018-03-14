@@ -165,9 +165,11 @@
     <ClCompile Include="Source\Core\Texture.cpp" />
     <ClCompile Include="Source\Core\Timer.cpp" />
     <ClCompile Include="Source\Game\CameraBehaviorFly.cpp" />
+    <ClCompile Include="Source\Game\CameraBehaviorMap.cpp" />
     <ClCompile Include="Source\Game\MapRenderer.cpp" />
     <ClCompile Include="Source\Game\Models\Cube.cpp" />
     <ClCompile Include="Source\Game\Models\Grid.cpp" />
+    <ClCompile Include="Source\Game\Models\Square.cpp" />
     <ClCompile Include="Source\Game\TextRenderer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\TileEngine\TileEngine.cpp" />
@@ -193,9 +195,11 @@
     <ClInclude Include="Source\Game\Camera.h" />
     <ClInclude Include="Source\Game\CameraBehavior.h" />
     <ClInclude Include="Source\Game\CameraBehaviorFly.h" />
+    <ClInclude Include="Source\Game\CameraBehaviorMap.h" />
     <ClInclude Include="Source\Game\MapRenderer.h" />
     <ClInclude Include="Source\Game\Models\Cube.h" />
     <ClInclude Include="Source\Game\Models\Grid.h" />
+    <ClInclude Include="Source\Game\Models\Square.h" />
     <ClInclude Include="Source\Game\TextRenderer.h" />
     <ClInclude Include="Source\TileEngine\Tile.h" />
     <ClInclude Include="Source\TileEngine\TileEngine.h" />

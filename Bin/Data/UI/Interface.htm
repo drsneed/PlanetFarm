@@ -5,21 +5,30 @@
           toolbar { 
              flow:vertical;
              height: 97%;
-             width: 80px;
+             width: 60px;
              background:#555; 
+             transform: translate(-95%, 0);
+
+          }
+          toolbar:hover 
+          {
+            transform: translate(0%, 0);
+            transition: transform(quad-out, 300ms, 200ms); /*300ms transition, 200ms delay to start */
           }
           toolbar > button {  
-
-
- 		}
+             color: #EEE;
+ 		      }
+          toolbar > button:hover {  
+             color: #000;
+          }
 
           toolbar > button.copy { 
           	foreground:transparent;
           	foreground-image: url(sciter:copy.png);
-			size:34dip;
-			foreground-repeat:no-repeat;
-			foreground-position:50% 50%;
-			foreground-size:16dip;
+      			size:34dip;
+      			foreground-repeat:no-repeat;
+      			foreground-position:50% 50%;
+      			foreground-size:16dip;
          }
 
           statusbar { 
@@ -37,18 +46,33 @@
 
         <script type="text/tiscript">
 	      
-	      $(button#open).on("click", function(){
+	      $(button#reloadui).on("click", function(){
 	      
 	        var fn = view.ReloadUi();
 	      });
+        $(button#yaw).on("click", function(){
+        
+          var fn = view.Yaw();
+        });
+        $(button#pitch).on("click", function(){
+        
+          var fn = view.Pitch();
+        });
+        $(button#roll).on("click", function(){
+        
+          var fn = view.Roll();
+        });
     
     </script>
         
     </head>
     <section id="toolbar">
         <toolbar>
-    			<button #open>Reload UI</button> 
-            <button.copy />
+    			<button #reloadui>Reload UI</button>
+          <button #yaw>Yaw</button>
+          <button #pitch>Pitch</button>
+          <button #roll>Roll</button>
+          <button.copy />
        	</toolbar>
     </section>
     <section id="statusbar">
