@@ -166,6 +166,7 @@
     <ClCompile Include="Source\Core\Timer.cpp" />
     <ClCompile Include="Source\Game\CameraBehaviorFly.cpp" />
     <ClCompile Include="Source\Game\CameraBehaviorMap.cpp" />
+    <ClCompile Include="Source\Game\Map.cpp" />
     <ClCompile Include="Source\Game\MapRenderer.cpp" />
     <ClCompile Include="Source\Game\Models\Cube.cpp" />
     <ClCompile Include="Source\Game\Models\Grid.cpp" />
@@ -196,6 +197,8 @@
     <ClInclude Include="Source\Game\CameraBehavior.h" />
     <ClInclude Include="Source\Game\CameraBehaviorFly.h" />
     <ClInclude Include="Source\Game\CameraBehaviorMap.h" />
+    <ClInclude Include="Source\Game\Map.h" />
+    <ClInclude Include="Source\Game\MapConfig.h" />
     <ClInclude Include="Source\Game\MapRenderer.h" />
     <ClInclude Include="Source\Game\Models\Cube.h" />
     <ClInclude Include="Source\Game\Models\Grid.h" />

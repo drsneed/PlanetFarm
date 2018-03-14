@@ -26,7 +26,6 @@ namespace
 	static uint32_t ZOOM_MASK = 0b00000000000000000000000000001111;
 
 	static uint32_t MAX_KEY = 4294967295;
-	static uint32_t MAX_ZOOM = 15;
 }
 
 auto Tile::ToBinaryQuadKey() -> uint32_t
@@ -36,7 +35,7 @@ auto Tile::ToBinaryQuadKey() -> uint32_t
 	auto y32 = static_cast<uint32_t>(y);
 	auto z32 = static_cast<uint32_t>(z);
 
-	ASSERT(z32 < MAX_ZOOM);
+	ASSERT(z32 < TILE_MAX_ZOOM);
 
 	auto max_coord = pow(2, z32);
 
@@ -62,7 +61,7 @@ Tile::Tile(uint32_t key)
 	uint32_t y32 = 0;
 	uint32_t z32 = key & ZOOM_MASK;
 
-	ASSERT(z < MAX_ZOOM);
+	ASSERT(z < TILE_MAX_ZOOM);
 	for (uint32_t i = 0; i < z32; ++i)
 	{
 		auto bit_location = 32 - ((i + 1) * 2);
@@ -89,7 +88,7 @@ auto Tile::ToQuadKey() -> std::string
 	auto binary_key = this->ToBinaryQuadKey();
 	ASSERT(binary_key < MAX_KEY);
 	auto z32 = binary_key & ZOOM_MASK;
-	ASSERT(z32 < MAX_ZOOM);
+	ASSERT(z32 < TILE_MAX_ZOOM);
 
 	std::string result{};
 
@@ -110,8 +109,8 @@ auto Tile::IsParentChildRelation(uint32_t parent_key, uint32_t child_key) -> boo
 
 	ASSERT(parent_key < MAX_KEY);
 	ASSERT(child_key < MAX_KEY);
-	ASSERT(parent_zoom < MAX_ZOOM);
-	ASSERT(child_zoom < MAX_ZOOM);
+	ASSERT(parent_zoom < TILE_MAX_ZOOM);
+	ASSERT(child_zoom < TILE_MAX_ZOOM);
 	
 	if(child_zoom <= parent_zoom)
 		return false;

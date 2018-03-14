@@ -1,7 +1,7 @@
 #include "CameraBehaviorMap.h"
 #include "Camera.h"
 
-#define DEFAULT_VELOCITY 5.0f
+#define DEFAULT_VELOCITY 120.0f
 
 // Minimum distance camera must move in one pan session to trigger an ease-out effect
 #define EASE_OUT_MIN_DISTANCE_TRIGGER 20.0f 

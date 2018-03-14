@@ -19,6 +19,7 @@
 #include <Game/Camera.h>
 #include <Game/CameraBehaviorMap.h>
 #include <TileEngine/Tile.h>
+#include <Game/Map.h>
 
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
@@ -50,11 +51,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 
 	auto map_renderer = std::make_unique<MapRenderer>();
-
+	auto map = Map();
 	//camera->RotateY(XMConvertToRadians(-135.0f));
 	//camera->Pitch(XMConvertToRadians(30.f));
 	auto map_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorMap>());
-	map_cam->SetPosition(0.0f, 100.f, 0.0f);
+	map_cam->SetPosition(0.0f, 1000.f, 0.0f);
 	map_cam->Pitch(90.0f);
 
 	const FLOAT bg[4] = { 0.14f, 0.34f, 0.34f, 1.0f };
@@ -94,12 +95,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 			//map_renderer->DrawGrid(map_cam);
 
-			map_renderer->DrawSquare(map_cam, XMFLOAT2(0.0f, 0.0f), 10.0f, 0xFF7700FF);
-
+			map_renderer->DrawSquare(map_cam, XMFLOAT2(128.0f, 128.0f), 256.0f, 0.f, 0xFF7700FF);
+			map_renderer->DrawSquare(map_cam, XMFLOAT2(384.0f, 128.0f), 256.0f, 0.f, 0xFF7700FF);
+			map_renderer->DrawMapBounds(map_cam);
 			auto pos = map_cam->GetPosition();
+			auto cursor_pos = window->GetMousePosition();
+			auto map_pos = map.GetMouseCursorPosition(map_cam);
 			text_renderer->PreparePipeline();
-			text_renderer->Printf(10.f, 10.f, 0.01f, 0xFFFFFFFF, 1.0f, "Camera Pos: %.2f, %.2f, %.2f", pos.x, pos.y, pos.z);
+			text_renderer->Printf(10.f, 10.f, 0.01f, 0xFFFFFFFF, 1.0f, "CAM: (%.2f, %.2f, %.2f)", pos.x, pos.y, pos.z);
 			text_renderer->Printf(10.f, 40.f, 0.01f, 0xDBB600FF, 1.0f, "FPS: %.2f", window->GetTimer()->GetFPS());
+			text_renderer->Printf(10.f, 70.f, 0.01f, 0xFFFFFFFF, 1.0f, "SCREEN_CURSOR: (%.2f, %.2f)", cursor_pos.x, cursor_pos.y);
+			text_renderer->Printf(10.f, 100.f, 0.01f, 0xFFFFFFFF, 1.0f, "MAP_CURSOR: (%.2f, %.2f)", map_pos.x, map_pos.z);
+
 			text_renderer->RestorePipeline();
 
 			window->RenderSciterUI();

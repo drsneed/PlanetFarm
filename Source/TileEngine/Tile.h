@@ -7,8 +7,11 @@
 // Each coordinate gets 14 bits of space and the zoom level gets 4 bits.
 // Therefore, the maximum coordinate value is 2^14(16384) minus one (zero-based)
 // The zoom level is stored in the 4 least significant bits. 
-// This allows a maximum of 16 zoom levels, however with only 14 bits per coordinate, 
+// This allows a maximum of 16 zoom levels (0 thru 15), however with only 14 bits per coordinate, 
 // we can only go to zoom level 14
+
+#define TILE_MAX_ZOOM 15
+#define TILE_PIXEL_WIDTH 256
 
 enum class TileDataType : uint8_t
 {

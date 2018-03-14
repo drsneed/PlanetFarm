@@ -8,20 +8,34 @@ Square::Square()
 {
 
 	Vertex verts[5];
-	verts[0].x = 0.0f;
-	verts[0].y = 0.0f;
+	verts[0].x = -0.5f;
+	verts[0].y = -0.5f;
 
-	verts[1].x = 1.0f;
-	verts[1].y = 0.0f;
+	verts[1].x = 0.5f;
+	verts[1].y = -0.5f;
+
+	verts[2].x = 0.5f;
+	verts[2].y = 0.5f;
+
+	verts[3].x = -0.5f;
+	verts[3].y = 0.5f;
+
+	verts[4].x = -0.5f;
+	verts[4].y = -0.5f;
+	/*verts[0].x = 0.f;
+	verts[0].y = 0.f;
+
+	verts[1].x = 1.f;
+	verts[1].y = 0.f;
 
 	verts[2].x = 1.0f;
 	verts[2].y = 1.0f;
 
-	verts[3].x = 0.0f;
-	verts[3].y = 1.0f;
+	verts[3].x = 0.f;
+	verts[3].y = 1.f;
 
-	verts[4].x = 0.0f;
-	verts[4].y = 0.0f;
+	verts[4].x = 0.f;
+	verts[4].y = 0.f;*/
 
 
 	D3D11_BUFFER_DESC vertexBufferDesc;

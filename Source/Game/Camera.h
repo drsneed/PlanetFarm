@@ -151,7 +151,7 @@ public:
 		m_behavior->HandleEvent(this, event); 
 	};
 
-	void ComputeRayFromMousePointer(XMFLOAT3& origin, XMFLOAT3& direction)
+	void ComputeRayFromMouseCursor(XMFLOAT3& origin, XMFLOAT3& direction)
 	{
 		auto window = GraphicsWindow::GetInstance();
 		int sx, sy, width, height;
@@ -203,7 +203,7 @@ public:
 	XMMATRIX GetViewMatrix() const { return XMLoadFloat4x4(&m_viewMatrix); }
 	XMMATRIX GetProjectionMatrix() const { return XMLoadFloat4x4(&m_projMatrix); }
 	XMMATRIX GetViewportMatrix() const { return XMLoadFloat4x4(&m_viewportMatrix); }
-	XMMATRIX GetViewProjectionMatrix() const { return GetProjectionMatrix() * GetViewMatrix(); }
+	XMMATRIX GetViewProjectionMatrix() const { return GetViewMatrix() * GetProjectionMatrix(); }
 	ID3D11Buffer* GetConstantBuffer() const { return m_gpuCameraBuffer; }
 	XMFLOAT3 GetPosition() const { return m_position; };
 	XMVECTOR GetPositionXM() const { return XMLoadFloat3(&m_position); };
