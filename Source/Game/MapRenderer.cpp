@@ -143,7 +143,7 @@ void MapRenderer::DrawSquare(std::shared_ptr<Camera>& camera, XMFLOAT2 position,
 	//auto world_mat = translation_mat * scale_mat;//translation_mat * rotation_mat * scale_mat;
 	auto world_mat = XMMatrixIdentity() * 
 					 XMMatrixScaling(width, 0.0f, width) * 
-					 XMMatrixTranslation(position.x, 0.1f, position.y);
+					 XMMatrixTranslation(position.x, 1.0f, position.y);
 
 	XMStoreFloat4x4(&object.world_matrix, XMMatrixTranspose(world_mat));
 	

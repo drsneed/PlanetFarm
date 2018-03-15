@@ -77,6 +77,13 @@ public:
 		memcpy_s(mappedRes.pData, sizeof(ConstantBuffer), &cameraBuffer, sizeof(ConstantBuffer));
 		context->Unmap(m_gpuCameraBuffer, 0);
 	}
+
+	size_t NotifyPosChange(std::function<void(XMFLOAT3)> callback)
+	{
+		_notify_pos_change_list.push_back(callback);
+		return _notify_pos_change_list.size() - 1;
+	}
+	
 protected:
 	ID3D11Buffer* m_gpuCameraBuffer;
 	XMFLOAT4X4 m_viewMatrix;
@@ -89,6 +96,8 @@ protected:
 	float m_yaw;
 	float m_pitch;
 	float m_roll;
+
+	std::vector <std::function<void(XMFLOAT3)>> _notify_pos_change_list;
 
 	std::shared_ptr<CameraBehavior> m_behavior;
 
@@ -210,11 +219,21 @@ public:
 
 	void SetPosition(float x, float y, float z)
 	{
-		m_position = XMFLOAT3(x, y, z);
+		m_position.x = x;
+		m_position.y = y;
+		m_position.z = z;
+		for(auto& callback: _notify_pos_change_list)
+		{
+			callback(m_position);
+		}
 	}
 	void SetPosition(const XMFLOAT3& position)
 	{
 		m_position = position;
+		for (auto& callback : _notify_pos_change_list)
+		{
+			callback(m_position);
+		}
 	}
 
 };

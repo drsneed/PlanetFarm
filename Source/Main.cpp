@@ -50,13 +50,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		window->Close();
 	}
 
-	auto map_renderer = std::make_unique<MapRenderer>();
-	auto map = Map();
-	//camera->RotateY(XMConvertToRadians(-135.0f));
-	//camera->Pitch(XMConvertToRadians(30.f));
 	auto map_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorMap>());
 	map_cam->SetPosition(0.0f, 1000.f, 0.0f);
 	map_cam->Pitch(90.0f);
+
+	auto map = std::make_unique<Map>(map_cam);
+	//camera->RotateY(XMConvertToRadians(-135.0f));
+	//camera->Pitch(XMConvertToRadians(30.f));
+
 
 	const FLOAT bg[4] = { 0.14f, 0.34f, 0.34f, 1.0f };
 
@@ -78,7 +79,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			}
 			// Dispatch windowEvent to subsystems
 			map_cam->HandleEvent(windowEvent);
-
+			map->HandleEvent(windowEvent);
 
 		}
 
@@ -86,6 +87,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		// Perform Updating
 		map_cam->Tick(delta_time);
+		map->Tick(delta_time);
 
 
 		// Perform Rendering
@@ -93,14 +95,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		{
 			window->Clear(bg);
 
+			map->RenderScene();
+
 			//map_renderer->DrawGrid(map_cam);
 
-			map_renderer->DrawSquare(map_cam, XMFLOAT2(128.0f, 128.0f), 256.0f, 0.f, 0xFF7700FF);
-			map_renderer->DrawSquare(map_cam, XMFLOAT2(384.0f, 128.0f), 256.0f, 0.f, 0xFF7700FF);
-			map_renderer->DrawMapBounds(map_cam);
+
+			
 			auto pos = map_cam->GetPosition();
 			auto cursor_pos = window->GetMousePosition();
-			auto map_pos = map.GetMouseCursorPosition(map_cam);
+			auto map_pos = map->GetMouseCursorPosition();
 			text_renderer->PreparePipeline();
 			text_renderer->Printf(10.f, 10.f, 0.01f, 0xFFFFFFFF, 1.0f, "CAM: (%.2f, %.2f, %.2f)", pos.x, pos.y, pos.z);
 			text_renderer->Printf(10.f, 40.f, 0.01f, 0xDBB600FF, 1.0f, "FPS: %.2f", window->GetTimer()->GetFPS());
