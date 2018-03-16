@@ -160,15 +160,28 @@ public:
 		m_behavior->HandleEvent(this, event); 
 	};
 
+	void ComputeRayFromScreenCenter(XMFLOAT3& origin, XMFLOAT3& direction)
+	{
+		XMFLOAT2 center_screen;
+		int screen_width, screen_height;
+		GraphicsWindow::GetInstance()->GetSize(screen_width, screen_height);
+		center_screen.x = static_cast<float>(screen_width) / 2.0f;
+		center_screen.y = static_cast<float>(screen_height) / 2.0f;
+		ComputeRayFromScreenPoint(center_screen, origin, direction);
+	}
+
 	void ComputeRayFromMouseCursor(XMFLOAT3& origin, XMFLOAT3& direction)
 	{
-		auto window = GraphicsWindow::GetInstance();
-		int sx, sy, width, height;
-		window->GetMousePosition(sx, sy);
-		window->GetSize(width, height);
+		ComputeRayFromScreenPoint(GraphicsWindow::GetInstance()->GetMousePosition(), origin, direction);
+	}
 
-		auto vx = (2.0f * sx / width - 1.0f) / m_projMatrix(0, 0);
-		auto vy = (-2.0f * sy / height + 1.0f) / m_projMatrix(1, 1);
+	void ComputeRayFromScreenPoint(const XMFLOAT2& screen_point, XMFLOAT3& origin, XMFLOAT3& direction)
+	{
+		int width, height;
+		GraphicsWindow::GetInstance()->GetSize(width, height);
+
+		auto vx = (2.0f * screen_point.x / static_cast<float>(width) - 1.0f) / m_projMatrix(0, 0);
+		auto vy = (-2.0f * screen_point.y / static_cast<float>(height) + 1.0f) / m_projMatrix(1, 1);
 
 		auto o = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 		auto d = DirectX::XMVectorSet(vx, vy, 1.0f, 0.0f);

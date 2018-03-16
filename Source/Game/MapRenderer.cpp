@@ -106,7 +106,8 @@ void MapRenderer::DrawTile(const Tile& tile)
 {
 	auto offset = TILE_PIXEL_WIDTH / 2.0f;
 	DrawSquare(
-		XMFLOAT2(static_cast<float>(tile.x) + offset, static_cast<float>(tile.y) + offset),
+		static_cast<float>(tile.x) * TILE_PIXEL_WIDTH + offset,
+		static_cast<float>(tile.y) * TILE_PIXEL_WIDTH + offset,
 		TILE_PIXEL_WIDTH,
 		0.0f,
 		0xFF0077FF);
@@ -143,7 +144,7 @@ void MapRenderer::_UploadPerObjectBuffer(ID3D11DeviceContext* context, const Squ
 	context->Unmap(m_perObjectBuffer, 0);
 }
 
-void MapRenderer::DrawSquare(XMFLOAT2 position, float width, float rotation, unsigned color)
+void MapRenderer::DrawSquare(float x, float y, float width, float rotation, unsigned color)
 {
 	auto context = GraphicsWindow::GetInstance()->GetContext();
 	__declspec(align(16)) SquarePerObjectBuffer object{};
@@ -154,7 +155,7 @@ void MapRenderer::DrawSquare(XMFLOAT2 position, float width, float rotation, uns
 	//auto world_mat = translation_mat * scale_mat;//translation_mat * rotation_mat * scale_mat;
 	auto world_mat = XMMatrixIdentity() * 
 					 XMMatrixScaling(width, 0.0f, width) * 
-					 XMMatrixTranslation(position.x, 1.0f, position.y);
+					 XMMatrixTranslation(x, 1.0f,y);
 
 	XMStoreFloat4x4(&object.world_matrix, XMMatrixTranspose(world_mat));
 	

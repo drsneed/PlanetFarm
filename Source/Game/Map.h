@@ -5,6 +5,8 @@
 #include "MapRenderer.h"
 #include "Camera.h"
 
+typedef XMFLOAT2 MapPoint;
+
 class Map
 {
 public:
@@ -63,11 +65,15 @@ public:
 	};
 private:
 	ZoomLevel _zoom;
-	float _center;
+	
+	MapPoint _cursor;
+	MapPoint _cam_center;
 	std::unique_ptr<TileEngine> _tile_engine;
 	std::shared_ptr<Camera> _cam;
 	std::unique_ptr<MapRenderer> _renderer;
 	std::vector<Tile> _visible_tiles;
+	BoundingRect _CalculateVisibleArea();
+	void _UpdateVisibleTiles();
 public:
 	Map(std::shared_ptr<Camera> camera);
 	void RenderScene();
@@ -75,10 +81,9 @@ public:
 	void ZoomOut();
 	void ZoomTo(const ZoomLevel& level);
 	auto GetZoom() const -> ZoomLevel;
-
-	XMFLOAT2 GetCenter() { return XMFLOAT2(_center, _center); }
 	/// Returns cursor position in world space
-	XMFLOAT3 GetMouseCursorPosition();
+	MapPoint GetCursor(bool refresh = false);
+	MapPoint GetCamCenter(bool refresh = false);
 	void HandleCameraPosChangedEvent(XMFLOAT3 position);
 	void Tick(float delta_time);
 	void HandleEvent(const GraphicsWindow::Event& event);

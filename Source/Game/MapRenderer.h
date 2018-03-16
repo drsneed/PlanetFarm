@@ -39,6 +39,6 @@ public:
 
 	void DrawTile(const Tile& tile);
 	void DrawGrid();
-	void DrawSquare(XMFLOAT2 position, float width, float rotation, unsigned color);
+	void DrawSquare(float x, float y, float width, float rotation, unsigned color);
 	void DrawMapBounds();
 };
