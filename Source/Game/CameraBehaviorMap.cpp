@@ -2,7 +2,6 @@
 #include "Camera.h"
 
 #define DEFAULT_VELOCITY 320.0f
-
 // Minimum distance camera must move in one pan session to trigger an ease-out effect
 #define EASE_OUT_MIN_DISTANCE_TRIGGER 20.0f 
 
@@ -153,8 +152,8 @@ void CameraBehaviorMap::HandleEvent(Camera* camera, GraphicsWindow::Event& event
 			if (dist >= EASE_OUT_MIN_DISTANCE_TRIGGER && _ease_timer <= EASE_OUT_MAX_TIME_TRIGGER)
 			{
 				_state = State::PanningEaseOut;
-				_velocity.x = (dif.x / _ease_timer);
-				_velocity.y = (dif.y / _ease_timer);
+				_velocity.x = (dif.x / _ease_timer) * 0.25f;
+				_velocity.y = (dif.y / _ease_timer) * 0.25f;
 				_ease_timer = 1.0f;
 			}
 			else
@@ -179,7 +178,7 @@ void CameraBehaviorMap::HandleEvent(Camera* camera, GraphicsWindow::Event& event
 			{
 				auto new_pos = camera->GetPosition();
 				new_pos.x += difference.x;
-				new_pos.z += difference.y;
+				new_pos.z -= difference.y;
 				camera->SetPosition(new_pos);
 			}
 			if (_ease_timer > 0.1f)

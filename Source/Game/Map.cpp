@@ -2,6 +2,12 @@
 #include <cmath>
 #include <TileEngine/Tile.h>
 
+MapPoint InvalidMapPoint = XMFLOAT2(NAN, NAN);
+
+bool IsValid(const MapPoint& map_point)
+{
+	return !isnan(map_point.x);
+}
 namespace
 {
 	const float map_center_zoom_0 = (pow(2, TILE_MAX_ZOOM) * TILE_PIXEL_WIDTH) / 2.0f;
@@ -23,29 +29,32 @@ Map::Map(std::shared_ptr<Camera> camera)
 
 void Map::HandleCameraPosChangedEvent(XMFLOAT3 position)
 {
-	GetCamCenter(true);
+	GetCenterScreen(true);
 	_UpdateVisibleTiles();
 }
 
 void Map::_UpdateVisibleTiles()
 {
 	BoundingRect visible_area;
-	visible_area.center = _cam_center;
+	visible_area.center = _center_screen;
 	int width, height;
 	GraphicsWindow::GetInstance()->GetSize(width, height);
-	visible_area.extent.x = static_cast<float>(width) / 2.0f;
-	visible_area.extent.y = static_cast<float>(height) / 2.0f;
+	auto top_right = ScreenPointToMapPoint(XMFLOAT2(width, 0.0f));
+	visible_area.extent.x = top_right.x - _center_screen.x;
+	visible_area.extent.y = top_right.y - _center_screen.y;
 	_visible_tiles = _tile_engine->Fetch(visible_area, _zoom.major_part);
 }
 
 void Map::ZoomIn()
 {
 	_zoom.inc();
+	_UpdateVisibleTiles();
 }
 
 void Map::ZoomOut()
 {
 	_zoom.dec();
+	_UpdateVisibleTiles();
 }
 
 void Map::ZoomTo(const ZoomLevel& level)
@@ -58,15 +67,15 @@ auto Map::GetZoom() const -> ZoomLevel
 	return _zoom;
 }
 
-MapPoint Map::GetCursor(bool refresh)
+
+
+MapPoint Map::ScreenPointToMapPoint(const XMFLOAT2& screen_point)
 {
-	if (!refresh)
-		return _cursor;
 	XMFLOAT3 origin, direction;
-	_cam->ComputeRayFromMouseCursor(origin, direction);
+	_cam->ComputeRayFromScreenPoint(screen_point, origin, direction);
 	if (isnan(direction.x))
 	{
-		return _cursor;
+		return InvalidMapPoint;
 	}
 	XMVECTOR o = XMLoadFloat3(&origin);
 	XMVECTOR d = XMLoadFloat3(&direction);
@@ -76,30 +85,31 @@ MapPoint Map::GetCursor(bool refresh)
 		auto intersection_point = o + d * distance;
 		XMFLOAT3 result;
 		XMStoreFloat3(&result, intersection_point);
-		_cursor = MapPoint(result.x, result.z);
+		return MapPoint(result.x, result.z);
+	}
+	return InvalidMapPoint;
+}
+
+MapPoint Map::GetCursor(bool refresh)
+{
+	if (refresh)
+	{
+		auto screen_point = GraphicsWindow::GetInstance()->GetMousePosition();
+		_cursor = ScreenPointToMapPoint(screen_point);
 	}
 	return _cursor;
 }
 
-MapPoint Map::GetCamCenter(bool refresh)
+MapPoint Map::GetCenterScreen(bool refresh)
 {
-	if (!refresh)
-		return _cam_center;
-	XMFLOAT3 origin, direction;
-	_cam->ComputeRayFromScreenCenter(origin, direction);
-	if (isnan(direction.x))
-		return _cam_center;
-	XMVECTOR o = XMLoadFloat3(&origin);
-	XMVECTOR d = XMLoadFloat3(&direction);
-	float distance;
-	if (map_bbox_zoom_0.Intersects(o, d, distance))
+	if (refresh)
 	{
-		auto intersection_point = o + d * distance;
-		XMFLOAT3 result;
-		XMStoreFloat3(&result, intersection_point);
-		_cam_center = MapPoint(result.x, result.z);
+		int width, height;
+		GraphicsWindow::GetInstance()->GetSize(width, height);
+		_center_screen = ScreenPointToMapPoint(XMFLOAT2(width/2.0f, height/2.0f));
 	}
-	return _cam_center;
+
+	return _center_screen;
 }
 
 void Map::Tick(float delta_time)

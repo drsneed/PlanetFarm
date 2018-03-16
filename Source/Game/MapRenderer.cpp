@@ -104,6 +104,14 @@ MapRenderer::~MapRenderer()
 
 void MapRenderer::DrawTile(const Tile& tile)
 {
+	//// Everything here is explained in Tutorial 3 ! There's nothing new.
+	//glm::vec4 BillboardPos_worldspace(x, y, z, 1.0f);
+	//glm::vec4 BillboardPos_screenspace = ProjectionMatrix * ViewMatrix * BillboardPos_worldspace;
+	//BillboardPos_screenspace /= BillboardPos_screenspace.w;
+
+	//if (BillboardPos_screenspace.z < 0.0f) {
+	//	// Object is behind the camera, don't display it.
+	//}
 	auto offset = TILE_PIXEL_WIDTH / 2.0f;
 	DrawSquare(
 		static_cast<float>(tile.x) * TILE_PIXEL_WIDTH + offset,

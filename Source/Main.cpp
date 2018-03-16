@@ -51,7 +51,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 
 	auto map_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorMap>());
-	map_cam->SetPosition(0.0f, 1000.f, 0.0f);
+	map_cam->SetPosition(312.0f, 1000.f, 422.0f);
 	map_cam->Pitch(90.0f);
 
 	auto map = std::make_unique<Map>(map_cam);
@@ -100,16 +100,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			//map_renderer->DrawGrid(map_cam);
 
 
-			
+			auto zoom = map->GetZoom();
 			auto pos = map_cam->GetPosition();
 			auto cursor_pos = window->GetMousePosition();
 			auto map_cursor = map->GetCursor();
 			text_renderer->PreparePipeline();
-			text_renderer->Printf(10.f, 10.f, 0.01f, 0xFFFFFFFF, 1.0f, "CAM: (%.2f, %.2f, %.2f)", pos.x, pos.y, pos.z);
-			text_renderer->Printf(10.f, 40.f, 0.01f, 0xDBB600FF, 1.0f, "FPS: %.2f", window->GetTimer()->GetFPS());
-			text_renderer->Printf(10.f, 70.f, 0.01f, 0xFFFFFFFF, 1.0f, "SCREEN_CURSOR: (%.2f, %.2f)", cursor_pos.x, cursor_pos.y);
-			text_renderer->Printf(10.f, 100.f, 0.01f, 0xFFFFFFFF, 1.0f, "MAP_CURSOR: (%.2f, %.2f)", map_cursor.x, map_cursor.y);
-
+			text_renderer->Printf(10.f, 10.f, 0.01f, 0xFFFFFFFF, 0.8f, "CAM: (%.2f, %.2f, %.2f)", pos.x, pos.y, pos.z);
+			text_renderer->Printf(10.f, 30.f, 0.01f, 0xDBB600FF, 0.8f, "FPS: %.2f", window->GetTimer()->GetFPS());
+			text_renderer->Printf(10.f, 50.f, 0.01f, 0xFFFFFFFF, 0.8f, "SCREEN_CURSOR: (%.2f, %.2f)", cursor_pos.x, cursor_pos.y);
+			text_renderer->Printf(10.f, 70.f, 0.01f, 0xFFFFFFFF, 0.8f, "MAP_CURSOR: (%.2f, %.2f)", map_cursor.x, map_cursor.y);
+			text_renderer->Printf(10.f, 90.f, 0.01f, 0xFFFFFFFF, 0.8f, "ZOOM: %d.%d", zoom.major_part, zoom.minor_part );
 			text_renderer->RestorePipeline();
 
 			window->RenderSciterUI();

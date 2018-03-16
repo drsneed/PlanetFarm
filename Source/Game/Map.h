@@ -7,6 +7,11 @@
 
 typedef XMFLOAT2 MapPoint;
 
+extern MapPoint InvalidMapPoint;
+
+static bool IsValid(const MapPoint& map_point);
+
+
 class Map
 {
 public:
@@ -28,33 +33,42 @@ public:
 
 		void inc()
 		{
-			if (minor_part == 9)
+			//if (minor_part == 9)
+			//{
+			//	if (major_part  < TILE_MAX_ZOOM)
+			//	{
+			//		major_part++;
+			//		minor_part = 0;
+			//	}
+			//}
+			//else
+			//{
+			//	minor_part++;
+			//}
+			if (major_part < TILE_MAX_ZOOM)
 			{
-				if (major_part  < TILE_MAX_ZOOM)
-				{
-					major_part++;
-					minor_part = 0;
-				}
-			}
-			else
-			{
-				minor_part++;
+				major_part++;
 			}
 		}
 
 		void dec()
 		{
-			if (minor_part == 0)
+			//if (minor_part == 0)
+			//{
+			//	if (major_part > 0)
+			//	{
+			//		major_part--;
+			//		minor_part = 9;
+			//	}
+			//}
+			//else
+			//{
+			//	minor_part--;
+			//}
+
+			if (major_part > 0)
 			{
-				if (major_part > 0)
-				{
-					major_part--;
-					minor_part = 9;
-				}
-			}
-			else
-			{
-				minor_part--;
+				major_part--;
 			}
 		}
 
@@ -67,12 +81,11 @@ private:
 	ZoomLevel _zoom;
 	
 	MapPoint _cursor;
-	MapPoint _cam_center;
+	MapPoint _center_screen;
 	std::unique_ptr<TileEngine> _tile_engine;
 	std::shared_ptr<Camera> _cam;
 	std::unique_ptr<MapRenderer> _renderer;
 	std::vector<Tile> _visible_tiles;
-	BoundingRect _CalculateVisibleArea();
 	void _UpdateVisibleTiles();
 public:
 	Map(std::shared_ptr<Camera> camera);
@@ -83,8 +96,10 @@ public:
 	auto GetZoom() const -> ZoomLevel;
 	/// Returns cursor position in world space
 	MapPoint GetCursor(bool refresh = false);
-	MapPoint GetCamCenter(bool refresh = false);
+	MapPoint GetCenterScreen(bool refresh = false);
 	void HandleCameraPosChangedEvent(XMFLOAT3 position);
 	void Tick(float delta_time);
 	void HandleEvent(const GraphicsWindow::Event& event);
+	XMFLOAT2 ScreenPointToMapPoint(const XMFLOAT2& screen_point);
+
 };

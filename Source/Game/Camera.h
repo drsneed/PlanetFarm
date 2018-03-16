@@ -160,21 +160,6 @@ public:
 		m_behavior->HandleEvent(this, event); 
 	};
 
-	void ComputeRayFromScreenCenter(XMFLOAT3& origin, XMFLOAT3& direction)
-	{
-		XMFLOAT2 center_screen;
-		int screen_width, screen_height;
-		GraphicsWindow::GetInstance()->GetSize(screen_width, screen_height);
-		center_screen.x = static_cast<float>(screen_width) / 2.0f;
-		center_screen.y = static_cast<float>(screen_height) / 2.0f;
-		ComputeRayFromScreenPoint(center_screen, origin, direction);
-	}
-
-	void ComputeRayFromMouseCursor(XMFLOAT3& origin, XMFLOAT3& direction)
-	{
-		ComputeRayFromScreenPoint(GraphicsWindow::GetInstance()->GetMousePosition(), origin, direction);
-	}
-
 	void ComputeRayFromScreenPoint(const XMFLOAT2& screen_point, XMFLOAT3& origin, XMFLOAT3& direction)
 	{
 		int width, height;
