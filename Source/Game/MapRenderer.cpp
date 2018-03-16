@@ -5,7 +5,7 @@
 
 #define MAP_BOUNDS_VERTEX_COUNT 5
 
-MapRenderer::MapRenderer()
+MapRenderer::MapRenderer(std::shared_ptr<Camera> camera)
 	: m_gridShader(LR"(Data/Grid.fx)", Shader::Vertex | Shader::Pixel)
 	, m_gridInputLayout(nullptr)
 	, m_squareShader(LR"(Data/Square.fx)", Shader::Vertex | Shader::Pixel)
@@ -14,6 +14,7 @@ MapRenderer::MapRenderer()
 	, m_perObjectBuffer(nullptr)
 	, _map_bounds_buffer(nullptr)
 	, _map_bounds_input_layout(nullptr)
+	, _cam(camera)
 {
 
 	auto device = GraphicsWindow::GetInstance()->GetDevice();
@@ -101,7 +102,17 @@ MapRenderer::~MapRenderer()
 		_map_bounds_input_layout->Release();
 }
 
-void MapRenderer::DrawGrid(std::shared_ptr<Camera>& camera)
+void MapRenderer::DrawTile(const Tile& tile)
+{
+	auto offset = TILE_PIXEL_WIDTH / 2.0f;
+	DrawSquare(
+		XMFLOAT2(static_cast<float>(tile.x) + offset, static_cast<float>(tile.y) + offset),
+		TILE_PIXEL_WIDTH,
+		0.0f,
+		0xFF0077FF);
+}
+
+void MapRenderer::DrawGrid()
 {
 	auto context = GraphicsWindow::GetInstance()->GetContext();
 
@@ -114,7 +125,7 @@ void MapRenderer::DrawGrid(std::shared_ptr<Camera>& camera)
 	context->VSSetShader(m_gridShader.GetVertexShader(), nullptr, 0);
 	context->PSSetShader(m_gridShader.GetPixelShader(), nullptr, 0);
 
-	auto cameraBuffer = camera->GetConstantBuffer();
+	auto cameraBuffer = _cam->GetConstantBuffer();
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 
 	context->IASetVertexBuffers(0, 1, m_grid.GetVertexBufferAddr(), &stride, &offset);
@@ -132,7 +143,7 @@ void MapRenderer::_UploadPerObjectBuffer(ID3D11DeviceContext* context, const Squ
 	context->Unmap(m_perObjectBuffer, 0);
 }
 
-void MapRenderer::DrawSquare(std::shared_ptr<Camera>& camera, XMFLOAT2 position, float width, float rotation, unsigned color)
+void MapRenderer::DrawSquare(XMFLOAT2 position, float width, float rotation, unsigned color)
 {
 	auto context = GraphicsWindow::GetInstance()->GetContext();
 	__declspec(align(16)) SquarePerObjectBuffer object{};
@@ -157,7 +168,7 @@ void MapRenderer::DrawSquare(std::shared_ptr<Camera>& camera, XMFLOAT2 position,
 	context->VSSetShader(m_squareShader.GetVertexShader(), nullptr, 0);
 	context->PSSetShader(m_squareShader.GetPixelShader(), nullptr, 0);
 
-	auto cameraBuffer = camera->GetConstantBuffer();
+	auto cameraBuffer = _cam->GetConstantBuffer();
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->VSSetConstantBuffers(1, 1, &m_perObjectBuffer);
 	context->IASetVertexBuffers(0, 1, m_square.GetVertexBufferAddr(), &stride, &offset);
@@ -167,7 +178,7 @@ void MapRenderer::DrawSquare(std::shared_ptr<Camera>& camera, XMFLOAT2 position,
 }
 
 
-void MapRenderer::DrawMapBounds(std::shared_ptr<Camera>& camera)
+void MapRenderer::DrawMapBounds()
 {
 	auto context = GraphicsWindow::GetInstance()->GetContext();
 	context->IASetInputLayout(_map_bounds_input_layout); // same layout, might as well re-use
@@ -176,7 +187,7 @@ void MapRenderer::DrawMapBounds(std::shared_ptr<Camera>& camera)
 	UINT offset = 0;
 	context->VSSetShader(_map_bounds_shader.GetVertexShader(), nullptr, 0);
 	context->PSSetShader(_map_bounds_shader.GetPixelShader(), nullptr, 0);
-	auto cameraBuffer = camera->GetConstantBuffer();
+	auto cameraBuffer = _cam->GetConstantBuffer();
 	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
 	context->IASetVertexBuffers(0, 1, &_map_bounds_buffer, &stride, &offset);
 	context->Draw(MAP_BOUNDS_VERTEX_COUNT, 0);

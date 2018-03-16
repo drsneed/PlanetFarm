@@ -204,6 +204,7 @@
     <ClInclude Include="Source\Game\Models\Grid.h" />
     <ClInclude Include="Source\Game\Models\Square.h" />
     <ClInclude Include="Source\Game\TextRenderer.h" />
+    <ClInclude Include="Source\TileEngine\BoundingRect.h" />
     <ClInclude Include="Source\TileEngine\Tile.h" />
     <ClInclude Include="Source\TileEngine\TileEngine.h" />
   </ItemGroup>

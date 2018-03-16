@@ -28,6 +28,7 @@ struct TileData
 
 struct Tile
 {
+	Tile();
 	Tile(uint16_t x, uint16_t y, uint8_t z)
 		: data(nullptr), x(x), y(y), z(z) {}
 	Tile(uint32_t key);

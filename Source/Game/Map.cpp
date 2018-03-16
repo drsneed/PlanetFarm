@@ -3,7 +3,7 @@
 #include <TileEngine/Tile.h>
 
 Map::Map(std::shared_ptr<Camera> camera)
-	: _tile_engine(std::make_unique<TileEngine>())
+	: _tile_engine(std::make_unique<TileEngine>(camera))
 	, _renderer(std::make_unique<MapRenderer>())
 	, _zoom(0, 0)
 	, _center((pow(2, TILE_MAX_ZOOM) * TILE_PIXEL_WIDTH) / 2.0f)
@@ -93,7 +93,9 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 
 void Map::RenderScene()
 {
-	_renderer->DrawSquare(_cam, XMFLOAT2(128.0f, 128.0f), 256.0f, 0.f, 0xFF7700FF);
-	_renderer->DrawSquare(_cam, XMFLOAT2(384.0f, 128.0f), 256.0f, 0.f, 0xFF7700FF);
-	_renderer->DrawMapBounds(_cam);
+	for (auto& tile : _visible_tiles)
+	{
+		_renderer->DrawTile(tile);
+	}
+	_renderer->DrawMapBounds();
 }

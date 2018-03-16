@@ -2,10 +2,11 @@
 
 #include <Core/StdIncludes.h>
 #include "Tile.h"
+#include "BoundingRect.h"
 
 class TileEngine
 {
 	
 public:
-	std::vector<Tile> Fetch(BoundingBox viewport, uint8_t zoom_level);
+	std::vector<Tile> Fetch(BoundingRect viewable_area, uint8_t zoom_level);
 };

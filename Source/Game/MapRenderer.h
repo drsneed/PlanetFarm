@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Models/Grid.h"
 #include "Models/Square.h"
+#include <TileEngine/Tile.h>
 
 class MapRenderer
 {
@@ -30,11 +31,14 @@ class MapRenderer
 
 	void _UploadPerObjectBuffer(ID3D11DeviceContext* context, const SquarePerObjectBuffer& perObject);
 
+	std::shared_ptr<Camera> _cam;
+
 public:
-	MapRenderer();
+	MapRenderer(std::shared_ptr<Camera> camera);
 	~MapRenderer();
 
-	void DrawGrid(std::shared_ptr<Camera>& camera);
-	void DrawSquare(std::shared_ptr<Camera>& camera, XMFLOAT2 position, float width, float rotation, unsigned color);
-	void DrawMapBounds(std::shared_ptr<Camera>& camera);
+	void DrawTile(const Tile& tile);
+	void DrawGrid();
+	void DrawSquare(XMFLOAT2 position, float width, float rotation, unsigned color);
+	void DrawMapBounds();
 };

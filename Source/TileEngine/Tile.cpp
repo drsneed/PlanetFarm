@@ -54,6 +54,15 @@ auto Tile::ToBinaryQuadKey() -> uint32_t
 	return (key | z32);
 }
 
+Tile::Tile()
+	: x(0)
+	, y(0)
+	, z(0)
+	, data(nullptr)
+{
+
+}
+
 Tile::Tile(uint32_t key)
 {
 	ASSERT(key < MAX_KEY);

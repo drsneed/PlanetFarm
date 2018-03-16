@@ -67,6 +67,7 @@ private:
 	std::unique_ptr<TileEngine> _tile_engine;
 	std::shared_ptr<Camera> _cam;
 	std::unique_ptr<MapRenderer> _renderer;
+	std::vector<Tile> _visible_tiles;
 public:
 	Map(std::shared_ptr<Camera> camera);
 	void RenderScene();
