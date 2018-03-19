@@ -92,26 +92,16 @@ Tile::Tile(uint32_t key)
 	z = static_cast<uint8_t>(z32);
 }
 
-auto Tile::TransformCoordinates(const XMFLOAT2& coords, uint8_t source_zoom_level, uint8_t target_zoom_level) -> XMFLOAT2
-{
-	auto source_level_span = GetLevelWidth(source_zoom_level);
-	auto target_level_span = GetLevelWidth(target_zoom_level);
-	XMFLOAT2 result { };
-	result.x = (coords.x * target_level_span) / source_level_span;
-	result.y = (coords.y * target_level_span) / source_level_span;
-	return result;
-}
-
 auto Tile::Contains(XMFLOAT2 map_point) -> bool
 {
-	if (z != TILE_MAX_ZOOM)
-	{
-		map_point = Tile::TransformCoordinates(map_point, TILE_MAX_ZOOM, z);
-	}
-
-	uint16_t containing_tile_x = static_cast<uint16_t>(floor(map_point.x / TILE_PIXEL_WIDTH));
-	uint16_t containing_tile_y = static_cast<uint16_t>(floor(map_point.y / TILE_PIXEL_WIDTH));
-	return containing_tile_x == x && containing_tile_y == y;
+	int level_0_span = pow(2, TILE_MAX_ZOOM);
+	int this_level_span = pow(2, z);
+	int offset = (level_0_span - this_level_span) / 2;
+	auto level_0_x = static_cast<int>(floor(map_point.x / TILE_PIXEL_WIDTH));
+	auto level_0_y = static_cast<int>(floor(map_point.y / TILE_PIXEL_WIDTH));
+	auto mpx = level_0_x - offset;
+	auto mpy = level_0_y - offset;
+	return mpx == static_cast<int>(x) && mpy == static_cast<int>(y);
 }
 
 auto Tile::IsValid() const -> bool
@@ -122,11 +112,20 @@ auto Tile::IsValid() const -> bool
 
 auto Tile::GetPosition() const -> XMFLOAT2
 {
-	uint16_t offset = 0;
-	if(z != TILE_MAX_ZOOM)
-		offset = (pow(2, TILE_MAX_ZOOM) - pow(2, z)) / 2;
+	float index_offset = 0.0f;
+	if (z != TILE_MAX_ZOOM)
+	{
+		int level_0_span = pow(2, TILE_MAX_ZOOM);
+		int this_level_span = pow(2, z);
+		int test = (level_0_span - this_level_span) / 2;
 
-	return XMFLOAT2 { static_cast<float>(x + offset) * TILE_PIXEL_WIDTH, static_cast<float>(y + offset) * TILE_PIXEL_WIDTH };
+		index_offset = (pow(2, TILE_MAX_ZOOM) - pow(2, z)) / 2.0f;
+	}
+
+	float fx = static_cast<float>(x) + index_offset;
+	float fy = static_cast<float>(y) + index_offset;
+	return XMFLOAT2 { (fx * TILE_PIXEL_WIDTH) + TILE_PIXEL_WIDTH_HALF, 
+		(fy * TILE_PIXEL_WIDTH) + TILE_PIXEL_WIDTH_HALF };
 	
 }
 

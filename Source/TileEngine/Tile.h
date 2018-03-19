@@ -12,6 +12,7 @@
 
 #define TILE_MAX_ZOOM 14
 #define TILE_PIXEL_WIDTH 256
+#define TILE_PIXEL_WIDTH_HALF 128.0f
 
 enum class TileDataType : uint8_t
 {
@@ -51,7 +52,6 @@ struct Tile
 	uint16_t y;
 	uint8_t z;
 
-	static auto TransformCoordinates(const XMFLOAT2& position, uint8_t source_zoom_level, uint8_t target_zoom_level)->XMFLOAT2;
 	static auto IsParentChildRelation(uint32_t parent_key, uint32_t child_key) -> bool;
 	static auto GetLevelWidth(uint8_t zoom_level) -> float;
 };

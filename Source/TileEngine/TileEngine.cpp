@@ -17,23 +17,18 @@ std::vector<Tile> TileEngine::Fetch(BoundingRect viewable_area, uint8_t zoom_lev
 	int this_level_span = pow(2, zoom_level);
 	int offset = (level_0_span - this_level_span) / 2;
 
-	auto left = static_cast<int>(floor(top_left.x / TILE_PIXEL_WIDTH)) - offset;
-	auto top = static_cast<int>(floor(top_left.y / TILE_PIXEL_WIDTH)) - offset;
-	auto right = static_cast<int>(floor(bottom_right.x / TILE_PIXEL_WIDTH)) - offset;
-	auto bottom = static_cast<int>(floor(bottom_right.y / TILE_PIXEL_WIDTH)) - offset;
+	auto left = max(static_cast<int>(floor(top_left.x / TILE_PIXEL_WIDTH)) - offset, 0);
+	auto top = min(static_cast<int>(floor(top_left.y / TILE_PIXEL_WIDTH)) - offset, this_level_span - 1);
+	auto right = min(static_cast<int>(floor(bottom_right.x / TILE_PIXEL_WIDTH)) - offset, this_level_span - 1);
+	auto bottom = max(static_cast<int>(floor(bottom_right.y / TILE_PIXEL_WIDTH)) - offset, 0);
 
     
-
-
-
 	std::vector<Tile> result/*(((right - left) + 1) * ((top - bottom) + 1))*/;
 	size_t count = 0;
 	for (int x = left; x <= right; ++x)
 	{
 		for (int y = bottom; y <= top; ++y)
 		{
-			if (x < 0 || y < 0)
-				continue;
 			Tile tile(x, y, zoom_level);
 			if (tile.IsValid())
 			{
@@ -47,13 +42,19 @@ std::vector<Tile> TileEngine::Fetch(BoundingRect viewable_area, uint8_t zoom_lev
 
 bool TileEngine::GetTileContaining(XMFLOAT2 map_point, Tile& tile)
 {
-	if (tile.z != TILE_MAX_ZOOM)
+	int level_0_span = pow(2, TILE_MAX_ZOOM);
+	int this_level_span = pow(2, tile.z);
+	int offset = (level_0_span - this_level_span) / 2;
+
+	auto x = static_cast<int>(floor(map_point.x / TILE_PIXEL_WIDTH)) - offset;
+	auto y = static_cast<int>(floor(map_point.y / TILE_PIXEL_WIDTH)) - offset;
+
+	if (x >= 0 && x < this_level_span && y >= 0 && y < this_level_span)
 	{
-		map_point = Tile::TransformCoordinates(map_point, TILE_MAX_ZOOM, tile.z);
+		tile.x = static_cast<uint16_t>(x);
+		tile.y = static_cast<uint16_t>(y);
+		return true;
 	}
 
-	tile.x = static_cast<uint16_t>(floor(map_point.x / TILE_PIXEL_WIDTH));
-	tile.y = static_cast<uint16_t>(floor(map_point.y / TILE_PIXEL_WIDTH));
-
-	return tile.IsValid();
+	return false;
 }
