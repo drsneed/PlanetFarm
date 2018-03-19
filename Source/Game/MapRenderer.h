@@ -37,7 +37,7 @@ public:
 	MapRenderer(std::shared_ptr<Camera> camera);
 	~MapRenderer();
 
-	void DrawTile(const Tile& tile);
+	void DrawTile(const Tile& tile, unsigned color);
 	void DrawGrid();
 	void DrawSquare(float x, float y, float width, float rotation, unsigned color);
 	void DrawMapBounds();

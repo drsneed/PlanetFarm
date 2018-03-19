@@ -51,10 +51,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 
 	auto map_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorMap>());
-	map_cam->SetPosition(312.0f, 1000.f, 422.0f);
+	map_cam->SetPosition(8192.0f * TILE_PIXEL_WIDTH, 1000.f, 8192.0f * TILE_PIXEL_WIDTH);
+	//map_cam->SetPosition(0.0f, 1000.f, 0.0f);
 	map_cam->Pitch(90.0f);
 
 	auto map = std::make_unique<Map>(map_cam);
+	map->SetZoom(1, 0);
 	//camera->RotateY(XMConvertToRadians(-135.0f));
 	//camera->Pitch(XMConvertToRadians(30.f));
 

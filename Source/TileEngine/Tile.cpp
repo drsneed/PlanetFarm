@@ -92,6 +92,49 @@ Tile::Tile(uint32_t key)
 	z = static_cast<uint8_t>(z32);
 }
 
+auto Tile::TransformCoordinates(const XMFLOAT2& coords, uint8_t source_zoom_level, uint8_t target_zoom_level) -> XMFLOAT2
+{
+	auto source_level_span = GetLevelWidth(source_zoom_level);
+	auto target_level_span = GetLevelWidth(target_zoom_level);
+	XMFLOAT2 result { };
+	result.x = (coords.x * target_level_span) / source_level_span;
+	result.y = (coords.y * target_level_span) / source_level_span;
+	return result;
+}
+
+auto Tile::Contains(XMFLOAT2 map_point) -> bool
+{
+	if (z != TILE_MAX_ZOOM)
+	{
+		map_point = Tile::TransformCoordinates(map_point, TILE_MAX_ZOOM, z);
+	}
+
+	uint16_t containing_tile_x = static_cast<uint16_t>(floor(map_point.x / TILE_PIXEL_WIDTH));
+	uint16_t containing_tile_y = static_cast<uint16_t>(floor(map_point.y / TILE_PIXEL_WIDTH));
+	return containing_tile_x == x && containing_tile_y == y;
+}
+
+auto Tile::IsValid() const -> bool
+{
+	auto index_limit = pow(2, z);
+	return x < index_limit && y < index_limit;
+}
+
+auto Tile::GetPosition() const -> XMFLOAT2
+{
+	uint16_t offset = 0;
+	if(z != TILE_MAX_ZOOM)
+		offset = (pow(2, TILE_MAX_ZOOM) - pow(2, z)) / 2;
+
+	return XMFLOAT2 { static_cast<float>(x + offset) * TILE_PIXEL_WIDTH, static_cast<float>(y + offset) * TILE_PIXEL_WIDTH };
+	
+}
+
+auto Tile::GetLevelWidth(uint8_t zoom_level) -> float
+{
+	return pow(2, zoom_level) * TILE_PIXEL_WIDTH;
+}
+
 auto Tile::ToQuadKey() -> std::string
 {
 	auto binary_key = this->ToBinaryQuadKey();

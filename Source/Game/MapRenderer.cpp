@@ -102,7 +102,7 @@ MapRenderer::~MapRenderer()
 		_map_bounds_input_layout->Release();
 }
 
-void MapRenderer::DrawTile(const Tile& tile)
+void MapRenderer::DrawTile(const Tile& tile, unsigned color)
 {
 	//// Everything here is explained in Tutorial 3 ! There's nothing new.
 	//glm::vec4 BillboardPos_worldspace(x, y, z, 1.0f);
@@ -112,13 +112,13 @@ void MapRenderer::DrawTile(const Tile& tile)
 	//if (BillboardPos_screenspace.z < 0.0f) {
 	//	// Object is behind the camera, don't display it.
 	//}
-	auto offset = TILE_PIXEL_WIDTH / 2.0f;
+	auto pos = tile.GetPosition();
 	DrawSquare(
-		static_cast<float>(tile.x) * TILE_PIXEL_WIDTH + offset,
-		static_cast<float>(tile.y) * TILE_PIXEL_WIDTH + offset,
+		pos.x,
+		pos.y,
 		TILE_PIXEL_WIDTH,
 		0.0f,
-		0xFF0077FF);
+		color);
 }
 
 void MapRenderer::DrawGrid()

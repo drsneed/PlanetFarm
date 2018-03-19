@@ -10,7 +10,7 @@
 // This allows a maximum of 16 zoom levels (0 thru 15), however with only 14 bits per coordinate, 
 // We cannot store a higher tile address than (16383, 16383, zoom 13)
 
-#define TILE_MAX_ZOOM 13
+#define TILE_MAX_ZOOM 14
 #define TILE_PIXEL_WIDTH 256
 
 enum class TileDataType : uint8_t
@@ -29,11 +29,21 @@ struct TileData
 struct Tile
 {
 	Tile();
+	Tile(const Tile& tile)
+	{
+		x = tile.x;
+		y = tile.y;
+		z = tile.z;
+	}
 	Tile(uint16_t x, uint16_t y, uint8_t z)
 		: data(nullptr), x(x), y(y), z(z) {}
 	Tile(uint32_t key);
 	auto ToBinaryQuadKey() -> uint32_t;
 	auto ToQuadKey() -> std::string;
+
+	auto GetPosition() const -> XMFLOAT2;
+	auto IsValid() const -> bool;
+	auto Contains(XMFLOAT2 map_point) -> bool;
 	
 	std::unique_ptr<TileData> data;
 
@@ -41,7 +51,9 @@ struct Tile
 	uint16_t y;
 	uint8_t z;
 
+	static auto TransformCoordinates(const XMFLOAT2& position, uint8_t source_zoom_level, uint8_t target_zoom_level)->XMFLOAT2;
 	static auto IsParentChildRelation(uint32_t parent_key, uint32_t child_key) -> bool;
+	static auto GetLevelWidth(uint8_t zoom_level) -> float;
 };
 
 void RunTileTest();

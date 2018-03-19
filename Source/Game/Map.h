@@ -92,8 +92,9 @@ public:
 	void RenderScene();
 	void ZoomIn();
 	void ZoomOut();
-	void ZoomTo(const ZoomLevel& level);
+	void SetZoom(uint8_t major_part, uint8_t minor_part);
 	auto GetZoom() const -> ZoomLevel;
+	
 	/// Returns cursor position in world space
 	MapPoint GetCursor(bool refresh = false);
 	MapPoint GetCenterScreen(bool refresh = false);

@@ -25,6 +25,7 @@ Map::Map(std::shared_ptr<Camera> camera)
 	, _cam(camera)
 {
 	_cam->NotifyPosChange(std::bind(&Map::HandleCameraPosChangedEvent, this, std::placeholders::_1));
+	GetCenterScreen(true);
 }
 
 void Map::HandleCameraPosChangedEvent(XMFLOAT3 position)
@@ -35,6 +36,10 @@ void Map::HandleCameraPosChangedEvent(XMFLOAT3 position)
 
 void Map::_UpdateVisibleTiles()
 {
+	if (isnan(_center_screen.x))
+	{
+		return;
+	}
 	BoundingRect visible_area;
 	visible_area.center = _center_screen;
 	int width, height;
@@ -57,9 +62,10 @@ void Map::ZoomOut()
 	_UpdateVisibleTiles();
 }
 
-void Map::ZoomTo(const ZoomLevel& level)
+void Map::SetZoom(uint8_t major_part, uint8_t minor_part)
 {
-	_zoom = level;
+	_zoom = ZoomLevel(major_part, minor_part);
+	_UpdateVisibleTiles();
 }
 
 auto Map::GetZoom() const -> ZoomLevel
@@ -136,7 +142,7 @@ void Map::RenderScene()
 {
 	for (auto& tile : _visible_tiles)
 	{
-		_renderer->DrawTile(tile);
+		_renderer->DrawTile(tile, tile.Contains(_cursor) ? 0xFF0000FF : 0xFFFF77FF);
 	}
 	_renderer->DrawMapBounds();
 }

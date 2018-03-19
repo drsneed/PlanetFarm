@@ -6,45 +6,54 @@ std::vector<Tile> TileEngine::Fetch(BoundingRect viewable_area, uint8_t zoom_lev
 	XMFLOAT2 top_left, bottom_right;
 	viewable_area.GetCorners(top_left, bottom_right);
 
+	//if (zoom_level != TILE_MAX_ZOOM)
+	//{
+	//	top_left = Tile::TransformCoordinates(top_left, TILE_MAX_ZOOM, zoom_level);
+	//	bottom_right = Tile::TransformCoordinates(bottom_right, TILE_MAX_ZOOM, zoom_level);
+	//}
+
 	float max_index = pow(2, zoom_level) - 1;
+	int level_0_span = pow(2, TILE_MAX_ZOOM);
+	int this_level_span = pow(2, zoom_level);
+	int offset = (level_0_span - this_level_span) / 2;
 
-	uint16_t left = static_cast<uint16_t>(max(floor(top_left.x / TILE_PIXEL_WIDTH), 0.0f));
-	uint16_t top = static_cast<uint16_t>(min(floor(top_left.y / TILE_PIXEL_WIDTH), max_index));
-	uint16_t right = static_cast<uint16_t>(min(floor(bottom_right.x / TILE_PIXEL_WIDTH), max_index));
-	uint16_t bottom = static_cast<uint16_t>(max(floor(bottom_right.y / TILE_PIXEL_WIDTH), 0.0f));
+	auto left = static_cast<int>(floor(top_left.x / TILE_PIXEL_WIDTH)) - offset;
+	auto top = static_cast<int>(floor(top_left.y / TILE_PIXEL_WIDTH)) - offset;
+	auto right = static_cast<int>(floor(bottom_right.x / TILE_PIXEL_WIDTH)) - offset;
+	auto bottom = static_cast<int>(floor(bottom_right.y / TILE_PIXEL_WIDTH)) - offset;
 
-	// bounds check the viewable_area with this zoom level
+    
 
 
 
-	std::vector<Tile> result(((right - left) + 1) * ((top - bottom) + 1));
-	size_t index = 0;
-
-	for (uint16_t x = left; x <= right; ++x)
+	std::vector<Tile> result/*(((right - left) + 1) * ((top - bottom) + 1))*/;
+	size_t count = 0;
+	for (int x = left; x <= right; ++x)
 	{
-		for (uint16_t y = bottom; y <= top; ++y)
+		for (int y = bottom; y <= top; ++y)
 		{
-			result[index].x = x;
-			result[index].y = y;
-			result[index].z = zoom_level;
-			index++;
+			if (x < 0 || y < 0)
+				continue;
+			Tile tile(x, y, zoom_level);
+			if (tile.IsValid())
+			{
+				result.push_back(tile);
+			}
 		}
 	}
-
+	
 	return result; 
 }
 
-bool TileEngine::GetTileContaining(const XMFLOAT2& map_point, Tile& tile)
+bool TileEngine::GetTileContaining(XMFLOAT2 map_point, Tile& tile)
 {
-	auto level_width = (pow(2, TILE_MAX_ZOOM)) * TILE_PIXEL_WIDTH;
-	if (tile.z == TILE_MAX_ZOOM)
+	if (tile.z != TILE_MAX_ZOOM)
 	{
-		tile.x = floor(map_point.x / TILE_PIXEL_WIDTH);
-		tile.y = floor(map_point.y / TILE_PIXEL_WIDTH);
-		return true;
+		map_point = Tile::TransformCoordinates(map_point, TILE_MAX_ZOOM, tile.z);
 	}
 
-	auto level_0_width = 
-	auto ix = floor(x / TILE_PIXEL_WIDTH);
-	auto iy = floor(y / TILE_PIXEL_WIDTH);
+	tile.x = static_cast<uint16_t>(floor(map_point.x / TILE_PIXEL_WIDTH));
+	tile.y = static_cast<uint16_t>(floor(map_point.y / TILE_PIXEL_WIDTH));
+
+	return tile.IsValid();
 }
