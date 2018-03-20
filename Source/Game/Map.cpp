@@ -10,11 +10,10 @@ bool IsValid(const MapPoint& map_point)
 }
 namespace
 {
-	const float map_center_zoom_0 = (pow(2, TILE_MAX_ZOOM) * TILE_PIXEL_WIDTH) / 2.0f;
 	const BoundingBox map_bbox_zoom_0
 	{
-		{ map_center_zoom_0, 0.0f, map_center_zoom_0 }, // Center of bbox
-		{ map_center_zoom_0, 0.0f, map_center_zoom_0 } // Extents of bbox from center
+		{ MAP_ABSOLUTE_CENTER, 0.0f, MAP_ABSOLUTE_CENTER }, // Center of bbox
+		{ MAP_ABSOLUTE_CENTER, 0.0f, MAP_ABSOLUTE_CENTER } // Extents of bbox from center
 	};
 }
 
@@ -23,23 +22,24 @@ Map::Map(std::shared_ptr<Camera> camera)
 	, _renderer(std::make_unique<MapRenderer>(camera))
 	, _zoom(0, 0)
 	, _cam(camera)
+	, _visible_tiles_frozen(false)
 {
 	_cam->NotifyPosChange(std::bind(&Map::HandleCameraPosChangedEvent, this, std::placeholders::_1));
-	GetCenterScreen(true);
 }
 
 void Map::HandleCameraPosChangedEvent(XMFLOAT3 position)
 {
 	GetCenterScreen(true);
-	_UpdateVisibleTiles();
+	UpdateVisibleTiles();
 }
 
-void Map::_UpdateVisibleTiles()
+void Map::UpdateVisibleTiles()
 {
-	if (isnan(_center_screen.x))
+	if (isnan(_center_screen.x) || _visible_tiles_frozen)
 	{
 		return;
 	}
+
 	BoundingRect visible_area;
 	visible_area.center = _center_screen;
 	int width, height;
@@ -53,19 +53,19 @@ void Map::_UpdateVisibleTiles()
 void Map::ZoomIn()
 {
 	_zoom.inc();
-	_UpdateVisibleTiles();
+	UpdateVisibleTiles();
 }
 
 void Map::ZoomOut()
 {
 	_zoom.dec();
-	_UpdateVisibleTiles();
+	UpdateVisibleTiles();
 }
 
 void Map::SetZoom(uint8_t major_part, uint8_t minor_part)
 {
 	_zoom = ZoomLevel(major_part, minor_part);
-	_UpdateVisibleTiles();
+	UpdateVisibleTiles();
 }
 
 auto Map::GetZoom() const -> ZoomLevel
@@ -122,24 +122,42 @@ void Map::Tick(float delta_time)
 {
 }
 
+typedef GraphicsWindow::Event::Type EventType;
+
 void Map::HandleEvent(const GraphicsWindow::Event & event)
 {
-	if (event.type == GraphicsWindow::Event::Type::MouseWheelDown)
+
+
+	if (event.type == EventType::MouseWheelDown)
 	{
 		ZoomOut();
 	}
-	else if (event.type == GraphicsWindow::Event::Type::MouseWheelUp)
+	else if (event.type == EventType::MouseWheelUp)
 	{
 		ZoomIn();
 	}
-	else if (event.type == GraphicsWindow::Event::Type::MouseMotion)
+	else if (event.type == EventType::MouseMotion)
 	{
 		GetCursor(true);
+	}
+
+	if (event.code == GraphicsWindow::Event::Code::F)
+	{
+		if (_visible_tiles_frozen)
+		{
+			_visible_tiles_frozen = false;
+			UpdateVisibleTiles();
+		}
+		else
+		{
+			_visible_tiles_frozen = true;
+		}	
 	}
 }
 
 void Map::RenderScene()
 {
+		
 	for (auto& tile : _visible_tiles)
 	{
 		_renderer->DrawTile(tile, 0xFFFF77FF);

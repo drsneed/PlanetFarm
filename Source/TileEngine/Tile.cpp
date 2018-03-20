@@ -1,10 +1,29 @@
 #include "Tile.h"
 #include <cmath>
 
+int TILE_SPAN[TILE_MAX_ZOOM + 1] =
+{
+	1,
+	2,
+	4,
+	8,
+	16,
+	32,
+	64,
+	128,
+	256,
+	512,
+	1024,
+	2048,
+	4096,
+	8192,
+	16384
+};
+
 namespace
 {
 	// Masks to obtain the coordinates
-	static uint32_t COORDINATE_MASKS[15] =
+	static uint32_t COORDINATE_MASKS[TILE_MAX_ZOOM + 2] =
 	{
 		0b00000000000000000000000000000000, // Zoom Level 0
 		0b11000000000000000000000000000000, // Zoom Level 1
@@ -20,10 +39,10 @@ namespace
 		0b11111111111111111111110000000000, // Zoom Level 11
 		0b11111111111111111111111100000000, // Zoom Level 12
 		0b11111111111111111111111111000000, // Zoom Level 13
-		0b11111111111111111111111111110000  // Zoom Level 14
+		0b11111111111111111111111111110000, // Zoom Level 14
+		0b00000000000000000000000000001111, // Zoom Mask (or invalid tile: (x: 0, y:0, z:15))
 	};
-	// Mask to obtain the zoom level
-	static uint32_t ZOOM_MASK = 0b00000000000000000000000000001111;
+	#define ZOOM_MASK COORDINATE_MASKS[TILE_MAX_ZOOM + 1]
 
 	static uint32_t MAX_KEY = 4294967295;
 }
@@ -111,18 +130,10 @@ auto Tile::IsValid() const -> bool
 
 auto Tile::GetPosition() const -> XMFLOAT2
 {
-	float index_offset = 0.0f;
-	if (z != TILE_MAX_ZOOM)
-	{
-		int level_0_span = pow(2, TILE_MAX_ZOOM);
-		int this_level_span = pow(2, z);
-		int test = (level_0_span - this_level_span) / 2;
+	float index_offset = (TILE_SPAN_MAX - TILE_SPAN[z]) / 2.0f;
 
-		index_offset = (pow(2, TILE_MAX_ZOOM) - pow(2, z)) / 2.0f;
-	}
-
-	float fx = static_cast<float>(x) + index_offset;
-	float fy = static_cast<float>(y) + index_offset;
+	auto fx = static_cast<float>(x) + index_offset;
+	auto fy = static_cast<float>(y) + index_offset;
 	return XMFLOAT2 { (fx * TILE_PIXEL_WIDTH) + TILE_PIXEL_WIDTH_HALF, 
 		(fy * TILE_PIXEL_WIDTH) + TILE_PIXEL_WIDTH_HALF };
 	

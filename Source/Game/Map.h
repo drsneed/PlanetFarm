@@ -82,13 +82,15 @@ private:
 	ZoomLevel _zoom;
 	MapPoint _cursor;
 	MapPoint _center_screen;
+	
 	std::unique_ptr<TileEngine> _tile_engine;
 	std::shared_ptr<Camera> _cam;
 	std::unique_ptr<MapRenderer> _renderer;
 	std::vector<Tile> _visible_tiles;
 	//std::map<TileID, TileVectorData> _data_cache;
+	bool _visible_tiles_frozen;
 
-	void _UpdateVisibleTiles();
+
 public:
 	Map(std::shared_ptr<Camera> camera);
 	void RenderScene();
@@ -96,7 +98,7 @@ public:
 	void ZoomOut();
 	void SetZoom(uint8_t major_part, uint8_t minor_part);
 	auto GetZoom() const -> ZoomLevel;
-	
+	void UpdateVisibleTiles();
 	/// Returns cursor position in world space
 	MapPoint GetCursor(bool refresh = false);
 	MapPoint GetCenterScreen(bool refresh = false);

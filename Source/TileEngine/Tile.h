@@ -10,9 +10,20 @@
 // This allows a maximum of 16 zoom levels (0 thru 15), however with only 14 bits per coordinate, 
 // We cannot store a higher tile address than (16383, 16383, zoom 13)
 
-#define TILE_MAX_ZOOM 14
+#define TILE_MIN_ZOOM 0 // Inclusive
+#define TILE_MAX_ZOOM 14 // Inclusive
+#define TILE_SPAN_MAX_ZOOM 16384 // pow(2, 14)
+
 #define TILE_PIXEL_WIDTH 256
 #define TILE_PIXEL_WIDTH_HALF 128.0f
+
+#define MAP_WIDTH_MAX_ZOOM 4194304.0f // 16384 * 256
+#define MAP_ABSOLUTE_CENTER 2097152.0f 
+
+
+extern int TILE_SPAN[TILE_MAX_ZOOM + 1];
+
+#define TILE_SPAN_MAX TILE_SPAN[TILE_MAX_ZOOM]
 
 typedef uint32_t TileID;
 

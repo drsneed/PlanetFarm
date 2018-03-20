@@ -53,12 +53,12 @@ void CameraBehaviorMap::_IdleTick(Camera* camera, float dt)
 	}
 	if (window->IsKeyDown('Q'))
 	{
-		position += up * DEFAULT_VELOCITY * dt;
+		position += up * DEFAULT_VELOCITY * dt * 28;
 		moved = true;
 	}
 	if (window->IsKeyDown('E'))
 	{
-		position += up * -DEFAULT_VELOCITY * dt;
+		position += up * -DEFAULT_VELOCITY * dt * 28;
 		moved = true;
 	}
 
