@@ -14,18 +14,7 @@
 #define TILE_PIXEL_WIDTH 256
 #define TILE_PIXEL_WIDTH_HALF 128.0f
 
-enum class TileDataType : uint8_t
-{
-	Point,
-	Line,
-	Polygon
-};
-
-struct TileData
-{
-	TileDataType data_type;
-	std::vector<XMFLOAT2> data;
-};
+typedef uint32_t TileID;
 
 struct Tile
 {
@@ -36,17 +25,16 @@ struct Tile
 		y = tile.y;
 		z = tile.z;
 	}
+
 	Tile(uint16_t x, uint16_t y, uint8_t z)
-		: data(nullptr), x(x), y(y), z(z) {}
+		: x(x), y(y), z(z) {}
 	Tile(uint32_t key);
-	auto ToBinaryQuadKey() -> uint32_t;
-	auto ToQuadKey() -> std::string;
+	auto GetID() -> uint32_t;
+	auto GetQuadKey() -> std::string;
 
 	auto GetPosition() const -> XMFLOAT2;
 	auto IsValid() const -> bool;
 	auto Contains(XMFLOAT2 map_point) -> bool;
-	
-	std::unique_ptr<TileData> data;
 
 	uint16_t x;
 	uint16_t y;

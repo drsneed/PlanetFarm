@@ -85,7 +85,7 @@ void CameraBehaviorMap::_PanningEaseOutTick(Camera* camera, float dt)
 	_velocity.x -= acceleration.x * 4.0f;
 	_velocity.y -= acceleration.y * 4.0f;
 	auto old_pos = camera->GetPosition();
-	camera->SetPosition(XMFLOAT3(old_pos.x + _velocity.x, old_pos.y, old_pos.z + _velocity.y));
+	camera->SetPosition(XMFLOAT3(old_pos.x + _velocity.x, old_pos.y, old_pos.z - _velocity.y));
 
 	if (_ease_timer <= 0.0f)
 	{
@@ -152,8 +152,8 @@ void CameraBehaviorMap::HandleEvent(Camera* camera, GraphicsWindow::Event& event
 			if (dist >= EASE_OUT_MIN_DISTANCE_TRIGGER && _ease_timer <= EASE_OUT_MAX_TIME_TRIGGER)
 			{
 				_state = State::PanningEaseOut;
-				_velocity.x = (dif.x / _ease_timer) * 0.25f;
-				_velocity.y = (dif.y / _ease_timer) * 0.25f;
+				_velocity.x = (dif.x / _ease_timer) * 0.005f;
+				_velocity.y = (dif.y / _ease_timer) * 0.005f;
 				_ease_timer = 1.0f;
 			}
 			else

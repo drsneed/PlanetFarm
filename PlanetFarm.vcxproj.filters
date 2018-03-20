@@ -55,6 +55,7 @@
     <ClCompile Include="Source\Game\CameraBehaviorMap.cpp" />
     <ClCompile Include="Source\Game\Models\Square.cpp" />
     <ClCompile Include="Source\Game\Map.cpp" />
+    <ClCompile Include="Lib\sqlite3.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lib\tinyxml2.h">
@@ -135,6 +136,7 @@
     <ClInclude Include="Source\Game\Map.h" />
     <ClInclude Include="Source\Game\MapConfig.h" />
     <ClInclude Include="Source\TileEngine\BoundingRect.h" />
+    <ClInclude Include="Lib\sqlite3.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lib">

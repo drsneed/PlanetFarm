@@ -23,17 +23,16 @@ std::vector<Tile> TileEngine::Fetch(BoundingRect viewable_area, uint8_t zoom_lev
 	auto bottom = max(static_cast<int>(floor(bottom_right.y / TILE_PIXEL_WIDTH)) - offset, 0);
 
     
-	std::vector<Tile> result/*(((right - left) + 1) * ((top - bottom) + 1))*/;
+	std::vector<Tile> result(((right - left) + 1) * ((top - bottom) + 1));
 	size_t count = 0;
 	for (int x = left; x <= right; ++x)
 	{
 		for (int y = bottom; y <= top; ++y)
 		{
-			Tile tile(x, y, zoom_level);
-			if (tile.IsValid())
-			{
-				result.push_back(tile);
-			}
+			result[count].x = x;
+			result[count].y = y;
+			result[count].z = zoom_level;
+			count++;
 		}
 	}
 	

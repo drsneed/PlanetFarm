@@ -28,7 +28,7 @@ namespace
 	static uint32_t MAX_KEY = 4294967295;
 }
 
-auto Tile::ToBinaryQuadKey() -> uint32_t
+auto Tile::GetID() -> uint32_t
 {
 	uint32_t key = 0;
 	auto x32 = static_cast<uint32_t>(x);
@@ -58,7 +58,6 @@ Tile::Tile()
 	: x(0)
 	, y(0)
 	, z(0)
-	, data(nullptr)
 {
 
 }
@@ -134,9 +133,9 @@ auto Tile::GetLevelWidth(uint8_t zoom_level) -> float
 	return pow(2, zoom_level) * TILE_PIXEL_WIDTH;
 }
 
-auto Tile::ToQuadKey() -> std::string
+auto Tile::GetQuadKey() -> std::string
 {
-	auto binary_key = this->ToBinaryQuadKey();
+	auto binary_key = this->GetID();
 	ASSERT(binary_key < MAX_KEY);
 	auto z32 = binary_key & ZOOM_MASK;
 	ASSERT(z32 < TILE_MAX_ZOOM);
@@ -172,11 +171,11 @@ void RunTileTest()
 {
 	auto parent_tile = Tile(25, 43, 6);
 	auto child_tile = Tile(51, 87, 7);
-	auto parent_qk = parent_tile.ToQuadKey();
-	auto child_qk = child_tile.ToQuadKey();
+	auto parent_qk = parent_tile.GetQuadKey();
+	auto child_qk = child_tile.GetQuadKey();
 	char buffer[256];
 
-	if (Tile::IsParentChildRelation(parent_tile.ToBinaryQuadKey(), child_tile.ToBinaryQuadKey()))
+	if (Tile::IsParentChildRelation(parent_tile.GetID(), child_tile.GetID()))
 	{
 		wsprintfA(buffer, "%s is the parent of %s\n", parent_qk.c_str(), child_qk.c_str());
 		OutputDebugStringA(buffer);
@@ -188,6 +187,6 @@ void RunTileTest()
 	}
 
 	auto new_tile = Tile(16383, 16383, 14);
-	auto quadkey = new_tile.ToQuadKey();
+	auto quadkey = new_tile.GetQuadKey();
 	OutputDebugStringA(quadkey.c_str());
 }

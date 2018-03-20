@@ -58,3 +58,5 @@ std::wstring GetSystemErrorMessage(const DWORD code);
 bool D3DCheck(const HRESULT hr, const WCHAR* functionName);
 bool D3DErrorOccurred();
 void SetD3DErrorOccurred();
+
+void ExitWithError(const std::string& error);

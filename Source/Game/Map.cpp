@@ -140,10 +140,15 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 
 void Map::RenderScene()
 {
-
 	for (auto& tile : _visible_tiles)
 	{
-		_renderer->DrawTile(tile, tile.Contains(_cursor) ? 0xFF0000FF : 0xFFFF77FF);
+		_renderer->DrawTile(tile, 0xFFFF77FF);
+		if (tile.Contains(_cursor))
+		{
+			auto pos = tile.GetPosition();
+			_renderer->DrawSquare(pos.x, pos.y, 10.0f, 0.f, 0xFF0000FF);
+		}
+		
 	}
 	_renderer->DrawMapBounds();
 }

@@ -155,6 +155,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Lib\sqlite3.c" />
     <ClCompile Include="Lib\tinyxml2.cpp" />
     <ClCompile Include="Source\Core\DebugTools.cpp" />
     <ClCompile Include="Source\Core\Font.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="Source\TileEngine\Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Lib\sqlite3.h" />
     <ClInclude Include="Lib\tinyxml2.h" />
     <ClInclude Include="Source\Core\ColorConverter.h" />
     <ClInclude Include="Source\Core\DebugTools.h" />

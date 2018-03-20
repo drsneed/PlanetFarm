@@ -4,6 +4,7 @@
 #include <TileEngine/TileEngine.h>
 #include "MapRenderer.h"
 #include "Camera.h"
+#include <map>
 
 typedef XMFLOAT2 MapPoint;
 
@@ -79,13 +80,14 @@ public:
 	};
 private:
 	ZoomLevel _zoom;
-	
 	MapPoint _cursor;
 	MapPoint _center_screen;
 	std::unique_ptr<TileEngine> _tile_engine;
 	std::shared_ptr<Camera> _cam;
 	std::unique_ptr<MapRenderer> _renderer;
 	std::vector<Tile> _visible_tiles;
+	//std::map<TileID, TileVectorData> _data_cache;
+
 	void _UpdateVisibleTiles();
 public:
 	Map(std::shared_ptr<Camera> camera);
