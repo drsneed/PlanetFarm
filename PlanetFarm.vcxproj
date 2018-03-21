@@ -110,6 +110,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)Lib\sciter-sdk\bin\64\sciter.dll" "$(TargetDir)sciter.dll"</Command>
@@ -149,6 +150,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)Lib\sciter-sdk\bin\64\sciter.dll" "$(TargetDir)sciter.dll"</Command>
@@ -175,7 +177,7 @@
     <ClCompile Include="Source\Game\TextRenderer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\TileEngine\DbInterface.cpp" />
-    <ClCompile Include="Source\TileEngine\TileResource.cpp" />
+    <ClCompile Include="Source\TileEngine\Resource.cpp" />
     <ClCompile Include="Source\TileEngine\TileEngine.cpp" />
     <ClCompile Include="Source\TileEngine\Tile.cpp" />
   </ItemGroup>
@@ -185,6 +187,7 @@
     <ClInclude Include="Lib\sqlite3.h" />
     <ClInclude Include="Lib\tinyxml2.h" />
     <ClInclude Include="Source\Core\ColorConverter.h" />
+    <ClInclude Include="Source\Core\Db.h" />
     <ClInclude Include="Source\Core\DebugTools.h" />
     <ClInclude Include="Source\Core\Embed.h" />
     <ClInclude Include="Source\Core\Font.h" />
@@ -213,7 +216,7 @@
     <ClInclude Include="Source\TileEngine\BoundingRect.h" />
     <ClInclude Include="Source\TileEngine\DbInterface.h" />
     <ClInclude Include="Source\TileEngine\Tile.h" />
-    <ClInclude Include="Source\TileEngine\TileResource.h" />
+    <ClInclude Include="Source\TileEngine\Resource.h" />
     <ClInclude Include="Source\TileEngine\TileEngine.h" />
   </ItemGroup>
   <ItemGroup>

@@ -19,13 +19,16 @@
 #include <Game/Camera.h>
 #include <Game/CameraBehaviorMap.h>
 #include <TileEngine/Tile.h>
+#include <TileEngine/DbInterface.h>
 #include <Game/Map.h>
 #include <Core/Db.h>
+#include "Shlwapi.h"
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
+const char* db_name = "Data/SaveGame.db";
 
 void _TestSql()
 {
@@ -90,7 +93,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//map_cam->SetPosition(0.0f, 1000.f, 0.0f);
 	map_cam->Pitch(90.0f);
 
-	auto map = std::make_unique<Map>(map_cam);
+	if (!PathFileExistsA(db_name))
+	{
+		DbInterface::CreateSaveGameDb(db_name);
+	}
+
+	auto map = std::make_unique<Map>(map_cam, db_name);
 	map->SetZoom(0, 0);
 	//camera->RotateY(XMConvertToRadians(-135.0f));
 	//camera->Pitch(XMConvertToRadians(30.f));

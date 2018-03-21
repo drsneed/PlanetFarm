@@ -17,8 +17,8 @@ namespace
 	};
 }
 
-Map::Map(std::shared_ptr<Camera> camera)
-	: _tile_engine(std::make_unique<TileEngine>())
+Map::Map(std::shared_ptr<Camera> camera, const char* const db_filename)
+	: _tile_engine(std::make_unique<TileEngine>(db_filename))
 	, _renderer(std::make_unique<MapRenderer>(camera))
 	, _zoom(0, 0)
 	, _cam(camera)

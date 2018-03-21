@@ -56,8 +56,8 @@
     <ClCompile Include="Source\Game\Models\Square.cpp" />
     <ClCompile Include="Source\Game\Map.cpp" />
     <ClCompile Include="Lib\sqlite3.c" />
-    <ClCompile Include="Source\TileEngine\TileResource.cpp" />
     <ClCompile Include="Source\TileEngine\DbInterface.cpp" />
+    <ClCompile Include="Source\TileEngine\Resource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lib\tinyxml2.h">
@@ -139,10 +139,11 @@
     <ClInclude Include="Source\Game\MapConfig.h" />
     <ClInclude Include="Source\TileEngine\BoundingRect.h" />
     <ClInclude Include="Lib\sqlite3.h" />
-    <ClInclude Include="Source\TileEngine\TileResource.h" />
     <ClInclude Include="Lib\blockingconcurrentqueue.h" />
     <ClInclude Include="Lib\concurrentqueue.h" />
     <ClInclude Include="Source\TileEngine\DbInterface.h" />
+    <ClInclude Include="Source\TileEngine\Resource.h" />
+    <ClInclude Include="Source\Core\Db.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lib">

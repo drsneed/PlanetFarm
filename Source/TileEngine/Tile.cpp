@@ -23,7 +23,7 @@ int TILE_SPAN[TILE_MAX_ZOOM + 1] =
 namespace
 {
 	// Masks to obtain the coordinates
-	static uint32_t COORDINATE_MASKS[TILE_MAX_ZOOM + 2] =
+	static uint32_t COORDINATE_MASKS[TILE_MAX_ZOOM + 1] =
 	{
 		0b00000000000000000000000000000000, // Zoom Level 0
 		0b11000000000000000000000000000000, // Zoom Level 1
@@ -40,9 +40,7 @@ namespace
 		0b11111111111111111111111100000000, // Zoom Level 12
 		0b11111111111111111111111111000000, // Zoom Level 13
 		0b11111111111111111111111111110000, // Zoom Level 14
-		0b00000000000000000000000000001111, // Zoom Mask (or invalid tile: (x: 0, y:0, z:15))
 	};
-	#define ZOOM_MASK COORDINATE_MASKS[TILE_MAX_ZOOM + 1]
 
 	static uint32_t MAX_KEY = 4294967295;
 }
@@ -54,7 +52,7 @@ auto Tile::GetID() -> uint32_t
 	auto y32 = static_cast<uint32_t>(y);
 	auto z32 = static_cast<uint32_t>(z);
 
-	ASSERT(z32 <= TILE_MAX_ZOOM);
+	ASSERT(z32 <= TILE_MAX_ZOOM + 1);
 
 	auto max_coord = pow(2, z32);
 
@@ -149,7 +147,7 @@ auto Tile::GetQuadKey() -> std::string
 	auto binary_key = this->GetID();
 	ASSERT(binary_key < MAX_KEY);
 	auto z32 = binary_key & ZOOM_MASK;
-	ASSERT(z32 < TILE_MAX_ZOOM);
+	ASSERT(z32 <= TILE_MAX_ZOOM);
 
 	std::string result{};
 
@@ -170,8 +168,8 @@ auto Tile::IsParentChildRelation(uint32_t parent_key, uint32_t child_key) -> boo
 
 	ASSERT(parent_key < MAX_KEY);
 	ASSERT(child_key < MAX_KEY);
-	ASSERT(parent_zoom < TILE_MAX_ZOOM);
-	ASSERT(child_zoom < TILE_MAX_ZOOM);
+	ASSERT(parent_zoom <= TILE_MAX_ZOOM);
+	ASSERT(child_zoom <= TILE_MAX_ZOOM);
 	
 	if(child_zoom <= parent_zoom)
 		return false;

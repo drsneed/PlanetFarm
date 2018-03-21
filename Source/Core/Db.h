@@ -41,13 +41,30 @@ namespace Db
 
 	private:
 		template <typename F, typename C>
+		void _OpenV2(F open, const C* const filename, int flags)
+		{
+			Connection temp;
+			auto result = open(filename, temp.m_handle.Set(), flags, nullptr);
+			if (result != SQLITE_OK)
+			{
+				auto error = GetLastError(temp.GetAbi());
+				TRACE(L"%S\n", error.c_str());
+				ExitWithError(error);
+			}
+
+			swap(m_handle, temp.m_handle);
+		}
+
+		template <typename F, typename C>
 		void _Open(F open, const C* const filename)
 		{
 			Connection temp;
 
 			if (open(filename, temp.m_handle.Set()) != SQLITE_OK)
 			{
-				ExitWithError(GetLastError(temp.GetAbi()));
+				auto error = GetLastError(temp.GetAbi());
+				TRACE(L"%S\n", error.c_str());
+				ExitWithError(error);
 			}
 
 			swap(m_handle, temp.m_handle);
@@ -61,6 +78,13 @@ namespace Db
 		explicit Connection(const C* const filename)
 		{
 			Open(filename);
+		}
+
+		template <typename C>
+		explicit Connection(const C* const filename, int flags, int busy_handler(void*, int) )
+		{
+			OpenV2(filename, flags);
+			sqlite3_busy_handler(GetAbi(), busy_handler, this);
 		}
 
 		static Connection Memory()
@@ -81,6 +105,11 @@ namespace Db
 		void Open(const char* const filename)
 		{
 			_Open(sqlite3_open, filename);
+		}
+
+		void OpenV2(const char* const filename, int flags)
+		{
+			_OpenV2(sqlite3_open_v2, filename, flags);
 		}
 		void Open(const wchar_t* const filename)
 		{
@@ -134,7 +163,9 @@ namespace Db
 		{
 			if (!m_handle)
 			{
-				ExitWithError(GetLastError(dest.GetAbi()));
+				auto error = GetLastError(dest.GetAbi());
+				TRACE(L"%S\n", error.c_str());
+				ExitWithError(error);
 			}
 		}
 
@@ -153,7 +184,9 @@ namespace Db
 				return false;
 
 			m_handle.Reset();
-			ExitWithError(GetLastError(m_destination->GetAbi()));
+			auto error = GetLastError(m_destination->GetAbi());
+			TRACE(L"%S\n", error.c_str());
+			ExitWithError(error);
 			return false;
 		}
 
@@ -210,6 +243,11 @@ namespace Db
 		{
 			return m_statement;
 		}
+		Row()
+			: m_statement(nullptr)
+		{
+		}
+
 		Row(sqlite3_stmt* const statement)
 			: m_statement(statement)
 		{
@@ -237,7 +275,9 @@ namespace Db
 			ASSERT(connection);
 			if (prepare(connection.GetAbi(), text, -1, m_handle.Set(), nullptr) != SQLITE_OK)
 			{
-				ExitWithError(GetLastError(connection.GetAbi()));
+				auto error = GetLastError(connection.GetAbi());
+				TRACE(L"%S\n", error.c_str());
+				ExitWithError(error);
 			}
 
 			BindAll(std::forward<Values>(values)...);
@@ -286,6 +326,16 @@ namespace Db
 			_Prepare(connection, sqlite3_prepare16_v2, text, std::forward<Values>(values) ...);
 		}
 
+		bool GetSingle(Row& row) const
+		{
+			if (Step())
+			{
+				row = Row(GetAbi());
+				return true;
+			}
+			return false;
+		}
+
 		bool Step() const
 		{
 			const int result = sqlite3_step(GetAbi());
@@ -295,7 +345,9 @@ namespace Db
 			if (result == SQLITE_DONE)
 				return false;
 
-			ExitWithError(GetLastError(sqlite3_db_handle(GetAbi())));
+			auto error = GetLastError(sqlite3_db_handle(GetAbi()));
+			TRACE(L"%S\n", error.c_str());
+			ExitWithError(error);
 			return false;
 		}
 
@@ -350,7 +402,9 @@ namespace Db
 		{
 			if (sqlite3_bind_text(GetAbi(), index, value.c_str(), value.size(), SQLITE_TRANSIENT) != SQLITE_OK)
 			{
-				ExitWithError(GetLastError(sqlite3_db_handle(GetAbi())));
+				auto error = GetLastError(sqlite3_db_handle(GetAbi()));
+				TRACE(L"%S\n", error.c_str());
+				ExitWithError(error);
 			}
 		}
 
@@ -358,7 +412,9 @@ namespace Db
 		{
 			if (sqlite3_bind_text16(GetAbi(), index, value.c_str(), value.size() * sizeof(wchar_t), SQLITE_TRANSIENT) != SQLITE_OK)
 			{
-				ExitWithError(GetLastError(sqlite3_db_handle(GetAbi())));
+				auto error = GetLastError(sqlite3_db_handle(GetAbi()));
+				TRACE(L"%S\n", error.c_str());
+				ExitWithError(error);
 			}
 		}
 
@@ -373,7 +429,9 @@ namespace Db
 		{
 			if (sqlite3_reset(GetAbi()) != SQLITE_OK)
 			{
-				ExitWithError(GetLastError(sqlite3_db_handle(GetAbi())));
+				auto error = GetLastError(sqlite3_db_handle(GetAbi()));
+				TRACE(L"%S\n", error.c_str());
+				ExitWithError(error);
 			}
 
 			BindAll(values ...);

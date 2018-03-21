@@ -76,6 +76,6 @@ void ExitWithError(const std::string& error)
 {
 	auto logger = Logger::GetInstance();
 	logger->WriteError(L"Error: %s", error);
-	OutputDebugStringA(error.c_str());
+	//logger->DumpContents()
 	exit(EXIT_FAILURE);
 }

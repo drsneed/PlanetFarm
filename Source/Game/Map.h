@@ -92,7 +92,7 @@ private:
 
 
 public:
-	Map(std::shared_ptr<Camera> camera);
+	Map(std::shared_ptr<Camera> camera, const char* const db_filename);
 	void RenderScene();
 	void ZoomIn();
 	void ZoomOut();

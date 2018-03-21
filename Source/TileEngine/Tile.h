@@ -25,6 +25,9 @@ extern int TILE_SPAN[TILE_MAX_ZOOM + 1];
 
 #define TILE_SPAN_MAX TILE_SPAN[TILE_MAX_ZOOM]
 
+#define ZOOM_MASK 0b00000000000000000000000000001111
+
+
 typedef uint32_t TileID;
 
 struct Tile
