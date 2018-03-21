@@ -44,7 +44,8 @@ void Map::UpdateVisibleTiles()
 	visible_area.center = _center_screen;
 	int width, height;
 	GraphicsWindow::GetInstance()->GetSize(width, height);
-	auto top_right = ScreenPointToMapPoint(XMFLOAT2(width, 0.0f));
+	// offset by TILE_PIXEL_WIDTH so the visible_area has a 1 tile buffer outside of the visible area
+	auto top_right = ScreenPointToMapPoint(XMFLOAT2(width + TILE_PIXEL_WIDTH, -TILE_PIXEL_WIDTH));
 	visible_area.extent.x = top_right.x - _center_screen.x;
 	visible_area.extent.y = top_right.y - _center_screen.y;
 	_visible_tiles = _tile_engine->Fetch(visible_area, _zoom.major_part);
@@ -158,8 +159,9 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 void Map::RenderScene()
 {
 		
-	for (auto& tile : _visible_tiles)
+	for (auto& tile_id : _visible_tiles)
 	{
+		Tile tile(tile_id);
 		_renderer->DrawTile(tile, 0xFFFF77FF);
 		if (tile.Contains(_cursor))
 		{

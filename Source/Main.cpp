@@ -91,7 +91,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	map_cam->Pitch(90.0f);
 
 	auto map = std::make_unique<Map>(map_cam);
-	map->SetZoom(14, 0);
+	map->SetZoom(0, 0);
 	//camera->RotateY(XMConvertToRadians(-135.0f));
 	//camera->Pitch(XMConvertToRadians(30.f));
 

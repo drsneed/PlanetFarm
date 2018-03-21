@@ -54,7 +54,7 @@ auto Tile::GetID() -> uint32_t
 	auto y32 = static_cast<uint32_t>(y);
 	auto z32 = static_cast<uint32_t>(z);
 
-	ASSERT(z32 < TILE_MAX_ZOOM);
+	ASSERT(z32 <= TILE_MAX_ZOOM);
 
 	auto max_coord = pow(2, z32);
 
@@ -81,6 +81,8 @@ Tile::Tile()
 
 }
 
+#include <sstream>
+
 Tile::Tile(uint32_t key)
 {
 	ASSERT(key < MAX_KEY);
@@ -88,7 +90,7 @@ Tile::Tile(uint32_t key)
 	uint32_t y32 = 0;
 	uint32_t z32 = key & ZOOM_MASK;
 
-	ASSERT(z < TILE_MAX_ZOOM);
+	ASSERT(z32 <= TILE_MAX_ZOOM);
 	for (uint32_t i = 0; i < z32; ++i)
 	{
 		auto bit_location = 32 - ((i + 1) * 2);
@@ -112,9 +114,7 @@ Tile::Tile(uint32_t key)
 
 auto Tile::Contains(XMFLOAT2 map_point) -> bool
 {
-	int level_0_span = pow(2, TILE_MAX_ZOOM);
-	int this_level_span = pow(2, z);
-	int offset = (level_0_span - this_level_span) / 2;
+	int offset = (TILE_SPAN_MAX_ZOOM - TILE_SPAN[z]) / 2;
 	auto level_0_x = static_cast<int>(floor(map_point.x / TILE_PIXEL_WIDTH));
 	auto level_0_y = static_cast<int>(floor(map_point.y / TILE_PIXEL_WIDTH));
 	auto mpx = level_0_x - offset;

@@ -86,7 +86,7 @@ private:
 	std::unique_ptr<TileEngine> _tile_engine;
 	std::shared_ptr<Camera> _cam;
 	std::unique_ptr<MapRenderer> _renderer;
-	std::vector<Tile> _visible_tiles;
+	std::set<TileID> _visible_tiles;
 	//std::map<TileID, TileVectorData> _data_cache;
 	bool _visible_tiles_frozen;
 

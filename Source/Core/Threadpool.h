@@ -208,13 +208,13 @@ using CleanupGroupHandle = UniqueHandle<CleanupGroupTraits>;
 
 
 
-class DXThreadpool
+class Threadpool
 {
 	ThreadpoolEnvironment m_environment;
 	ThreadpoolHandle m_pool;
 	CleanupGroupHandle m_cleanupGroup;
 public:
-	DXThreadpool(int minThreads)
+	Threadpool(int minThreads)
 		: m_pool
 		(CreateThreadpool(nullptr))
 		, m_cleanupGroup(CreateThreadpoolCleanupGroup())
@@ -234,10 +234,10 @@ public:
 		GetSystemInfo(&sys_info);
 		// Set Thread pool limits 
 		//sys_info.dwNumberOfProcessors instead of 1
-		SetThreadpoolThreadMaximum(m_pool.Get(), 2);
+		SetThreadpoolThreadMaximum(m_pool.Get(), sys_info.dwNumberOfProcessors);
 		ENSURE(SetThreadpoolThreadMinimum(m_pool.Get(), minThreads));
 	}
-	~DXThreadpool()
+	~Threadpool()
 	{
 		CloseThreadpoolCleanupGroupMembers(m_cleanupGroup.Get(), TRUE, nullptr);
 	}
