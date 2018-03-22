@@ -8,7 +8,6 @@
 // The ZOOM_MASK itself is an invalid tile (0, 0, 15)
 // so we use that value to signal the worker threads to exit
 #define EXIT_SIGNAL ZOOM_MASK
-
 namespace
 {
 	int DatabaseBusyHandler(void* p_connection, int count)
@@ -113,7 +112,9 @@ void TileEngine::ProcessResourceJob(Db::Connection& conn, const WorkItem& work)
 		Resource resource;
 		if (DbInterface::GetResource(conn, work.tile_id, work.resource_id, resource))
 		{
-			PRINTF(L"[T%u] LOADED RESOURCE %S\n", GetCurrentThreadId(), (char*)resource.payload.blob);
+			std::string text(resource.payload.blob_size, 0);
+			memcpy_s(&text[0], resource.payload.blob_size, resource.payload.blob, resource.payload.blob_size);
+			PRINTF(L"[T%u] LOADED RESOURCE %S\n", GetCurrentThreadId(), text.c_str());
 			_resources[work.resource_id] = std::move(resource);
 		}
 	}

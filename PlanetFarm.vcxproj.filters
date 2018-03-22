@@ -52,12 +52,14 @@
     <ClCompile Include="Source\Game\CameraBehaviorFly.cpp">
       <Filter>Source\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\CameraBehaviorMap.cpp" />
     <ClCompile Include="Source\Game\Models\Square.cpp" />
     <ClCompile Include="Source\Game\Map.cpp" />
     <ClCompile Include="Lib\sqlite3.c" />
     <ClCompile Include="Source\TileEngine\DbInterface.cpp" />
     <ClCompile Include="Source\TileEngine\Resource.cpp" />
+    <ClCompile Include="Source\Game\CameraBehaviorMap.cpp">
+      <Filter>Source\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lib\tinyxml2.h">
@@ -126,24 +128,32 @@
     <ClInclude Include="Source\TileEngine\TileEngine.h">
       <Filter>Source\TileEngine</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Game\CameraBehavior.h" />
     <ClInclude Include="Source\Game\Camera.h">
       <Filter>Source\Game</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\CameraBehaviorFly.h">
       <Filter>Source\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Game\CameraBehaviorMap.h" />
     <ClInclude Include="Source\Game\Models\Square.h" />
     <ClInclude Include="Source\Game\Map.h" />
     <ClInclude Include="Source\Game\MapConfig.h" />
-    <ClInclude Include="Source\TileEngine\BoundingRect.h" />
     <ClInclude Include="Lib\sqlite3.h" />
-    <ClInclude Include="Lib\blockingconcurrentqueue.h" />
     <ClInclude Include="Lib\concurrentqueue.h" />
     <ClInclude Include="Source\TileEngine\DbInterface.h" />
     <ClInclude Include="Source\TileEngine\Resource.h" />
     <ClInclude Include="Source\Core\Db.h" />
+    <ClInclude Include="Lib\blockingconcurrentqueue.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TileEngine\BoundingRect.h">
+      <Filter>Source\TileEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\CameraBehavior.h">
+      <Filter>Source\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\CameraBehaviorMap.h">
+      <Filter>Source\Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lib">

@@ -21,12 +21,12 @@ void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_
 	_CreateResourceTable(connection);
 	if (create_test_data)
 	{
-		char payload[6] = { 'S', 'T', 'E', 'A', 'K', '\0' };
+		char payload[7] = { 'S', 'T', 'E', 'A', 'K', '\n', '\0' };
 		Resource resource{
 			0, // rowid
 			0, // tileid
 			(1 << 4) | ZOOM_MASK, // resourceid
-			Payload(payload, 6)
+			Payload(payload, sizeof(payload))
 		};
 		DbInterface::PutResource(connection, resource);
 	}
@@ -70,20 +70,21 @@ void DbInterface::PutResource(Db::Connection& conn, Resource& resource)
 	}
 }
 
-bool DbInterface::GetResource(Db::Connection& conn, TileID tile_id, ResourceID resource_id, Resource& out)
+bool DbInterface::GetResource(Db::Connection& conn, TileID tile_id, ResourceID resource_id, Resource& resource)
 {
-	auto query = SQL(SELECT rowid,* FROM Resource WHERE TileID = ? AND ResourceID = ? LIMIT 1);
+	//auto query = SQL(SELECT rowid,* FROM Resource WHERE TileID = ? AND ResourceID = ? LIMIT 1);
+	auto query = "SELECT [rowid], * FROM Resource WHERE TileID = ? AND ResourceID = ? LIMIT 1";
 	Db::Row row;
 	Db::Statement statement(conn, query, tile_id, resource_id);
 
 	if (statement.GetSingle(row))
 	{
-		out.row_id = static_cast<int64_t>(row.GetInt(0));
-		out.resource_id = static_cast<ResourceID>(row.GetInt(1));
-		out.tile_id = static_cast<TileID>(row.GetInt(2));
+		resource.row_id = static_cast<int64_t>(row.GetInt(0));
+		resource.tile_id = static_cast<TileID>(row.GetInt(1));
+		resource.resource_id = static_cast<ResourceID>(row.GetInt(2));
 		int payload_size;
 		auto payload = row.GetBlob(payload_size, 3);
-		out.payload = Payload(payload, payload_size);
+		resource.payload = Payload(payload, payload_size);
 		return true;
 	}
 

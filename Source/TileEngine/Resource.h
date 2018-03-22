@@ -16,7 +16,7 @@ struct Payload
 		: blob_size(0), blob(nullptr)
 	{
 		ASSERT(db_blob_size > 0);
-		blob = malloc(db_blob_size);
+		blob = ::malloc(db_blob_size);
 		if (blob)
 		{
 			blob_size = db_blob_size;
@@ -27,8 +27,7 @@ struct Payload
 	{
 		if (blob)
 		{
-			free(blob);
-			blob = nullptr;
+			::free(blob);
 		}
 
 	}
@@ -39,18 +38,21 @@ struct Payload
 
 	// move ok
 	Payload(Payload&& other) noexcept
-		: blob(std::move(other.blob))
+		: blob(other.blob)
 		, blob_size(other.blob_size)
 	{ 
-
+		other.blob = nullptr;
+		other.blob_size = 0;
 	}
 
 	inline Payload& operator=(Payload&& other) noexcept
 	{
 		if (this == &other)
 			return *this;
-		blob = std::move(other.blob);
+		blob = other.blob;
 		blob_size = other.blob_size;
+		other.blob = nullptr;
+		other.blob_size = 0;
 		return *this;
 	}
 };
