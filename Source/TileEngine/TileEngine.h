@@ -1,6 +1,8 @@
 #pragma once
 #include <map>
 #include <set>
+#include <unordered_set>
+#include <mutex>
 #include <blockingconcurrentqueue.h>
 #include <Core/StdIncludes.h>
 #include <Core/Threadpool.h>
@@ -11,18 +13,30 @@
 
 using namespace moodycamel;
 
+
+
 class TileEngine
 {
+public:
+	struct WorkItem
+	{
+		TileID tile_id;
+		ResourceID resource_id;
+	};
+
+private:
 	std::set<TileID> _visible_tiles;
-	std::map<TileID, std::vector<ResourceID>> _tile_resources;
+	std::map<ResourceID, Resource> _resources;
+	std::mutex _resources_mutex;
+	std::map<TileID, std::unordered_set<ResourceID>> _tile_resource_map;
+	std::mutex _tile_resource_map_mutex;
 	Threadpool _threadpool;
-	BlockingConcurrentQueue<TileID> _job_queue;
+	BlockingConcurrentQueue<WorkItem> _job_queue;
 	std::atomic<int> _job_count;
 	std::vector<PTP_WORK> _worker_threads;
 	
-	void _LoadResourcesAsync(std::set<TileID> new_tiles);
+	void _ExecuteTileLoader(const std::vector<WorkItem>& work);
 	const char* const _db_filename;
-
 
 public:
 	TileEngine(const char* const db_filename);
@@ -30,9 +44,9 @@ public:
 	std::set<TileID>& Fetch(BoundingRect viewable_area, uint8_t zoom_level);
 	bool GetTileContaining(XMFLOAT2 map_point, Tile& tile);
 	std::atomic<int>& GetJobCount() { return _job_count; }
-	BlockingConcurrentQueue<TileID>& GetJobQueue() { return _job_queue; }
+	BlockingConcurrentQueue<WorkItem>& GetJobQueue() { return _job_queue; }
 	void WaitForResourceLoaderToFinish();
-	void ProcessTileJob(Db::Connection& conn, TileID tile_id);
-	void ProcessResourceJob(Db::Connection& conn, ResourceID resource_id);
+	void ProcessTileJob(Db::Connection& conn, const WorkItem& work);
+	void ProcessResourceJob(Db::Connection& conn, const WorkItem& work);
 	const char* const GetDatabaseFileName() const { return _db_filename; }
 };

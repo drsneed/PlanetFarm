@@ -23,6 +23,7 @@
 #include <Game/Map.h>
 #include <Core/Db.h>
 #include "Shlwapi.h"
+#include <bitset>
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
@@ -71,8 +72,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #endif
 
 	OleInitialize(NULL);
-
-
+	std::bitset<32> bits((uint32_t)(1 << 4));
+	PRINTF(L"%S\n", bits.to_string().c_str());
+	PRINTF(L"%u\n", (1 << 4));
+	bits = std::bitset<32>((uint32_t)((1 << 4) | ZOOM_MASK));
+	PRINTF(L"%S\n", bits.to_string().c_str());
+	PRINTF(L"%u\n", (1 << 4) | ZOOM_MASK);
 	//_TestSql();
 
 	auto window = GraphicsWindow::CreateInstance(L"Planet Farm", 1366, 768, false);
@@ -95,7 +100,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	if (!PathFileExistsA(db_name))
 	{
-		DbInterface::CreateSaveGameDb(db_name);
+		DbInterface::CreateSaveGameDb(db_name, true);
 	}
 
 	auto map = std::make_unique<Map>(map_cam, db_name);

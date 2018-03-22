@@ -10,9 +10,10 @@ struct Payload
 	size_t blob_size;
 	void* blob;
 
+	Payload() : blob_size(0), blob(nullptr) {}
+
 	Payload(const void* db_blob, size_t db_blob_size)
-		: blob_size(0)
-		, blob(nullptr)
+		: blob_size(0), blob(nullptr)
 	{
 		ASSERT(db_blob_size > 0);
 		blob = malloc(db_blob_size);

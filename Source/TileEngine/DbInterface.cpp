@@ -15,10 +15,21 @@ namespace
 	}
 }
 
-void DbInterface::CreateSaveGameDb(const char* const filename)
+void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_data)
 {
 	auto connection = Db::Connection(filename);
 	_CreateResourceTable(connection);
+	if (create_test_data)
+	{
+		char payload[6] = { 'S', 'T', 'E', 'A', 'K', '\0' };
+		Resource resource{
+			0, // rowid
+			0, // tileid
+			(1 << 4) | ZOOM_MASK, // resourceid
+			Payload(payload, 6)
+		};
+		DbInterface::PutResource(connection, resource);
+	}
 }
 
 std::vector<ResourceID> DbInterface::QueryResourceIDs(Db::Connection& conn, TileID tile_id)
@@ -61,7 +72,7 @@ void DbInterface::PutResource(Db::Connection& conn, Resource& resource)
 
 bool DbInterface::GetResource(Db::Connection& conn, TileID tile_id, ResourceID resource_id, Resource& out)
 {
-	auto query = SQL(SELECT(rowid, ResourceID, TileID, Payload) FROM Resource WHERE TileID = ? AND ResourceID = ? LIMIT 1);
+	auto query = SQL(SELECT rowid,* FROM Resource WHERE TileID = ? AND ResourceID = ? LIMIT 1);
 	Db::Row row;
 	Db::Statement statement(conn, query, tile_id, resource_id);
 
@@ -81,7 +92,7 @@ bool DbInterface::GetResource(Db::Connection& conn, TileID tile_id, ResourceID r
 
 bool DbInterface::GetResource(Db::Connection& conn, int64_t row_id, Resource& out)
 {
-	auto query = SQL(SELECT(ResourceID, TileID, Payload) FROM Resource WHERE rowid = ? LIMIT 1);
+	auto query = SQL(SELECT ResourceID, TileID, Payload FROM Resource WHERE rowid = ? LIMIT 1);
 	Db::Row row;
 	Db::Statement statement(conn, query, row_id);
 
