@@ -72,9 +72,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 #endif
 
 	OleInitialize(NULL);
-	std::bitset<32> bits((uint32_t)((1 << 4) | (1 << 1)));
-	PRINTF(L"%S\n", bits.to_string().c_str());
-	PRINTF(L"%u\n", (uint32_t)((1 << 4) | (1 << 1)));
+	//std::bitset<32> bits((uint32_t)((1 << 4) | (1 << 1)));
+	//PRINTF(L"%S\n", bits.to_string().c_str());
+	//PRINTF(L"%u\n", (uint32_t)((1 << 4) | (1 << 1)));
 	//_TestSql();
 
 	auto window = GraphicsWindow::CreateInstance(L"Planet Farm", 1366, 768, false);

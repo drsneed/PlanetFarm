@@ -151,13 +151,34 @@ auto Tile::GetQuadKey() -> std::string
 
 	std::string result{};
 
-	for(uint32_t i = 0; i < z32; ++i)
+	if (z32 == 0)
 	{
-		auto bit_location = 32 - ((i + 1) * 2);
-		auto char_bits = ((binary_key & (0b11 << bit_location)) >> bit_location);
-		result.push_back('0' + char_bits);
+		result = "root";
+	}
+	else
+	{
+		for (uint32_t i = 0; i < z32; ++i)
+		{
+			auto bit_location = 32 - ((i + 1) * 2);
+			auto char_bits = ((binary_key & (0b11 << bit_location)) >> bit_location);
+			result.push_back('0' + char_bits);
+		}
 	}
 	
+	return result;
+}
+
+auto Tile::ToString() -> std::string
+{
+	std::stringstream ss;
+	ss << "(";
+	ss << x;
+	ss << ",";
+	ss << y;
+	ss << ",";
+	ss << (int)z;
+	ss << ")";
+	std::string result = ss.str();
 	return result;
 }
 

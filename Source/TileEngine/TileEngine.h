@@ -28,8 +28,8 @@ private:
 	std::set<TileID> _visible_tiles;
 	std::map<ResourceID, Resource> _resources;
 	std::mutex _resources_mutex;
-	std::map<TileID, std::unordered_set<ResourceID>> _tile_resource_map;
-	std::mutex _tile_resource_map_mutex;
+	std::map<TileID, std::unordered_set<ResourceID>> _tile_resources;
+	std::mutex _tile_resources_mutex;
 	Threadpool _threadpool;
 	BlockingConcurrentQueue<WorkItem> _job_queue;
 	std::atomic<int> _job_count;
@@ -37,7 +37,7 @@ private:
 	
 	void _ExecuteTileLoader(const std::vector<WorkItem>& work);
 	const char* const _db_filename;
-
+	bool _InitialLoad(const TileID tile_id);
 public:
 	TileEngine(const char* const db_filename);
 	~TileEngine();
@@ -46,7 +46,8 @@ public:
 	std::atomic<int>& GetJobCount() { return _job_count; }
 	BlockingConcurrentQueue<WorkItem>& GetJobQueue() { return _job_queue; }
 	void WaitForResourceLoaderToFinish();
-	void ProcessTileJob(Db::Connection& conn, const WorkItem& work);
-	void ProcessResourceJob(Db::Connection& conn, const WorkItem& work);
+	void ProcessTileJob(Db::Connection& conn, const WorkItem& work, const char* thread_name);
+	void ProcessResourceJob(Db::Connection& conn, const WorkItem& work, const char* thread_name);
 	const char* const GetDatabaseFileName() const { return _db_filename; }
+
 };

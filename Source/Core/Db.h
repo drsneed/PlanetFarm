@@ -206,6 +206,11 @@ namespace Db
 			return sqlite3_column_int(static_cast<const T*>(this)->GetAbi(), column);
 		}
 
+		int64_t GetInt64(const int column = 0) const noexcept
+		{
+			return sqlite3_column_int64(static_cast<const T*>(this)->GetAbi(), column);
+		}
+
 		const char* GetString(const int column = 0) const noexcept
 		{
 			return reinterpret_cast<const char*>(

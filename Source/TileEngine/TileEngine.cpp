@@ -3,13 +3,17 @@
 #include <algorithm>
 #include <iterator>
 #include "DbInterface.h"
+#include <sstream>
 
-
-// The ZOOM_MASK itself is an invalid tile (0, 0, 15)
-// so we use that value to signal the worker threads to exit
-#define EXIT_SIGNAL ZOOM_MASK
 namespace
 {
+	const char* thread_names[4] = {
+		"Worker 1",
+		"Worker 2",
+		"Worker 3",
+		"Worker 4"
+	};
+	std::atomic<int> thread_name_id;
 	int DatabaseBusyHandler(void* p_connection, int count)
 	{
 		auto connection = reinterpret_cast<Db::Connection*>(p_connection);
@@ -19,6 +23,8 @@ namespace
 
 	void CALLBACK WorkerThread(PTP_CALLBACK_INSTANCE pci, void* data, PTP_WORK)
 	{
+		auto name = thread_names[thread_name_id.fetch_add(1, std::memory_order_release)];
+		PRINTF(L"[%S] READY\n", name);
 		auto tile_engine = reinterpret_cast<TileEngine*>(data);
 		auto db_connection = Db::Connection(tile_engine->GetDatabaseFileName(), 
 			SQLITE_OPEN_READWRITE | SQLITE_OPEN_NOMUTEX, DatabaseBusyHandler);
@@ -31,15 +37,15 @@ namespace
 			job_queue.wait_dequeue(work);
 
 			// Check exit condition
-			if (work.tile_id == EXIT_SIGNAL)
+			if (work.tile_id == INVALID_TILE_ID)
 				break;
 
 			// Process Job
 			// If zoom level is max zoom + 1, this is resource id.
 			else if (work.resource_id > 0)
-				tile_engine->ProcessResourceJob(db_connection, work);
+				tile_engine->ProcessResourceJob(db_connection, work, name);
 			else
-				tile_engine->ProcessTileJob(db_connection, work);
+				tile_engine->ProcessTileJob(db_connection, work, name);
 
 			// Decrement job count
 			job_count.fetch_add(-1, std::memory_order_release);
@@ -62,60 +68,90 @@ TileEngine::TileEngine(const char* const db_filename)
 
 TileEngine::~TileEngine()
 {
-	// shutdown the worker threads by sending N exit signals where N = num worker threads
-	std::vector<WorkItem> invalid_tiles(_worker_threads.size(), { EXIT_SIGNAL, 0 });
+	// shutdown the worker threads by sending N invalid tile ids where N = num worker threads
+	std::vector<WorkItem> invalid_tiles(_worker_threads.size(), { INVALID_TILE_ID, 0 });
 	_job_count.fetch_add(invalid_tiles.size(), std::memory_order::memory_order_release);
 	_job_queue.enqueue_bulk(invalid_tiles.begin(), invalid_tiles.size());
 	for (auto& worker_thread : _worker_threads)
 		_threadpool.Wait(worker_thread, TRUE);
 }
 
-void TileEngine::ProcessTileJob(Db::Connection& conn, const WorkItem& work)
+void TileEngine::ProcessTileJob(Db::Connection& conn, const WorkItem& work, const char* thread_name)
 {
-	//PRINTF(L"[T%u] PROCESS TILE %S\n", GetCurrentThreadId(), Tile(tile_id).GetQuadKey().c_str());
-	auto resource_ids = DbInterface::QueryResourceIDs(conn, work.tile_id);
-	if (resource_ids.size() > 0)
+	if (_InitialLoad(work.tile_id))
 	{
-		std::vector<WorkItem> new_work(resource_ids.size());
-		size_t i = 0;
-		for (auto& resource_id : resource_ids)
+		std::string tile = Tile(work.tile_id).ToString();
+		PRINTF(L"[%S] LOADING TILE %S\n", thread_name, tile.c_str());
+
+		auto resource_ids = DbInterface::QueryResourceIDs(conn, work.tile_id);
+
+		if (resource_ids.size() > 0)
 		{
-			new_work[i++] = WorkItem{ work.tile_id, resource_id };
+			std::stringstream ss;
+			ss << "(";
+			for (auto& resource_id : resource_ids)
+			{
+				ss << resource_id;
+				ss << ",";
+			}
+			ss << ")";
+			PRINTF(L"[%S] QUEUING %S RESOURCES FOR TILE %S\n", thread_name, ss.str().c_str(), tile.c_str());
+			std::vector<WorkItem> new_work(resource_ids.size());
+			size_t i = 0;
+			for (auto& resource_id : resource_ids)
+			{
+				new_work[i++] = WorkItem{ work.tile_id, resource_id };
+			}
+
+			_job_count.fetch_add(new_work.size(), std::memory_order::memory_order_release);
+			_job_queue.enqueue_bulk(new_work.begin(), new_work.size());
+
+			std::lock_guard<std::mutex> guard(_tile_resources_mutex);
+			_tile_resources[work.tile_id].insert(resource_ids.begin(), resource_ids.end());
 		}
-
-		_job_count.fetch_add(new_work.size(), std::memory_order::memory_order_release);
-		_job_queue.enqueue_bulk(new_work.begin(), new_work.size());
 	}
-
-	std::lock_guard<std::mutex> guard(_tile_resource_map_mutex);
-
-	// if tile does not exist
-	if (_tile_resource_map.count(work.tile_id) == 0)
-	{
-		_tile_resource_map[work.tile_id] = { work.resource_id };
-	}
-	else
-	{
-		_tile_resource_map[work.tile_id].insert(work.resource_id);
-	}
-	
 }
 
-void TileEngine::ProcessResourceJob(Db::Connection& conn, const WorkItem& work)
+bool TileEngine::_InitialLoad(const TileID tile_id)
+{
+	bool is_initial_load = false;
+	{
+		std::lock_guard<std::mutex> guard(_tile_resources_mutex);
+		is_initial_load = _tile_resources.count(tile_id) == 0;
+		if(is_initial_load)
+			_tile_resources[tile_id] = std::unordered_set<ResourceID>();
+	}
+	return is_initial_load;
+}
+
+void TileEngine::ProcessResourceJob(Db::Connection& conn, const WorkItem& work, const char* thread_name)
 {
 	std::lock_guard<std::mutex> guard(_resources_mutex);
-
 	// if resource does not exist
 	if (_resources.count(work.resource_id) == 0)
 	{
-		PRINTF(L"[T%u] PROCESS RESOURCE %u\n", GetCurrentThreadId(), work.resource_id);
-		Resource resource;
-		if (DbInterface::GetResource(conn, work.tile_id, work.resource_id, resource))
+		PRINTF(L"[%S] PROCESS RESOURCE %u for tile %S\n", thread_name, work.resource_id, Tile(work.tile_id).ToString().c_str());
+		auto resource = DbInterface::GetResource(conn, work.resource_id);
+		if (resource.id > 0)
 		{
+			//TODO: Further process resource, then render it.
+			switch (resource.type)
+			{
+			case ResourceType::Empty:
+				break;
+			case ResourceType::CommericalBuilding1:
+			case ResourceType::ResidentialBuilding1:
+			case ResourceType::ResidentialBuilding2:
+			case ResourceType::IndustrialBuilding1:
+				break;
+			default:
+				break;
+			}
+
+
 			std::string text(resource.payload.blob_size, 0);
 			memcpy_s(&text[0], resource.payload.blob_size, resource.payload.blob, resource.payload.blob_size);
-			PRINTF(L"[T%u] LOADED RESOURCE %S\n", GetCurrentThreadId(), text.c_str());
-			_resources[work.resource_id] = std::move(resource);
+			PRINTF(L"[%S] LOADED RESOURCE %S\n", thread_name, text.c_str());
 		}
 	}
 }
