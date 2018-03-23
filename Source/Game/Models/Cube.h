@@ -22,10 +22,3 @@ public:
 	ID3D11Buffer* GetIndexBuffer() const { return m_indexBuffer; }
 	int GetVertexCount() const { return m_vertexCount; }
 };
-
-_declspec(align(16))
-struct VoxelInstance
-{
-	XMFLOAT4 Position;
-	XMFLOAT3 Color;
-};

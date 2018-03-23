@@ -201,3 +201,44 @@ void MapRenderer::DrawMapBounds()
 	context->IASetVertexBuffers(0, 1, &_map_bounds_buffer, &stride, &offset);
 	context->Draw(MAP_BOUNDS_VERTEX_COUNT, 0);
 }
+
+//
+//void DrawFeature(const Container& item)
+//{
+//	auto type = item.source->GetType();
+//	switch (type)
+//	{
+//	case FeatureType::House:
+//
+//	}
+//	auto context = GraphicsWindow::GetInstance()->GetContext();
+//
+//	context->IASetInputLayout(m_voxelInputLayout);
+//	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+//
+//	UINT stride = sizeof(VoxelModel::Cube::Vertex);
+//	UINT offset = 0;
+//
+//	context->VSSetShader(m_voxelShader.GetVertexShader(), nullptr, 0);
+//	context->PSSetShader(m_voxelShader.GetPixelShader(), nullptr, 0);
+//
+//	context->VSSetConstantBuffers(0, 1, &m_voxelInstanceBuffer);
+//	context->PSSetConstantBuffers(0, 1, &m_voxelInstanceBuffer);
+//	auto cameraBuffer = camera->GetConstantBuffer();
+//	context->VSSetConstantBuffers(1, 1, &cameraBuffer);
+//	context->PSSetConstantBuffers(1, 1, &cameraBuffer);
+//
+//	auto samplerState = GraphicsWindow::GetInstance()->GetStandardSamplerState();
+//	context->PSSetSamplers(0, 1, &samplerState);
+//
+//	context->IASetVertexBuffers(0, 1, m_cubeModel.GetVertexBufferAddr(), &stride, &offset);
+//	context->IASetIndexBuffer(m_cubeModel.GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+//
+//	D3D11_MAPPED_SUBRESOURCE mappedRes;
+//	if (!D3DCheck(context->Map(m_voxelInstanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedRes),
+//		L"ID3D11DeviceContext::Map (Voxel Instance Buffer)")) return;
+//	auto size = sizeof(VoxelModel::VoxelInstance);
+//	memcpy_s(mappedRes.pData, size, &voxel, size);
+//	context->Unmap(m_voxelInstanceBuffer, 0);
+//	context->DrawIndexed(m_cubeModel.GetVertexCount(), 0, 0);
+//}

@@ -195,9 +195,8 @@ namespace Db
 	template <typename T>
 	struct Reader
 	{
-		const void* GetBlob(int& blob_size, const int column = 0) noexcept
+		const void* GetBlob(const int column = 0) noexcept
 		{
-			blob_size = sqlite3_column_bytes(static_cast<const T*>(this)->GetAbi(), column);
 			return sqlite3_column_blob(static_cast<const T*>(this)->GetAbi(), column);
 		}
 
@@ -211,6 +210,11 @@ namespace Db
 			return sqlite3_column_int64(static_cast<const T*>(this)->GetAbi(), column);
 		}
 
+		float GetFloat(const int column = 0) const noexcept
+		{
+			return static_cast<float>(sqlite3_column_double(static_cast<const T*>(this)->GetAbi(), column));
+		}
+
 		const char* GetString(const int column = 0) const noexcept
 		{
 			return reinterpret_cast<const char*>(
@@ -221,6 +225,11 @@ namespace Db
 		{
 			return static_cast<const wchar_t*>(sqlite3_column_text16(
 				static_cast<const T*>(this)->GetAbi(), column));
+		}
+
+		int GetBlobSize(const int column = 0) const noexcept
+		{
+			return sqlite3_column_bytes(static_cast<const T*>(this)->GetAbi(), column);
 		}
 
 		int GetStringLength(const int column = 0) const noexcept
@@ -361,9 +370,33 @@ namespace Db
 			ENSURE(!Step());
 		}
 
+		void Bind(const int index, const int64_t value) const
+		{
+			if (sqlite3_bind_int64(GetAbi(), index, value) != SQLITE_OK)
+			{
+				ExitWithError(GetLastError(sqlite3_db_handle(GetAbi())));
+			}
+		}
+
 		void Bind(const int index, const int value) const
 		{
 			if (sqlite3_bind_int(GetAbi(), index, value) != SQLITE_OK)
+			{
+				ExitWithError(GetLastError(sqlite3_db_handle(GetAbi())));
+			}
+		}
+
+		void Bind(const int index, const uint32_t value) const
+		{
+			if (sqlite3_bind_int(GetAbi(), index, static_cast<int>(value)) != SQLITE_OK)
+			{
+				ExitWithError(GetLastError(sqlite3_db_handle(GetAbi())));
+			}
+		}
+
+		void Bind(const int index, const float value) const
+		{
+			if (sqlite3_bind_double(GetAbi(), index, static_cast<double>(value)) != SQLITE_OK)
 			{
 				ExitWithError(GetLastError(sqlite3_db_handle(GetAbi())));
 			}

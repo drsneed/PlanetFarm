@@ -6,6 +6,7 @@
 #include "Models/Grid.h"
 #include "Models/Square.h"
 #include <TileEngine/Tile.h>
+#include <TileEngine/Feature.h>
 
 class MapRenderer
 {
@@ -33,10 +34,11 @@ class MapRenderer
 
 	std::shared_ptr<Camera> _cam;
 
+	
+
 public:
 	MapRenderer(std::shared_ptr<Camera> camera);
 	~MapRenderer();
-
 	void DrawTile(const Tile& tile, unsigned color);
 	void DrawGrid();
 	void DrawSquare(float x, float y, float width, float rotation, unsigned color);

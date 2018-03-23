@@ -8,9 +8,8 @@
 #include <Core/Threadpool.h>
 #include <Core/Db.h>
 #include "Tile.h"
-#include "Resource.h"
+#include "Feature.h"
 #include "BoundingRect.h"
-#include "Thing.h"
 using namespace moodycamel;
 
 
@@ -21,18 +20,18 @@ public:
 	struct WorkItem
 	{
 		TileID tile_id;
-		ResourceID resource_id;
+		FeatureID feature_id;
 	};
 
 private:
 	std::set<TileID> _visible_tiles;
-	std::map<ResourceID, Resource> _resources;
-	std::mutex _resources_mutex;
-	std::map<TileID, std::unordered_set<ResourceID>> _tile_resources;
-	std::mutex _tile_resources_mutex;
+	std::map<FeatureID, Feature> _features;
+	std::mutex _features_mutex;
+	std::map<TileID, std::unordered_set<FeatureID>> _tile_features;
+	std::mutex _tile_features_mutex;
 	Threadpool _threadpool;
 	BlockingConcurrentQueue<WorkItem> _job_queue;
-	ConcurrentQueue<Thing> _draw_queue;
+	ConcurrentQueue<Feature*> _draw_queue;
 	std::atomic<int> _job_count;
 	std::vector<PTP_WORK> _worker_threads;
 	
@@ -46,12 +45,12 @@ public:
 	bool GetTileContaining(XMFLOAT2 map_point, Tile& tile);
 	std::atomic<int>& GetJobCount() { return _job_count; }
 	BlockingConcurrentQueue<WorkItem>& GetJobQueue() { return _job_queue; }
-	void WaitForResourceLoaderToFinish();
+	void WaitForBusyThreads();
 	void ProcessTileJob(Db::Connection& conn, const WorkItem& work, const char* thread_name);
-	void ProcessResourceJob(Db::Connection& conn, const WorkItem& work, const char* thread_name);
+	void ProcessFeatureJob(Db::Connection& conn, const WorkItem& work, const char* thread_name);
 	const char* const GetDatabaseFileName() const { return _db_filename; }
-
-	void CollectVisibleThings();
-	bool Collect(Thing& thing);
+	const std::set<TileID>& GetVisibleTiles() { return _visible_tiles; }
+	void PrepareDrawQueue();
+	bool PollDrawQueue(Feature** feature);
 
 };

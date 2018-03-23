@@ -2,14 +2,17 @@
 
 namespace
 {
-	void _CreateResourceTable(Db::Connection& connection)
+	void _CreateFeatureTable(Db::Connection& connection)
 	{
 		connection.Execute(
 			SQL(
-				CREATE TABLE `Resource` (
+				CREATE TABLE `Feature` (
+					`Name`		TEXT NULL,
 					`TileID`	INTEGER NOT NULL,
-					`Type` INTEGER NOT NULL,
-					`Payload`	BLOB )
+					`Type`		INTEGER NOT NULL,
+					`PosX`		REAL NOT NULL,
+					`PosY`		REAL NOT NULL,
+					`Points`	BLOB NULL)
 			)
 		);
 	}
@@ -18,84 +21,55 @@ namespace
 void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_data)
 {
 	auto connection = Db::Connection(filename);
-	_CreateResourceTable(connection);
+	_CreateFeatureTable(connection);
 	if (create_test_data)
 	{
 		{
-			char payload[] = { 'S', 'T', 'E', 'A', 'K', '\0' };
-			Resource resource(
-				0, // resource id
+			Feature feature(
+				std::string("Big Island"),
 				Tile(0, 0, 0).GetID(), // tileid
-				ResourceType::ResidentialBuilding1,
-				payload,
-				sizeof(payload)
+				FeatureType::Unknown, // type
+				XMFLOAT2(0.5f, 0.5f)
 			);
-			DbInterface::PutResource(connection, resource);
+			DbInterface::PutFeature(connection, feature);
 		}
 		{
-			char payload[] = { 'B', 'A', 'N', 'A', 'N', 'A', '\0' };
-			Resource resource(
-				0, // resource id
-				Tile(0, 1, 1).GetID(), // tileid
-				ResourceType::ResidentialBuilding1,
-				payload,
-				sizeof(payload)
+			Feature feature(
+				std::string("Static Object"),
+				Tile(1, 0, 1).GetID(), // tileid
+				FeatureType::Unknown, // type
+				XMFLOAT2(0.5f, 0.5f)
 			);
-			DbInterface::PutResource(connection, resource);
+			DbInterface::PutFeature(connection, feature);
 		}
 		{
-			char payload[] = { 'A', 'P', 'P', 'L', 'E', '\0' };
-			Resource resource(
-				0, // resource id
-				Tile(0, 1, 1).GetID(), // tileid
-				ResourceType::ResidentialBuilding1,
-				payload,
-				sizeof(payload)
+			Feature feature(
+				std::string("Dynamic Object 1"),
+				Tile(1, 2, 2).GetID(), // tileid
+				FeatureType::Unknown, // type
+				XMFLOAT2(0.1f, 0.1f),
+				{ { 0.125f, 0.223f },{ 0.430f, 0.987f } }
 			);
-			DbInterface::PutResource(connection, resource);
+			DbInterface::PutFeature(connection, feature);
 		}
 		{
-			char payload[] = { 'B', 'U', 'D', ' ', 'L', 'I', 'G', 'H', 'T', '\0' };
-			Resource resource(
-				0, // resource id
-				Tile(0, 1, 1).GetID(), // tileid
-				ResourceType::ResidentialBuilding1,
-				payload,
-				sizeof(payload)
+			Feature feature(
+				std::string("Dynamic Object 2"),
+				Tile(1, 2, 2).GetID(), // tileid
+				FeatureType::Unknown, // type
+				XMFLOAT2(0.9f, 0.9f),
+				{ { 0.180f, 0.803f },{ 0.630f, 0.5f } }
 			);
-			DbInterface::PutResource(connection, resource);
+			DbInterface::PutFeature(connection, feature);
 		}
-		{
-			char payload[] = { 'F', 'R', 'E', 'N', 'C', 'H', ' ', 'F', 'R', 'I', 'E', 'S', '\0' };
-			Resource resource(
-				0, // resource id
-				Tile(0, 1, 1).GetID(), // tileid
-				ResourceType::ResidentialBuilding1,
-				payload,
-				sizeof(payload)
-			);
-			DbInterface::PutResource(connection, resource);
-		}
-		{
-			char payload[] = { 'S', 'O', 'D', 'A', '\0' };
-			Resource resource(
-				0, // resource id
-				Tile(1, 3, 2).GetID(), // tileid
-				ResourceType::ResidentialBuilding1,
-				payload,
-				sizeof(payload)
-			);
-			DbInterface::PutResource(connection, resource);
-		}
-
 	}
 }
 
-std::vector<ResourceID> DbInterface::QueryResourceIDs(Db::Connection& conn, TileID tile_id)
+std::vector<FeatureID> DbInterface::GetFeatureIDs(Db::Connection& conn, TileID tile_id)
 {
-	std::vector<ResourceID> result;
+	std::vector<FeatureID> result;
 
-	auto query = SQL(SELECT [rowid] FROM Resource WHERE TileID = ?);
+	auto query = SQL(SELECT [rowid] FROM Feature WHERE TileID = ?);
 	auto rows = Db::Statement(conn, query, tile_id);
 	
 	for (auto& row : rows)
@@ -106,42 +80,70 @@ std::vector<ResourceID> DbInterface::QueryResourceIDs(Db::Connection& conn, Tile
 	return result;
 }
 
-void DbInterface::PutResource(Db::Connection& conn, Resource& resource)
+void DbInterface::PutFeature(Db::Connection& conn, Feature& feature)
 {
-	if (resource.id == 0)
+	if (feature.GetID() == 0)
 	{
-		auto query = SQL(INSERT INTO Resource(TileID, Type, Payload) VALUES(?, ?, ?));
+		auto query = "INSERT INTO Feature(Name, TileID, Type, PosX, PosY, Points) VALUES(?, ?, ?, ?, ?, ?)";
 		Db::Statement statement(conn, query);
-		statement.Bind(1, resource.tile_id);
-		statement.Bind(2, (int)resource.type);
-		statement.Bind(3, (const void*)resource.payload.blob, resource.payload.blob_size);
+		statement.Bind(1, feature.GetName());
+		statement.Bind(2, feature.GetTileID());
+		statement.Bind(3, feature.GetTypeInt());
+		auto pos = feature.GetPos();
+		statement.Bind(4, pos.x);
+		statement.Bind(5, pos.y);
+		if (feature.HasPoints())
+		{
+			auto& points = feature.GetPointsRef();
+			statement.Bind(6, static_cast<const void*>(&points[0]), points.size() * sizeof(points[0]));
+		}
+		else
+		{
+			statement.Bind(6, static_cast<const void*>(nullptr), 0);
+		}
 		statement.Execute();
-		resource.id = conn.RowId();
+		feature.SetID(conn.RowId());
 	}
 	else
 	{
-		auto query = SQL(UPDATE Resource SET Payload=? WHERE [rowid]=?);
+		auto query = "UPDATE Feature SET Name=?, TileID=?, Type=?, PosX=?, PosY=?, Points=? WHERE [rowid]=?";
 		Db::Statement statement(conn, query);
-		statement.Bind(1, (const void*)resource.payload.blob, resource.payload.blob_size);
-		statement.Bind(2, resource.id);
+		statement.Bind(1, feature.GetName());
+		statement.Bind(2, feature.GetTileID());
+		statement.Bind(3, feature.GetTypeInt());
+		auto pos = feature.GetPos();
+		statement.Bind(4, pos.x);
+		statement.Bind(5, pos.y);
+		if (feature.HasPoints())
+		{
+			auto& points = feature.GetPointsRef();
+			statement.Bind(6, static_cast<const void*>(&points[0]), points.size() * sizeof(points[0]));
+		}
+		else
+		{
+			statement.Bind(6, static_cast<const void*>(nullptr), 0);
+		}
+		
+		statement.Bind(7, feature.GetID());
 		statement.Execute();
 	}
 }
 
-Resource DbInterface::GetResource(Db::Connection& conn, ResourceID id)
+Feature DbInterface::GetFeature(Db::Connection& conn, FeatureID id)
 {
-	auto query = "SELECT TileID, Type, Payload FROM Resource WHERE [rowid] = ? LIMIT 1";
+	auto query = "SELECT Name, TileID, Type, PosX, PosY, Points FROM Feature WHERE [rowid] = ? LIMIT 1";
 	Db::Row row;
 	Db::Statement statement(conn, query, id);
-	Resource resource;
 	if (statement.GetSingle(row))
 	{
-		resource.id = id;
-		resource.tile_id = static_cast<TileID>(row.GetInt(0));
-		resource.type = static_cast<ResourceType>(row.GetInt(1));
-		int payload_size;
-		auto payload = row.GetBlob(payload_size, 2);
-		resource.payload = Payload(payload, payload_size);
+		auto name = std::string(row.GetString(0), row.GetStringLength());
+		auto tile_id = static_cast<TileID>(row.GetInt(1));
+		auto type = static_cast<FeatureType>(row.GetInt(2));
+		auto posx = row.GetFloat(3);
+		auto posy = row.GetFloat(4);
+		auto points = static_cast<const XMFLOAT2*>(row.GetBlob(5));
+		auto points_size = row.GetBlobSize(5);
+		return Feature(id, name, tile_id, type, XMFLOAT2(posx, posy), points, points_size);
 	}
-	return resource;
+	return Feature();
 }

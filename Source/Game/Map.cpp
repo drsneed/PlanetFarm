@@ -161,19 +161,23 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 
 void Map::_DrawTiles()
 {
-	
-
-	_tile_engine->CollectVisibleThings();
-	Thing thing;
-	while (_tile_engine->Collect(thing))
+	// draw tile borders
+	auto& tile_ids = _tile_engine->GetVisibleTiles();
+	for (auto& id : tile_ids)
 	{
-		Tile tile(thing.tile_id);
+		Tile tile(id);
 		_renderer->DrawTile(tile, 0xFFFF77FF);
 		if (tile.Contains(_cursor))
 		{
 			auto pos = tile.GetPosition();
 			_renderer->DrawSquare(pos.x, pos.y, 10.0f, 0.f, 0xFF0000FF);
 		}
+	}
+	_tile_engine->PrepareDrawQueue();
+	Feature* feature;
+	while (_tile_engine->PollDrawQueue(&feature))
+	{
+		
 	}
 }
 

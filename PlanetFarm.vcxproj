@@ -177,7 +177,7 @@
     <ClCompile Include="Source\Game\TextRenderer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\TileEngine\DbInterface.cpp" />
-    <ClCompile Include="Source\TileEngine\Resource.cpp" />
+    <ClCompile Include="Source\TileEngine\Feature.cpp" />
     <ClCompile Include="Source\TileEngine\Thing.cpp" />
     <ClCompile Include="Source\TileEngine\TileEngine.cpp" />
     <ClCompile Include="Source\TileEngine\Tile.cpp" />
@@ -216,9 +216,10 @@
     <ClInclude Include="Source\Game\TextRenderer.h" />
     <ClInclude Include="Source\TileEngine\BoundingRect.h" />
     <ClInclude Include="Source\TileEngine\DbInterface.h" />
+    <ClInclude Include="Source\TileEngine\Payload.h" />
     <ClInclude Include="Source\TileEngine\Thing.h" />
     <ClInclude Include="Source\TileEngine\Tile.h" />
-    <ClInclude Include="Source\TileEngine\Resource.h" />
+    <ClInclude Include="Source\TileEngine\Feature.h" />
     <ClInclude Include="Source\TileEngine\TileEngine.h" />
   </ItemGroup>
   <ItemGroup>

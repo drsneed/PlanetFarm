@@ -56,11 +56,11 @@
     <ClCompile Include="Source\Game\Map.cpp" />
     <ClCompile Include="Lib\sqlite3.c" />
     <ClCompile Include="Source\TileEngine\DbInterface.cpp" />
-    <ClCompile Include="Source\TileEngine\Resource.cpp" />
     <ClCompile Include="Source\Game\CameraBehaviorMap.cpp">
       <Filter>Source\Game</Filter>
     </ClCompile>
     <ClCompile Include="Source\TileEngine\Thing.cpp" />
+    <ClCompile Include="Source\TileEngine\Feature.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lib\tinyxml2.h">
@@ -141,7 +141,6 @@
     <ClInclude Include="Lib\sqlite3.h" />
     <ClInclude Include="Lib\concurrentqueue.h" />
     <ClInclude Include="Source\TileEngine\DbInterface.h" />
-    <ClInclude Include="Source\TileEngine\Resource.h" />
     <ClInclude Include="Source\Core\Db.h" />
     <ClInclude Include="Lib\blockingconcurrentqueue.h">
       <Filter>Lib</Filter>
@@ -156,6 +155,8 @@
       <Filter>Source\Game</Filter>
     </ClInclude>
     <ClInclude Include="Source\TileEngine\Thing.h" />
+    <ClInclude Include="Source\TileEngine\Feature.h" />
+    <ClInclude Include="Source\TileEngine\Payload.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lib">

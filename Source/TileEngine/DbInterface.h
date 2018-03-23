@@ -2,12 +2,12 @@
 #include <Core/StdIncludes.h>
 #include <Core/Db.h>
 #include "Tile.h"
-#include "Resource.h"
+#include "Feature.h"
 
 namespace DbInterface
 {
 	void CreateSaveGameDb(const char* const filename, bool create_test_data = false);
-	std::vector<ResourceID> QueryResourceIDs(Db::Connection& conn, TileID tile_id);
-	void PutResource(Db::Connection& conn, Resource& resource);
-	Resource GetResource(Db::Connection& conn, ResourceID id);
+	std::vector<FeatureID> GetFeatureIDs(Db::Connection& conn, TileID tile_id);
+	void PutFeature(Db::Connection& conn, Feature& feature);
+	Feature GetFeature(Db::Connection& conn, FeatureID id);
 }
