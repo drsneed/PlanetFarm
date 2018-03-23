@@ -87,15 +87,6 @@ void TileEngine::ProcessTileJob(Db::Connection& conn, const WorkItem& work, cons
 
 		if (resource_ids.size() > 0)
 		{
-			std::stringstream ss;
-			ss << "(";
-			for (auto& resource_id : resource_ids)
-			{
-				ss << resource_id;
-				ss << ",";
-			}
-			ss << ")";
-			PRINTF(L"[%S] QUEUING %S RESOURCES FOR TILE %S\n", thread_name, ss.str().c_str(), tile.c_str());
 			std::vector<WorkItem> new_work(resource_ids.size());
 			size_t i = 0;
 			for (auto& resource_id : resource_ids)
@@ -151,7 +142,7 @@ void TileEngine::ProcessResourceJob(Db::Connection& conn, const WorkItem& work, 
 
 			std::string text(resource.payload.blob_size, 0);
 			memcpy_s(&text[0], resource.payload.blob_size, resource.payload.blob, resource.payload.blob_size);
-			PRINTF(L"[%S] LOADED RESOURCE %S\n", thread_name, text.c_str());
+			PRINTF(L"[%S] RESOURCE PAYLOAD: %S\n", thread_name, text.c_str());
 		}
 	}
 }
@@ -162,7 +153,7 @@ void TileEngine::_ExecuteTileLoader(const std::vector<WorkItem>& work)
 	_job_queue.enqueue_bulk(work.begin(), work.size());
 }
 
-std::set<TileID>& TileEngine::Fetch(BoundingRect viewable_area, uint8_t zoom_level)
+void TileEngine::Refresh(BoundingRect viewable_area, uint8_t zoom_level)
 {
 	XMFLOAT2 top_left, bottom_right;
 	viewable_area.GetCorners(top_left, bottom_right);
@@ -192,9 +183,7 @@ std::set<TileID>& TileEngine::Fetch(BoundingRect viewable_area, uint8_t zoom_lev
 		_ExecuteTileLoader(new_work);
 	}
 
-
 	_visible_tiles = visible_tiles;
-	return _visible_tiles;
 }
 
 bool TileEngine::GetTileContaining(XMFLOAT2 map_point, Tile& tile)
@@ -221,4 +210,21 @@ void TileEngine::WaitForResourceLoaderToFinish()
 {
 	while (_job_count.load(std::memory_order_acquire) != 0)
 		continue;
+}
+
+void TileEngine::CollectVisibleThings()
+{
+	// TODO: collect all visible resources from parent and children tiles...
+	//       within visibility range of item type (i.e. buildings visibile range could 12 - 14)
+	//		 for rendering, build sorted array based on item's type
+
+	for (auto& visible_tile : _visible_tiles)
+	{
+		_draw_queue.enqueue(Thing{ visible_tile });
+	}
+}
+
+bool TileEngine::Collect(Thing& thing)
+{
+	return _draw_queue.try_dequeue(thing);
 }

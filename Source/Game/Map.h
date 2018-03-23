@@ -86,11 +86,11 @@ private:
 	std::unique_ptr<TileEngine> _tile_engine;
 	std::shared_ptr<Camera> _cam;
 	std::unique_ptr<MapRenderer> _renderer;
-	std::set<TileID> _visible_tiles;
+	BoundingRect _visible_area;
 	//std::map<TileID, TileVectorData> _data_cache;
 	bool _visible_tiles_frozen;
-
-
+	void _RefreshTiles(bool refresh_visible_area);
+	void _DrawTiles();
 public:
 	Map(std::shared_ptr<Camera> camera, const char* const db_filename);
 	void RenderScene();
@@ -98,7 +98,7 @@ public:
 	void ZoomOut();
 	void SetZoom(uint8_t major_part, uint8_t minor_part);
 	auto GetZoom() const -> ZoomLevel;
-	void UpdateVisibleTiles();
+
 	/// Returns cursor position in world space
 	MapPoint GetCursor(bool refresh = false);
 	MapPoint GetCenterScreen(bool refresh = false);

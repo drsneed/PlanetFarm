@@ -10,7 +10,7 @@
 #include "Tile.h"
 #include "Resource.h"
 #include "BoundingRect.h"
-
+#include "Thing.h"
 using namespace moodycamel;
 
 
@@ -32,6 +32,7 @@ private:
 	std::mutex _tile_resources_mutex;
 	Threadpool _threadpool;
 	BlockingConcurrentQueue<WorkItem> _job_queue;
+	ConcurrentQueue<Thing> _draw_queue;
 	std::atomic<int> _job_count;
 	std::vector<PTP_WORK> _worker_threads;
 	
@@ -41,7 +42,7 @@ private:
 public:
 	TileEngine(const char* const db_filename);
 	~TileEngine();
-	std::set<TileID>& Fetch(BoundingRect viewable_area, uint8_t zoom_level);
+	void Refresh(BoundingRect viewable_area, uint8_t zoom_level);
 	bool GetTileContaining(XMFLOAT2 map_point, Tile& tile);
 	std::atomic<int>& GetJobCount() { return _job_count; }
 	BlockingConcurrentQueue<WorkItem>& GetJobQueue() { return _job_queue; }
@@ -49,5 +50,8 @@ public:
 	void ProcessTileJob(Db::Connection& conn, const WorkItem& work, const char* thread_name);
 	void ProcessResourceJob(Db::Connection& conn, const WorkItem& work, const char* thread_name);
 	const char* const GetDatabaseFileName() const { return _db_filename; }
+
+	void CollectVisibleThings();
+	bool Collect(Thing& thing);
 
 };

@@ -30,51 +30,54 @@ Map::Map(std::shared_ptr<Camera> camera, const char* const db_filename)
 void Map::HandleCameraPosChangedEvent(XMFLOAT3 position)
 {
 	GetCenterScreen(true);
-	UpdateVisibleTiles();
+	_RefreshTiles(true);
 }
 
-void Map::UpdateVisibleTiles()
+void Map::_RefreshTiles(bool refresh_visible_area)
 {
 	if (isnan(_center_screen.x) || _visible_tiles_frozen)
 	{
 		return;
 	}
 
-	BoundingRect visible_area;
-	visible_area.center = _center_screen;
-	int width, height;
-	GraphicsWindow::GetInstance()->GetSize(width, height);
-	// offset by TILE_PIXEL_WIDTH so the visible_area has a 1 tile buffer outside of the visible area
-	auto top_right = ScreenPointToMapPoint(XMFLOAT2(width + TILE_PIXEL_WIDTH, -TILE_PIXEL_WIDTH));
-	visible_area.extent.x = top_right.x - _center_screen.x;
-	visible_area.extent.y = top_right.y - _center_screen.y;
-	_visible_tiles = _tile_engine->Fetch(visible_area, _zoom.major_part);
+	if (refresh_visible_area)
+	{
+		_visible_area.center = _center_screen;
+		int width, height;
+		GraphicsWindow::GetInstance()->GetSize(width, height);
+		// offset by TILE_PIXEL_WIDTH so the visible_area has a 1 tile buffer outside of the visible area
+		auto top_right = ScreenPointToMapPoint(XMFLOAT2(width + TILE_PIXEL_WIDTH, -TILE_PIXEL_WIDTH));
+		_visible_area.extent.x = top_right.x - _center_screen.x;
+		_visible_area.extent.y = top_right.y - _center_screen.y;
+	}
+
+	_tile_engine->Refresh(_visible_area, _zoom.major_part);
 }
 
 void Map::ZoomIn()
 {
 	_zoom.inc();
-	UpdateVisibleTiles();
+	_RefreshTiles(false);
 }
 
 void Map::ZoomOut()
 {
 	_zoom.dec();
-	UpdateVisibleTiles();
+	_RefreshTiles(false);
 }
 
 void Map::SetZoom(uint8_t major_part, uint8_t minor_part)
 {
+	if (_zoom.major_part == major_part && _zoom.minor_part == minor_part)
+		return;
 	_zoom = ZoomLevel(major_part, minor_part);
-	UpdateVisibleTiles();
+	_RefreshTiles(false);
 }
 
 auto Map::GetZoom() const -> ZoomLevel
 {
 	return _zoom;
 }
-
-
 
 MapPoint Map::ScreenPointToMapPoint(const XMFLOAT2& screen_point)
 {
@@ -147,7 +150,7 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 		if (_visible_tiles_frozen)
 		{
 			_visible_tiles_frozen = false;
-			UpdateVisibleTiles();
+			_RefreshTiles(true);
 		}
 		else
 		{
@@ -156,19 +159,26 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 	}
 }
 
-void Map::RenderScene()
+void Map::_DrawTiles()
 {
-		
-	for (auto& tile_id : _visible_tiles)
+	
+
+	_tile_engine->CollectVisibleThings();
+	Thing thing;
+	while (_tile_engine->Collect(thing))
 	{
-		Tile tile(tile_id);
+		Tile tile(thing.tile_id);
 		_renderer->DrawTile(tile, 0xFFFF77FF);
 		if (tile.Contains(_cursor))
 		{
 			auto pos = tile.GetPosition();
 			_renderer->DrawSquare(pos.x, pos.y, 10.0f, 0.f, 0xFF0000FF);
 		}
-		
 	}
+}
+
+void Map::RenderScene()
+{
+	_DrawTiles();
 	_renderer->DrawMapBounds();
 }
