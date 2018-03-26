@@ -89,7 +89,7 @@ private:
 	BoundingRect _visible_area;
 	//std::map<TileID, TileVectorData> _data_cache;
 	bool _visible_tiles_frozen;
-	void _RefreshTiles(bool refresh_visible_area);
+	void _RefreshTiles();
 	void _DrawTiles();
 public:
 	Map(std::shared_ptr<Camera> camera, const char* const db_filename);

@@ -48,6 +48,7 @@ struct Tile
 	auto ToString() -> std::string;
 
 	auto GetPosition() const -> XMFLOAT2;
+	auto GetFeaturePosition(const XMFLOAT2& feature_pos) const -> XMFLOAT2;
 	auto IsValid() const -> bool;
 	auto Contains(XMFLOAT2 map_point) -> bool;
 

@@ -58,6 +58,8 @@ TileEngine::TileEngine(const char* const db_filename)
 	: _threadpool(2)
 	, _job_count(0)
 	, _db_filename(db_filename)
+	, _draw_list_index(0)
+	, _build_draw_list(true)
 {
 	// spawn 4 worker threads
 	_worker_threads.push_back(_threadpool.SubmitWork(WorkerThread, this));
@@ -78,11 +80,12 @@ TileEngine::~TileEngine()
 
 void TileEngine::ProcessTileJob(Db::Connection& conn, const WorkItem& work, const char* thread_name)
 {
-	if (_InitialLoad(work.tile_id))
+	
+
+	if (_InitialLoad(work.tile_id, thread_name))
 	{
 		std::string tile = Tile(work.tile_id).ToString();
 		PRINTF(L"[%S] LOADING TILE %S\n", thread_name, tile.c_str());
-
 		auto feature_ids = DbInterface::GetFeatureIDs(conn, work.tile_id);
 
 		if (feature_ids.size() > 0)
@@ -96,14 +99,13 @@ void TileEngine::ProcessTileJob(Db::Connection& conn, const WorkItem& work, cons
 
 			_job_count.fetch_add(new_work.size(), std::memory_order::memory_order_release);
 			_job_queue.enqueue_bulk(new_work.begin(), new_work.size());
-
 			std::lock_guard<std::mutex> guard(_tile_features_mutex);
 			_tile_features[work.tile_id].insert(feature_ids.begin(), feature_ids.end());
 		}
 	}
 }
 
-bool TileEngine::_InitialLoad(const TileID tile_id)
+bool TileEngine::_InitialLoad(const TileID tile_id, const char* thread_name)
 {
 	bool is_initial_load = false;
 	{
@@ -121,9 +123,12 @@ void TileEngine::ProcessFeatureJob(Db::Connection& conn, const WorkItem& work, c
 	if (_features.count(work.feature_id) == 0) // If this feature does not exist in storage
 	{
 		auto feature = DbInterface::GetFeature(conn, work.feature_id);
+		PRINTF(L"[%S] LOADED FEATURE %d\n", thread_name, feature.GetID());
 		// Assert that the feature was found in the database. Otherwise where the f did the feature id come from?
 		ASSERT(feature.GetID() == work.feature_id);
+
 		_features[work.feature_id] = std::move(feature);
+		_build_draw_list = true;
 	}
 }
 
@@ -164,6 +169,7 @@ void TileEngine::Refresh(BoundingRect viewable_area, uint8_t zoom_level)
 	}
 
 	_visible_tiles = visible_tiles;
+	_build_draw_list = true;
 }
 
 bool TileEngine::GetTileContaining(XMFLOAT2 map_point, Tile& tile)
@@ -192,25 +198,43 @@ void TileEngine::WaitForBusyThreads()
 		continue;
 }
 
-void TileEngine::PrepareDrawQueue()
+void TileEngine::_BuildDrawList()
 {
 	// TODO: collect all visible features from parent and children tiles...
 	//       within visibility range of item type (i.e. buildings visibile range could 12 - 14)
 	//		 for rendering, build sorted array based on item's type
 	std::lock_guard<std::mutex> guard(_features_mutex);
 	std::lock_guard<std::mutex> guard2(_tile_features_mutex);
+	bool all_tiles_loaded = true;
+	_draw_list.clear();
 	for (auto& visible_tile : _visible_tiles)
 	{
-		auto feature_ids = _tile_features[visible_tile];
-		for (auto& feature_id : feature_ids)
+		if (_tile_features.count(visible_tile) == 1)
 		{
-			auto& feature = _features[feature_id];
-			_draw_queue.enqueue(&feature);
+			auto feature_ids = _tile_features[visible_tile];
+			for (auto& feature_id : feature_ids)
+			{
+				//TODO: Support more than static features.
+				auto* feature = &_features[feature_id];
+				if (feature->GetTileID() == INVALID_TILE_ID)
+				{
+					all_tiles_loaded = false;
+				}
+				else
+				{
+					_draw_list.push_back(StaticFeature(feature));
+				}
+
+			}
 		}
+		
 	}
+	if(all_tiles_loaded)
+		_build_draw_list = false;
 }
 
-bool TileEngine::PollDrawQueue(Feature** feature)
+void TileEngine::PrepareDrawList()
 {
-	return _draw_queue.try_dequeue(*feature);
+	if(_build_draw_list)
+		_BuildDrawList();
 }

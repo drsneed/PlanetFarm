@@ -30,26 +30,23 @@ Map::Map(std::shared_ptr<Camera> camera, const char* const db_filename)
 void Map::HandleCameraPosChangedEvent(XMFLOAT3 position)
 {
 	GetCenterScreen(true);
-	_RefreshTiles(true);
+	_RefreshTiles();
 }
 
-void Map::_RefreshTiles(bool refresh_visible_area)
+void Map::_RefreshTiles()
 {
 	if (isnan(_center_screen.x) || _visible_tiles_frozen)
 	{
 		return;
 	}
 
-	if (refresh_visible_area)
-	{
-		_visible_area.center = _center_screen;
-		int width, height;
-		GraphicsWindow::GetInstance()->GetSize(width, height);
-		// offset by TILE_PIXEL_WIDTH so the visible_area has a 1 tile buffer outside of the visible area
-		auto top_right = ScreenPointToMapPoint(XMFLOAT2(width + TILE_PIXEL_WIDTH, -TILE_PIXEL_WIDTH));
-		_visible_area.extent.x = top_right.x - _center_screen.x;
-		_visible_area.extent.y = top_right.y - _center_screen.y;
-	}
+	_visible_area.center = _center_screen;
+	int width, height;
+	GraphicsWindow::GetInstance()->GetSize(width, height);
+	// offset by TILE_PIXEL_WIDTH so the visible_area has a 1 tile buffer outside of the visible area
+	auto top_right = ScreenPointToMapPoint(XMFLOAT2(width + TILE_PIXEL_WIDTH, -TILE_PIXEL_WIDTH));
+	_visible_area.extent.x = top_right.x - _center_screen.x;
+	_visible_area.extent.y = top_right.y - _center_screen.y;
 
 	_tile_engine->Refresh(_visible_area, _zoom.major_part);
 }
@@ -57,13 +54,13 @@ void Map::_RefreshTiles(bool refresh_visible_area)
 void Map::ZoomIn()
 {
 	_zoom.inc();
-	_RefreshTiles(false);
+	_RefreshTiles();
 }
 
 void Map::ZoomOut()
 {
 	_zoom.dec();
-	_RefreshTiles(false);
+	_RefreshTiles();
 }
 
 void Map::SetZoom(uint8_t major_part, uint8_t minor_part)
@@ -71,7 +68,7 @@ void Map::SetZoom(uint8_t major_part, uint8_t minor_part)
 	if (_zoom.major_part == major_part && _zoom.minor_part == minor_part)
 		return;
 	_zoom = ZoomLevel(major_part, minor_part);
-	_RefreshTiles(false);
+	_RefreshTiles();
 }
 
 auto Map::GetZoom() const -> ZoomLevel
@@ -150,7 +147,7 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 		if (_visible_tiles_frozen)
 		{
 			_visible_tiles_frozen = false;
-			_RefreshTiles(true);
+			_RefreshTiles();
 		}
 		else
 		{
@@ -173,12 +170,12 @@ void Map::_DrawTiles()
 			_renderer->DrawSquare(pos.x, pos.y, 10.0f, 0.f, 0xFF0000FF);
 		}
 	}
-	_tile_engine->PrepareDrawQueue();
-	Feature* feature;
-	while (_tile_engine->PollDrawQueue(&feature))
+	_tile_engine->PrepareDrawList();
+	if (_tile_engine->DrawListCount() > 0)
 	{
-		
+		_renderer->DrawStaticFeaturesBulk(_tile_engine->DrawListBegin(), _tile_engine->DrawListCount());
 	}
+
 }
 
 void Map::RenderScene()

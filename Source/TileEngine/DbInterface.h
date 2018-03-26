@@ -2,7 +2,7 @@
 #include <Core/StdIncludes.h>
 #include <Core/Db.h>
 #include "Tile.h"
-#include "Feature.h"
+#include "Models/Feature.h"
 
 namespace DbInterface
 {

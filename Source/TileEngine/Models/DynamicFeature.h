@@ -2,7 +2,7 @@
 #include <Core/StdIncludes.h>
 #include <Core/GraphicsWindow.h>
 
-class Cube
+class DynamicFeature
 {
 	ID3D11Buffer* m_vertexBuffer;
 	ID3D11Buffer* m_indexBuffer;
@@ -15,10 +15,11 @@ public:
 		FLOAT nx, ny, nz;
 	};
 
-	Cube();
-	~Cube();
+	DynamicFeature();
+	~DynamicFeature();
 
-	ID3D11Buffer*const* GetVertexBufferAddr() { return &m_vertexBuffer; }
+	//void AddVertexData(const std::vector<Vertex>& vertices);
+	ID3D11Buffer** GetVertexBufferAddr() { return &m_vertexBuffer; }
 	ID3D11Buffer* GetIndexBuffer() const { return m_indexBuffer; }
 	int GetVertexCount() const { return m_vertexCount; }
 };

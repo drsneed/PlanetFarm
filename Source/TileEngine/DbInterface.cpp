@@ -12,6 +12,7 @@ namespace
 					`Type`		INTEGER NOT NULL,
 					`PosX`		REAL NOT NULL,
 					`PosY`		REAL NOT NULL,
+					`Rot`		REAL NOT NULL,
 					`Points`	BLOB NULL)
 			)
 		);
@@ -29,7 +30,8 @@ void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_
 				std::string("Big Island"),
 				Tile(0, 0, 0).GetID(), // tileid
 				FeatureType::Unknown, // type
-				XMFLOAT2(0.5f, 0.5f)
+				XMFLOAT2(0.5f, 0.5f),
+				0.0f // rot
 			);
 			DbInterface::PutFeature(connection, feature);
 		}
@@ -38,7 +40,8 @@ void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_
 				std::string("Static Object"),
 				Tile(1, 0, 1).GetID(), // tileid
 				FeatureType::Unknown, // type
-				XMFLOAT2(0.5f, 0.5f)
+				XMFLOAT2(0.5f, 0.5f),
+				0.0f
 			);
 			DbInterface::PutFeature(connection, feature);
 		}
@@ -48,6 +51,7 @@ void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_
 				Tile(1, 2, 2).GetID(), // tileid
 				FeatureType::Unknown, // type
 				XMFLOAT2(0.1f, 0.1f),
+				0.0f,
 				{ { 0.125f, 0.223f },{ 0.430f, 0.987f } }
 			);
 			DbInterface::PutFeature(connection, feature);
@@ -58,6 +62,7 @@ void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_
 				Tile(1, 2, 2).GetID(), // tileid
 				FeatureType::Unknown, // type
 				XMFLOAT2(0.9f, 0.9f),
+				0.0f,
 				{ { 0.180f, 0.803f },{ 0.630f, 0.5f } }
 			);
 			DbInterface::PutFeature(connection, feature);
@@ -84,66 +89,73 @@ void DbInterface::PutFeature(Db::Connection& conn, Feature& feature)
 {
 	if (feature.GetID() == 0)
 	{
-		auto query = "INSERT INTO Feature(Name, TileID, Type, PosX, PosY, Points) VALUES(?, ?, ?, ?, ?, ?)";
+		auto query = "INSERT INTO Feature(Name, TileID, Type, PosX, PosY, Rot, Points) VALUES(?, ?, ?, ?, ?, ?, ?)";
 		Db::Statement statement(conn, query);
-		statement.Bind(1, feature.GetName());
-		statement.Bind(2, feature.GetTileID());
-		statement.Bind(3, feature.GetTypeInt());
-		auto pos = feature.GetPos();
-		statement.Bind(4, pos.x);
-		statement.Bind(5, pos.y);
+		int i = 1;
+		statement.Bind(i++, feature.GetName());
+		statement.Bind(i++, feature.GetTileID());
+		statement.Bind(i++, feature.GetTypeInt());
+		auto pos = feature.GetPosition();
+		statement.Bind(i++, pos.x);
+		statement.Bind(i++, pos.y);
+		statement.Bind(i++, feature.GetRotation());
 		if (feature.HasPoints())
 		{
 			auto& points = feature.GetPointsRef();
-			statement.Bind(6, static_cast<const void*>(&points[0]), points.size() * sizeof(points[0]));
+			statement.Bind(i++, static_cast<const void*>(&points[0]), points.size() * sizeof(points[0]));
 		}
 		else
 		{
-			statement.Bind(6, static_cast<const void*>(nullptr), 0);
+			statement.Bind(i++, static_cast<const void*>(nullptr), 0);
 		}
 		statement.Execute();
 		feature.SetID(conn.RowId());
 	}
 	else
 	{
-		auto query = "UPDATE Feature SET Name=?, TileID=?, Type=?, PosX=?, PosY=?, Points=? WHERE [rowid]=?";
+		auto query = "UPDATE Feature SET Name=?, TileID=?, Type=?, PosX=?, PosY=?, Rot=?, Points=? WHERE [rowid]=?";
 		Db::Statement statement(conn, query);
-		statement.Bind(1, feature.GetName());
-		statement.Bind(2, feature.GetTileID());
-		statement.Bind(3, feature.GetTypeInt());
-		auto pos = feature.GetPos();
-		statement.Bind(4, pos.x);
-		statement.Bind(5, pos.y);
+		int i = 1;
+		statement.Bind(i++, feature.GetName());
+		statement.Bind(i++, feature.GetTileID());
+		statement.Bind(i++, feature.GetTypeInt());
+		auto pos = feature.GetPosition();
+		statement.Bind(i++, pos.x);
+		statement.Bind(i++, pos.y);
+		statement.Bind(i++, feature.GetRotation());
 		if (feature.HasPoints())
 		{
 			auto& points = feature.GetPointsRef();
-			statement.Bind(6, static_cast<const void*>(&points[0]), points.size() * sizeof(points[0]));
+			statement.Bind(i++, static_cast<const void*>(&points[0]), points.size() * sizeof(points[0]));
 		}
 		else
 		{
-			statement.Bind(6, static_cast<const void*>(nullptr), 0);
+			statement.Bind(i++, static_cast<const void*>(nullptr), 0);
 		}
 		
-		statement.Bind(7, feature.GetID());
+		statement.Bind(i++, feature.GetID());
 		statement.Execute();
 	}
 }
 
 Feature DbInterface::GetFeature(Db::Connection& conn, FeatureID id)
 {
-	auto query = "SELECT Name, TileID, Type, PosX, PosY, Points FROM Feature WHERE [rowid] = ? LIMIT 1";
+	auto query = "SELECT Name, TileID, Type, PosX, PosY, Rot, Points FROM Feature WHERE [rowid] = ? LIMIT 1";
 	Db::Row row;
 	Db::Statement statement(conn, query, id);
 	if (statement.GetSingle(row))
 	{
-		auto name = std::string(row.GetString(0), row.GetStringLength());
-		auto tile_id = static_cast<TileID>(row.GetInt(1));
-		auto type = static_cast<FeatureType>(row.GetInt(2));
-		auto posx = row.GetFloat(3);
-		auto posy = row.GetFloat(4);
-		auto points = static_cast<const XMFLOAT2*>(row.GetBlob(5));
-		auto points_size = row.GetBlobSize(5);
-		return Feature(id, name, tile_id, type, XMFLOAT2(posx, posy), points, points_size);
+		int i = 0;
+		auto name = row.GetString(i);
+		auto name_length = row.GetStringLength(i++);
+		auto tile_id = static_cast<TileID>(row.GetInt(i++));
+		auto type = static_cast<FeatureType>(row.GetInt(i++));
+		auto posx = row.GetFloat(i++);
+		auto posy = row.GetFloat(i++);
+		auto rot = row.GetFloat(i++);
+		auto points = static_cast<const XMFLOAT2*>(row.GetBlob(i));
+		auto points_size = row.GetBlobSize(i);
+		return Feature(id, std::string(name, name_length), tile_id, type, XMFLOAT2(posx, posy), rot, points, points_size);
 	}
 	return Feature();
 }

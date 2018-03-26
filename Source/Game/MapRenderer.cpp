@@ -14,6 +14,8 @@ MapRenderer::MapRenderer(std::shared_ptr<Camera> camera)
 	, m_perObjectBuffer(nullptr)
 	, _map_bounds_buffer(nullptr)
 	, _map_bounds_input_layout(nullptr)
+	, _static_feature_shader(LR"(Data/StaticFeature.fx)", Shader::Vertex | Shader::Pixel)
+	, _static_feature_input_layout(nullptr)
 	, _cam(camera)
 {
 
@@ -52,7 +54,7 @@ MapRenderer::MapRenderer(std::shared_ptr<Camera> camera)
 
 	ZeroMemory(&desc, sizeof(desc));
 	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = sizeof(SquarePerObjectBuffer);
+	desc.ByteWidth = sizeof(ModelPerObjectBuffer);
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	if (!D3DCheck(device->CreateBuffer(&desc, nullptr, &m_perObjectBuffer),
@@ -86,10 +88,24 @@ MapRenderer::MapRenderer(std::shared_ptr<Camera> camera)
 
 	if (!D3DCheck(device->CreateBuffer(&vertexBufferDesc, &vertexSubresource, &_map_bounds_buffer),
 		L"ID3D11Device::CreateBuffer (_map_bounds_buffer, VertexBuffer)")) return;
+
+
+	D3D11_INPUT_ELEMENT_DESC layout3[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	if (!D3DCheck(device->CreateInputLayout(layout3, _countof(layout3), _static_feature_shader.GetByteCode(Shader::Vertex)->GetBufferPointer(),
+		_static_feature_shader.GetByteCode(Shader::Vertex)->GetBufferSize(), &_static_feature_input_layout),
+		L"ID3D11Device::CreateInputLayout (StaticFeature)")) return;
 }
 
 MapRenderer::~MapRenderer()
 {
+	if (_static_feature_input_layout)
+		_static_feature_input_layout->Release();
 	if (m_gridInputLayout)
 		m_gridInputLayout->Release();
 	if (m_squareInputLayout)
@@ -142,7 +158,7 @@ void MapRenderer::DrawGrid()
 	context->Draw(m_grid.GetVertexCount(), 0);
 }
 
-void MapRenderer::_UploadPerObjectBuffer(ID3D11DeviceContext* context, const SquarePerObjectBuffer& perObject)
+void MapRenderer::_UploadPerObjectBuffer(ID3D11DeviceContext* context, const ModelPerObjectBuffer& perObject)
 {
 	// Update per resize buffer
 	D3D11_MAPPED_SUBRESOURCE mappedRes;
@@ -155,7 +171,7 @@ void MapRenderer::_UploadPerObjectBuffer(ID3D11DeviceContext* context, const Squ
 void MapRenderer::DrawSquare(float x, float y, float width, float rotation, unsigned color)
 {
 	auto context = GraphicsWindow::GetInstance()->GetContext();
-	__declspec(align(16)) SquarePerObjectBuffer object{};
+	__declspec(align(16)) ModelPerObjectBuffer object{};
 	object.color = ConvertColor(color);
 	//auto translation_mat = XMMatrixTranslation(position.x, 0.0f, position.y);
 	//auto scale_mat = XMMatrixScaling(width, 0.0f, width);
@@ -202,43 +218,44 @@ void MapRenderer::DrawMapBounds()
 	context->Draw(MAP_BOUNDS_VERTEX_COUNT, 0);
 }
 
-//
-//void DrawFeature(const Container& item)
-//{
-//	auto type = item.source->GetType();
-//	switch (type)
-//	{
-//	case FeatureType::House:
-//
-//	}
-//	auto context = GraphicsWindow::GetInstance()->GetContext();
-//
-//	context->IASetInputLayout(m_voxelInputLayout);
-//	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-//
-//	UINT stride = sizeof(VoxelModel::Cube::Vertex);
-//	UINT offset = 0;
-//
-//	context->VSSetShader(m_voxelShader.GetVertexShader(), nullptr, 0);
-//	context->PSSetShader(m_voxelShader.GetPixelShader(), nullptr, 0);
-//
-//	context->VSSetConstantBuffers(0, 1, &m_voxelInstanceBuffer);
-//	context->PSSetConstantBuffers(0, 1, &m_voxelInstanceBuffer);
-//	auto cameraBuffer = camera->GetConstantBuffer();
-//	context->VSSetConstantBuffers(1, 1, &cameraBuffer);
-//	context->PSSetConstantBuffers(1, 1, &cameraBuffer);
-//
-//	auto samplerState = GraphicsWindow::GetInstance()->GetStandardSamplerState();
-//	context->PSSetSamplers(0, 1, &samplerState);
-//
-//	context->IASetVertexBuffers(0, 1, m_cubeModel.GetVertexBufferAddr(), &stride, &offset);
-//	context->IASetIndexBuffer(m_cubeModel.GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-//
-//	D3D11_MAPPED_SUBRESOURCE mappedRes;
-//	if (!D3DCheck(context->Map(m_voxelInstanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedRes),
-//		L"ID3D11DeviceContext::Map (Voxel Instance Buffer)")) return;
-//	auto size = sizeof(VoxelModel::VoxelInstance);
-//	memcpy_s(mappedRes.pData, size, &voxel, size);
-//	context->Unmap(m_voxelInstanceBuffer, 0);
-//	context->DrawIndexed(m_cubeModel.GetVertexCount(), 0, 0);
-//}
+void MapRenderer::DrawStaticFeaturesBulk(StaticFeature* features, size_t features_count)
+{
+	auto context = GraphicsWindow::GetInstance()->GetContext();
+	context->IASetInputLayout(_static_feature_input_layout);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	UINT stride = sizeof(Cube::Vertex);
+	UINT offset = 0;
+	context->VSSetShader(_static_feature_shader.GetVertexShader(), nullptr, 0);
+	context->PSSetShader(_static_feature_shader.GetPixelShader(), nullptr, 0);
+	auto cameraBuffer = _cam->GetConstantBuffer();
+	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+	context->PSSetConstantBuffers(0, 1, &cameraBuffer);
+
+	auto samplerState = GraphicsWindow::GetInstance()->GetStandardSamplerState();
+	context->PSSetSamplers(0, 1, &samplerState);
+
+	 auto& cube = _models_manager.GetCube();
+	context->IASetVertexBuffers(0, 1, cube.GetVertexBufferAddr(), &stride, &offset);
+	context->IASetIndexBuffer(cube.GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+
+	__declspec(align(16)) ModelPerObjectBuffer object;
+	for (size_t i = 0; i < features_count; ++i)
+	{
+		object.color = ConvertColor(features[i].color);
+		//TODO: Add in rotation
+		
+		auto world_mat = 
+			XMMatrixIdentity() *
+			//XMMatrixScaling(features[i].scale, 0.0f, features[i].scale) *
+			XMMatrixScaling(50.0f, 1.0f, 50.0f) *
+			XMMatrixTranslation(features[i].position.x, 1.0f, features[i].position.y);
+
+		XMStoreFloat4x4(&object.world_matrix, XMMatrixTranspose(world_mat));
+		_UploadPerObjectBuffer(context, object);
+		context->VSSetConstantBuffers(1, 1, &m_perObjectBuffer);
+		context->PSSetConstantBuffers(1, 1, &m_perObjectBuffer);
+		context->DrawIndexed(cube.GetVertexCount(), 0, 0);
+	}
+
+
+}

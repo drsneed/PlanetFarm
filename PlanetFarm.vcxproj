@@ -177,8 +177,10 @@
     <ClCompile Include="Source\Game\TextRenderer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\TileEngine\DbInterface.cpp" />
-    <ClCompile Include="Source\TileEngine\Feature.cpp" />
-    <ClCompile Include="Source\TileEngine\Thing.cpp" />
+    <ClCompile Include="Source\TileEngine\ModelsManager.cpp" />
+    <ClCompile Include="Source\TileEngine\Models\DynamicFeature.cpp" />
+    <ClCompile Include="Source\TileEngine\Models\Feature.cpp" />
+    <ClCompile Include="Source\TileEngine\Models\StaticFeature.cpp" />
     <ClCompile Include="Source\TileEngine\TileEngine.cpp" />
     <ClCompile Include="Source\TileEngine\Tile.cpp" />
   </ItemGroup>
@@ -214,12 +216,14 @@
     <ClInclude Include="Source\Game\Models\Grid.h" />
     <ClInclude Include="Source\Game\Models\Square.h" />
     <ClInclude Include="Source\Game\TextRenderer.h" />
-    <ClInclude Include="Source\TileEngine\BoundingRect.h" />
+    <ClInclude Include="Source\TileEngine\ModelsManager.h" />
+    <ClInclude Include="Source\TileEngine\Models\BoundingRect.h" />
     <ClInclude Include="Source\TileEngine\DbInterface.h" />
+    <ClInclude Include="Source\TileEngine\Models\DynamicFeature.h" />
+    <ClInclude Include="Source\TileEngine\Models\StaticFeature.h" />
     <ClInclude Include="Source\TileEngine\Payload.h" />
-    <ClInclude Include="Source\TileEngine\Thing.h" />
     <ClInclude Include="Source\TileEngine\Tile.h" />
-    <ClInclude Include="Source\TileEngine\Feature.h" />
+    <ClInclude Include="Source\TileEngine\Models\Feature.h" />
     <ClInclude Include="Source\TileEngine\TileEngine.h" />
   </ItemGroup>
   <ItemGroup>

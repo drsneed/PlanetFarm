@@ -69,7 +69,7 @@ public:
 		cameraBuffer.ViewProjectionMatrix = XMMatrixTranspose(GetViewProjectionMatrix());
 		cameraBuffer.ProjectionMatrix = XMMatrixTranspose(GetProjectionMatrix());
 		cameraBuffer.ViewportMatrix = XMMatrixTranspose(GetViewportMatrix());
-
+		cameraBuffer.CameraPosition = m_position;
 		D3D11_MAPPED_SUBRESOURCE mappedRes;
 		auto context = GraphicsWindow::GetInstance()->GetContext();
 		if (!D3DCheck(context->Map(m_gpuCameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedRes),

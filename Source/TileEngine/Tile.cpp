@@ -137,6 +137,15 @@ auto Tile::GetPosition() const -> XMFLOAT2
 	
 }
 
+auto Tile::GetFeaturePosition(const XMFLOAT2& feature_pos) const -> XMFLOAT2
+{
+	float index_offset = (TILE_SPAN_MAX - TILE_SPAN[z]) / 2.0f;
+	auto fx = static_cast<float>(x) + index_offset;
+	auto fy = static_cast<float>(y) + index_offset;
+	return XMFLOAT2{ (fx * TILE_PIXEL_WIDTH) + (feature_pos.x * TILE_PIXEL_WIDTH),
+		(fy * TILE_PIXEL_WIDTH) + (feature_pos.y * TILE_PIXEL_WIDTH) };
+}
+
 auto Tile::GetLevelWidth(uint8_t zoom_level) -> float
 {
 	return pow(2, zoom_level) * TILE_PIXEL_WIDTH;

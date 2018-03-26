@@ -59,8 +59,10 @@
     <ClCompile Include="Source\Game\CameraBehaviorMap.cpp">
       <Filter>Source\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TileEngine\Thing.cpp" />
-    <ClCompile Include="Source\TileEngine\Feature.cpp" />
+    <ClCompile Include="Source\TileEngine\Models\Feature.cpp" />
+    <ClCompile Include="Source\TileEngine\Models\DynamicFeature.cpp" />
+    <ClCompile Include="Source\TileEngine\Models\StaticFeature.cpp" />
+    <ClCompile Include="Source\TileEngine\ModelsManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lib\tinyxml2.h">
@@ -145,18 +147,20 @@
     <ClInclude Include="Lib\blockingconcurrentqueue.h">
       <Filter>Lib</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TileEngine\BoundingRect.h">
-      <Filter>Source\TileEngine</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Game\CameraBehavior.h">
       <Filter>Source\Game</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\CameraBehaviorMap.h">
       <Filter>Source\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TileEngine\Thing.h" />
-    <ClInclude Include="Source\TileEngine\Feature.h" />
     <ClInclude Include="Source\TileEngine\Payload.h" />
+    <ClInclude Include="Source\TileEngine\Models\BoundingRect.h">
+      <Filter>Source\TileEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TileEngine\Models\Feature.h" />
+    <ClInclude Include="Source\TileEngine\Models\StaticFeature.h" />
+    <ClInclude Include="Source\TileEngine\Models\DynamicFeature.h" />
+    <ClInclude Include="Source\TileEngine\ModelsManager.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lib">
