@@ -27,7 +27,7 @@ void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_
 	{
 		{
 			Feature feature(
-				std::string("Big Island"),
+				std::string("Static Feature 1"),
 				Tile(0, 0, 0).GetID(), // tileid
 				FeatureType::Unknown, // type
 				XMFLOAT2(0.5f, 0.5f),
@@ -37,33 +37,41 @@ void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_
 		}
 		{
 			Feature feature(
-				std::string("Static Object"),
-				Tile(1, 0, 1).GetID(), // tileid
+				std::string("Static Feature 2"),
+				Tile(0, 0, 1).GetID(), // tileid
 				FeatureType::Unknown, // type
-				XMFLOAT2(0.5f, 0.5f),
-				0.0f
+				XMFLOAT2(0.2f, 0.7f),
+				0.0f // rot
 			);
 			DbInterface::PutFeature(connection, feature);
 		}
 		{
 			Feature feature(
-				std::string("Dynamic Object 1"),
-				Tile(1, 2, 2).GetID(), // tileid
+				std::string("Static Feature 3"),
+				Tile(0, 1, 1).GetID(), // tileid
 				FeatureType::Unknown, // type
-				XMFLOAT2(0.1f, 0.1f),
-				0.0f,
-				{ { 0.125f, 0.223f },{ 0.430f, 0.987f } }
+				XMFLOAT2(0.5f, 0.1f),
+				0.0f // rot
 			);
 			DbInterface::PutFeature(connection, feature);
 		}
 		{
 			Feature feature(
-				std::string("Dynamic Object 2"),
-				Tile(1, 2, 2).GetID(), // tileid
+				std::string("Static Feature 4"),
+				Tile(1, 1, 1).GetID(), // tileid
 				FeatureType::Unknown, // type
-				XMFLOAT2(0.9f, 0.9f),
-				0.0f,
-				{ { 0.180f, 0.803f },{ 0.630f, 0.5f } }
+				XMFLOAT2(0.12f, 0.0f),
+				0.0f // rot
+			);
+			DbInterface::PutFeature(connection, feature);
+		}
+		{
+			Feature feature(
+				std::string("Static Feature 5"),
+				Tile(1, 1, 1).GetID(), // tileid
+				FeatureType::Unknown, // type
+				XMFLOAT2(0.812f, 0.1975f),
+				0.0f // rot
 			);
 			DbInterface::PutFeature(connection, feature);
 		}
