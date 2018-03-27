@@ -32,7 +32,7 @@ public:
 			ASSERT(minor_part < 10);
 		}
 
-		void inc()
+		bool inc()
 		{
 			//if (minor_part == 9)
 			//{
@@ -49,10 +49,12 @@ public:
 			if (major_part < TILE_MAX_ZOOM)
 			{
 				major_part++;
+				return true;
 			}
+			return false;
 		}
 
-		void dec()
+		bool dec()
 		{
 			//if (minor_part == 0)
 			//{
@@ -70,7 +72,9 @@ public:
 			if (major_part > 0)
 			{
 				major_part--;
+				return true;
 			}
+			return false;
 		}
 
 		std::string ToString()
@@ -98,8 +102,8 @@ public:
 	void ZoomOut();
 	void SetZoom(uint8_t major_part, uint8_t minor_part);
 	auto GetZoom() const -> ZoomLevel;
-	auto ZoomPoint(const MapPoint& level_0_point, uint8_t from_zoom, uint8_t to_zoom) -> MapPoint;
-
+	auto ZoomOutPoint(const MapPoint& point) -> MapPoint;
+	auto ZoomInPoint(const MapPoint& point)->MapPoint;
 	/// Returns cursor position in world space
 	MapPoint GetCursor(bool refresh = false);
 	MapPoint GetCenterScreen(bool refresh = false);

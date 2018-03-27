@@ -76,6 +76,7 @@ public:
 			L"ID3D11DeviceContext::Map (Camera Matrix Update)")) return;
 		memcpy_s(mappedRes.pData, sizeof(ConstantBuffer), &cameraBuffer, sizeof(ConstantBuffer));
 		context->Unmap(m_gpuCameraBuffer, 0);
+		_gpu_buffer_dirty = false;
 	}
 
 	size_t NotifyPosChange(std::function<void(XMFLOAT3)> callback)
@@ -96,6 +97,7 @@ protected:
 	float m_yaw;
 	float m_pitch;
 	float m_roll;
+	bool _gpu_buffer_dirty;
 
 	std::vector <std::function<void(XMFLOAT3)>> _notify_pos_change_list;
 
@@ -126,6 +128,7 @@ public:
 		, m_pitch(0)
 		, m_roll(0)
 		, m_behavior(behavior)
+		, _gpu_buffer_dirty(true)
 
 	{
 		D3D11_BUFFER_DESC bd;
@@ -152,7 +155,8 @@ public:
 	void Tick(float dt) 
 	{ 
 		m_behavior->Tick(this, dt);
-		UpdateGpuBuffer();
+		if(_gpu_buffer_dirty)
+			UpdateGpuBuffer();
 	}
 
 	void HandleEvent(GraphicsWindow::Event& event) 
@@ -206,6 +210,7 @@ public:
 			0.f, 0.f, 1.f, 0.f,
 			0.f, 0.f, 0.f, 1.f
 		);
+		_gpu_buffer_dirty = true;
 	}
 	XMMATRIX GetViewMatrix() const { return XMLoadFloat4x4(&m_viewMatrix); }
 	XMMATRIX GetProjectionMatrix() const { return XMLoadFloat4x4(&m_projMatrix); }
@@ -215,19 +220,35 @@ public:
 	XMFLOAT3 GetPosition() const { return m_position; };
 	XMVECTOR GetPositionXM() const { return XMLoadFloat3(&m_position); };
 
-	void SetPosition(float x, float y, float z)
+	void SetPosition(float x, float y, float z, bool force_refresh_matrices = false)
 	{
 		m_position.x = x;
 		m_position.y = y;
 		m_position.z = z;
+
+		_gpu_buffer_dirty = true;
+
+		if (force_refresh_matrices)
+		{
+			UpdateGpuBuffer();
+		}
+
 		for(auto& callback: _notify_pos_change_list)
 		{
 			callback(m_position);
 		}
 	}
-	void SetPosition(const XMFLOAT3& position)
+	void SetPosition(const XMFLOAT3& position, bool force_refresh_matrices = false)
 	{
 		m_position = position;
+
+		_gpu_buffer_dirty = true;
+
+		if (force_refresh_matrices)
+		{
+			UpdateGpuBuffer();
+		}
+
 		for (auto& callback : _notify_pos_change_list)
 		{
 			callback(m_position);

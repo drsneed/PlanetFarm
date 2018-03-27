@@ -19,6 +19,12 @@ namespace
 	}
 }
 
+//#define PP 127.0f
+//{ -PP, -PP },
+//{ PP, -PP },
+//{ PP, PP },
+//{ -PP, PP },
+//{ -PP, -PP }
 void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_data)
 {
 	auto connection = Db::Connection(filename);
