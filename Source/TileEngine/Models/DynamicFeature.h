@@ -2,24 +2,54 @@
 #include <Core/StdIncludes.h>
 #include <Core/GraphicsWindow.h>
 
-class DynamicFeature
+class Feature;
+struct DynamicFeature
 {
-	ID3D11Buffer* m_vertexBuffer;
-	ID3D11Buffer* m_indexBuffer;
-	int m_vertexCount;
-public:
-	struct Vertex
-	{
-		FLOAT x, y, z;
-		FLOAT u, v;
-		FLOAT nx, ny, nz;
-	};
+	ID3D11Buffer* vertex_buffer;
+	int vertex_count;
 
-	DynamicFeature();
+	XMFLOAT2 position;
+	unsigned color;
+	float rotation;
+	float scale;
+
+	DynamicFeature(Feature* feature, uint8_t zoom_level);
+
 	~DynamicFeature();
 
-	//void AddVertexData(const std::vector<Vertex>& vertices);
-	ID3D11Buffer** GetVertexBufferAddr() { return &m_vertexBuffer; }
-	ID3D11Buffer* GetIndexBuffer() const { return m_indexBuffer; }
-	int GetVertexCount() const { return m_vertexCount; }
+
+	// no copying for now.
+	DynamicFeature(DynamicFeature const&) = delete;
+	DynamicFeature& operator=(DynamicFeature const&) = delete;
+
+	// move ok
+	DynamicFeature(DynamicFeature&& other) noexcept
+		: vertex_buffer(other.vertex_buffer)
+		, vertex_count(other.vertex_count)
+		, position(other.position)
+		, color(other.color)
+		, rotation(other.rotation)
+		, scale(other.scale)
+	{
+		other.vertex_buffer = nullptr;
+		other.vertex_count = 0;
+	}
+
+	inline DynamicFeature& operator=(DynamicFeature&& other) noexcept
+	{
+		if (this == &other)
+			return *this;
+
+		vertex_buffer = other.vertex_buffer;
+		vertex_count = other.vertex_count;
+		position = other.position;
+		color = other.color;
+		rotation = other.rotation;
+		scale = other.scale;
+
+		other.vertex_buffer = nullptr;
+		other.vertex_count = 0;
+		return *this;
+	}
+
 };

@@ -58,8 +58,8 @@ TileEngine::TileEngine(const char* const db_filename)
 	: _threadpool(2)
 	, _job_count(0)
 	, _db_filename(db_filename)
-	, _draw_list_index(0)
-	, _build_draw_list(true)
+	, _build_draw_lists(true)
+	, _zoom(0)
 {
 	// spawn 4 worker threads
 	_worker_threads.push_back(_threadpool.SubmitWork(WorkerThread, this));
@@ -80,8 +80,6 @@ TileEngine::~TileEngine()
 
 void TileEngine::ProcessTileJob(Db::Connection& conn, const WorkItem& work, const char* thread_name)
 {
-	
-
 	if (_InitialLoad(work.tile_id, thread_name))
 	{
 		std::string tile = Tile(work.tile_id).ToString();
@@ -128,7 +126,7 @@ void TileEngine::ProcessFeatureJob(Db::Connection& conn, const WorkItem& work, c
 		ASSERT(feature.GetID() == work.feature_id);
 
 		_features[work.feature_id] = std::move(feature);
-		_build_draw_list = true;
+		_build_draw_lists = true;
 	}
 }
 
@@ -138,10 +136,11 @@ void TileEngine::_ExecuteTileLoader(const std::vector<WorkItem>& work)
 	_job_queue.enqueue_bulk(work.begin(), work.size());
 }
 
-void TileEngine::Refresh(BoundingRect viewable_area, uint8_t zoom_level)
+void TileEngine::Refresh(BoundingRect visible_area, uint8_t zoom_level)
 {
+	_visible_area = visible_area;
 	XMFLOAT2 top_left, bottom_right;
-	viewable_area.GetCorners(top_left, bottom_right);
+	visible_area.GetCorners(top_left, bottom_right);
 	int offset = (TILE_SPAN_MAX - TILE_SPAN[zoom_level]) / 2;
 	auto left = max(static_cast<int>(floor(top_left.x / TILE_PIXEL_WIDTH)) - offset, 0);
 	auto top = min(static_cast<int>(floor(top_left.y / TILE_PIXEL_WIDTH)) - offset, TILE_SPAN[zoom_level] - 1);
@@ -169,26 +168,69 @@ void TileEngine::Refresh(BoundingRect viewable_area, uint8_t zoom_level)
 	}
 
 	_visible_tiles = visible_tiles;
-	_build_draw_list = true;
+	_build_draw_lists = true;
+	_zoom = zoom_level;
 }
 
-bool TileEngine::GetTileContaining(XMFLOAT2 map_point, Tile& tile)
+Tile TileEngine::_ContainsRecursive(Tile tile, const XMFLOAT2& top_left, const XMFLOAT2& bottom_right)
 {
+	Tile result;
+	auto pos = tile.GetPosition();
+	float minx, maxx, miny, maxy;
+	minx = pos.x - TILE_PIXEL_WIDTH_HALF;
+	miny = pos.y - TILE_PIXEL_WIDTH_HALF;
+	maxx = pos.x + TILE_PIXEL_WIDTH_HALF;
+	maxy = pos.y + TILE_PIXEL_WIDTH_HALF;
+
+
+	bool fits = top_left.x >= minx && bottom_right.x <= maxx && bottom_right.y >= miny && top_left.y <= maxy;
+	
+	if (!fits)
+		return tile;
+
+	auto children = tile.GetChildren();
+	for (auto& child : children)
+	{
+		Tile containing_tile = _ContainsRecursive(child, top_left, bottom_right);
+		if(containing_tile != tile)
+		{
+			return containing_tile;
+		}
+	}
+
+	return tile;
+}
+
+Tile TileEngine::GetTileContaining(BoundingRect visible_area)
+{
+	Tile result(0, 0, 0);
+	XMFLOAT2 top_left, bottom_right;
+	visible_area.GetCorners(top_left, bottom_right);
+	_ContainsRecursive(result, top_left, bottom_right);
+	return result;
+}
+
+Tile TileEngine::GetTileContaining(XMFLOAT2 map_point, uint8_t zoom_level)
+{
+	Tile result;
 	int level_0_span = pow(2, TILE_MAX_ZOOM);
-	int this_level_span = pow(2, tile.z);
+	int this_level_span = pow(2, zoom_level);
 	int offset = (level_0_span - this_level_span) / 2;
 
-	auto x = static_cast<int>(floor(map_point.x / TILE_PIXEL_WIDTH)) - offset;
-	auto y = static_cast<int>(floor(map_point.y / TILE_PIXEL_WIDTH)) - offset;
+	
+
+	float x, y;
+	x = static_cast<int>(floor((map_point.x - TILE_PIXEL_WIDTH_HALF) / TILE_PIXEL_WIDTH)) - offset;
+	y = static_cast<int>(floor((map_point.y - TILE_PIXEL_WIDTH_HALF) / TILE_PIXEL_WIDTH)) - offset;
+
 
 	if (x >= 0 && x < this_level_span && y >= 0 && y < this_level_span)
 	{
-		tile.x = static_cast<uint16_t>(x);
-		tile.y = static_cast<uint16_t>(y);
-		return true;
+		result.x = static_cast<uint16_t>(x);
+		result.y = static_cast<uint16_t>(y);
+		result.z = zoom_level;
 	}
-
-	return false;
+	return result;
 }
 
 
@@ -198,15 +240,80 @@ void TileEngine::WaitForBusyThreads()
 		continue;
 }
 
-void TileEngine::_BuildDrawList()
+Tile TileEngine::_GetChildTileContaining(Tile tile, const XMFLOAT2& top_left, const XMFLOAT2& bottom_right)
+{	
+	auto children = tile.GetChildren();
+	for (auto& child : children)
+	{
+		auto pos = child.GetPosition();
+		float minx, maxx, miny, maxy;
+		minx = pos.x - TILE_PIXEL_WIDTH_HALF;
+		miny = pos.y - TILE_PIXEL_WIDTH_HALF;
+		maxx = pos.x + TILE_PIXEL_WIDTH_HALF;
+		maxy = pos.y + TILE_PIXEL_WIDTH_HALF;
+
+
+		if (top_left.x >= minx && bottom_right.x <= maxx && bottom_right.y >= miny && top_left.y <= maxy)
+		{
+			return child;
+		}
+	}
+
+	return tile;
+}
+
+void TileEngine::_CollectVisibleFeaturesRecursive(Tile tile, const XMFLOAT2& top_left, const XMFLOAT2& bottom_right)
+{
+	auto tile_id = tile.GetID();
+
+	// Does this tile have any features?
+	if (_tile_features.count(tile_id) == 1)
+	{
+		auto feature_ids = _tile_features[tile_id];
+		for (auto& feature_id : feature_ids)
+		{
+			//TODO: Support more than static features.
+			auto* feature = &_features[feature_id];
+			if (feature->GetTileID() != INVALID_TILE_ID)
+			{
+				if (feature->HasPoints())
+				{
+					_dynamic_feature_draw_list.push_back(DynamicFeature(feature, _zoom));
+				}
+				else
+				{
+					_static_feature_draw_list.push_back(StaticFeature(feature, _zoom));
+				}
+			}
+		}
+	}
+
+	auto next_tile = _GetChildTileContaining(tile, top_left, bottom_right);
+	if (next_tile != tile)
+	{
+		_CollectVisibleFeaturesRecursive(next_tile, top_left, bottom_right);
+	}
+}
+
+void TileEngine::_BuildDrawLists()
 {
 	// TODO: collect all visible features from parent and children tiles...
 	//       within visibility range of item type (i.e. buildings visibile range could 12 - 14)
 	//		 for rendering, build sorted array based on item's type
+
+	//// starting tile = largest tile containing visible area || root
+
+	//Tile starting_tile = GetTileContaining(_visible_area);
+	bool all_tiles_loaded = true;
+	_static_feature_draw_list.clear();
+	_dynamic_feature_draw_list.clear();
+	XMFLOAT2 top_left, bottom_right;
+	_visible_area.GetCorners(top_left, bottom_right);
+	
 	std::lock_guard<std::mutex> guard(_features_mutex);
 	std::lock_guard<std::mutex> guard2(_tile_features_mutex);
-	bool all_tiles_loaded = true;
-	_draw_list.clear();
+
+	_CollectVisibleFeaturesRecursive(Tile(0,0,0), top_left, bottom_right);
 	for (auto& visible_tile : _visible_tiles)
 	{
 		if (_tile_features.count(visible_tile) == 1)
@@ -222,19 +329,26 @@ void TileEngine::_BuildDrawList()
 				}
 				else
 				{
-					_draw_list.push_back(StaticFeature(feature));
+					if (feature->HasPoints())
+					{
+						_dynamic_feature_draw_list.push_back(DynamicFeature(feature, _zoom));
+					}
+					else
+					{
+						_static_feature_draw_list.push_back(StaticFeature(feature, _zoom));
+					}
+					
 				}
-
 			}
 		}
 		
 	}
 	if(all_tiles_loaded)
-		_build_draw_list = false;
+		_build_draw_lists = false;
 }
 
-void TileEngine::PrepareDrawList()
+void TileEngine::PrepareDrawLists()
 {
-	if(_build_draw_list)
-		_BuildDrawList();
+	if(_build_draw_lists)
+		_BuildDrawLists();
 }

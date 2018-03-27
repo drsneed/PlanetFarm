@@ -218,6 +218,38 @@ void MapRenderer::DrawMapBounds()
 	context->Draw(MAP_BOUNDS_VERTEX_COUNT, 0);
 }
 
+void MapRenderer::DrawDynamicFeaturesBulk(DynamicFeature* features, size_t features_count)
+{
+	auto context = GraphicsWindow::GetInstance()->GetContext();
+	context->IASetInputLayout(m_squareInputLayout);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	__declspec(align(16)) ModelPerObjectBuffer object {};
+	UINT stride = sizeof(Square::Vertex);
+	UINT offset = 0;
+	context->VSSetShader(m_squareShader.GetVertexShader(), nullptr, 0);
+	context->PSSetShader(m_squareShader.GetPixelShader(), nullptr, 0);
+
+	auto cameraBuffer = _cam->GetConstantBuffer();
+	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+
+	for (size_t i = 0; i < features_count; ++i)
+	{
+		object.color = ConvertColor(features[i].color);
+		auto world_mat = XMMatrixIdentity() *
+			XMMatrixScaling(features[i].scale, 0.0f, features[i].scale) *
+			XMMatrixTranslation(features[i].position.x, 1.0f, features[i].position.y);
+
+		XMStoreFloat4x4(&object.world_matrix, XMMatrixTranspose(world_mat));
+
+		_UploadPerObjectBuffer(context, object);
+
+		context->VSSetConstantBuffers(1, 1, &m_perObjectBuffer);
+		context->IASetVertexBuffers(0, 1, &features[i].vertex_buffer, &stride, &offset);
+
+		context->Draw(features[i].vertex_count, 0);
+	}
+}
+
 void MapRenderer::DrawStaticFeaturesBulk(StaticFeature* features, size_t features_count)
 {
 	auto context = GraphicsWindow::GetInstance()->GetContext();

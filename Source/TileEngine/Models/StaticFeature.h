@@ -9,5 +9,5 @@ struct StaticFeature
 	float rotation;
 	float scale;
 
-	StaticFeature(const Feature* const feature);
+	StaticFeature(const Feature* const feature, uint8_t zoom_level);
 };

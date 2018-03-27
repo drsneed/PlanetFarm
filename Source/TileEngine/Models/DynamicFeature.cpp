@@ -1,95 +1,38 @@
+#include "Feature.h"
 #include "DynamicFeature.h"
 
-DynamicFeature::DynamicFeature()
-	: m_vertexBuffer(nullptr)
-	, m_indexBuffer(nullptr)
+DynamicFeature::DynamicFeature(Feature* feature, uint8_t zoom_level)
+	: vertex_buffer(nullptr)
+	, vertex_count(feature->GetPointsRef().size())
+	, position(feature->GetMapPosition())
+	, color(0x33FF33FF)
+	, rotation(0.0f)
+	, scale(1.0f * ((int)zoom_level - (int)(Tile(feature->GetTileID()).z) + 1))
 {
-	Vertex vertices[] =
-	{
-		{ -1.0f,  1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f },
-		{ 1.0f,  1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f },
-		{ -1.0f, -1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f },
-		{ -1.0f, -1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f },
-		{ 1.0f,  1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f },
-		{ 1.0f, -1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f },
-		{ 1.0f,  1.0f, -1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f },
-		{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f },
-		{ 1.0f, -1.0f, -1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f },
-		{ 1.0f, -1.0f, -1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f },
-		{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f },
-		{ 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f },
-		{ 1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f },
-		{ -1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f },
-		{ 1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f },
-		{ 1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f },
-		{ -1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f },
-		{ -1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f },
-		{ -1.0f,  1.0f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f },
-		{ -1.0f,  1.0f, -1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f },
-		{ -1.0f, -1.0f,  1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f },
-		{ -1.0f, -1.0f,  1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f },
-		{ -1.0f,  1.0f, -1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f },
-		{ -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f },
-		{ -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  1.0f,  0.0f },
-		{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f },
-		{ -1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f },
-		{ -1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f },
-		{ 1.0f,  1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f },
-		{ 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f },
-		{ -1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f },
-		{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f },
-		{ -1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f },
-		{ -1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f },
-		{ 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f },
-		{ 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f }
-	};
-
-	m_vertexCount = _countof(vertices);
-	uint32_t indices[_countof(vertices)];
-	for (auto i = 0; i < m_vertexCount; ++i)
-	{
-		indices[i] = i;
-	}
-
+	ASSERT(feature->HasPoints());
+	auto& point_data = feature->GetPointsRef();
+	
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(Vertex) * m_vertexCount;
+	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vertexBufferDesc.ByteWidth = sizeof(XMFLOAT2) * point_data.size();
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
 	D3D11_SUBRESOURCE_DATA vertexSubresource;
 	ZeroMemory(&vertexSubresource, sizeof(vertexSubresource));
-	vertexSubresource.pSysMem = vertices;
+	vertexSubresource.pSysMem = &point_data[0];
 
 	auto device = GraphicsWindow::GetInstance()->GetDevice();
 
-	if (!D3DCheck(device->CreateBuffer(&vertexBufferDesc, &vertexSubresource, &m_vertexBuffer),
+	if (!D3DCheck(device->CreateBuffer(&vertexBufferDesc, &vertexSubresource, &vertex_buffer),
 		L"ID3D11Device::CreateBuffer (DynamicFeature, VertexBuffer)")) return;
-
-	D3D11_BUFFER_DESC indexBufferDesc;
-	ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
-
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(uint32_t) * m_vertexCount;
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-	D3D11_SUBRESOURCE_DATA indexSubresource;
-	ZeroMemory(&indexSubresource, sizeof(indexSubresource));
-	indexSubresource.pSysMem = indices;
-
-	if (!D3DCheck(device->CreateBuffer(&indexBufferDesc, &indexSubresource, &m_indexBuffer),
-		L"ID3D11Device::CreateBuffer (DynamicFeature, IndexBuffer)")) return;
-
 }
 
 DynamicFeature::~DynamicFeature()
 {
-	if (m_vertexBuffer)
+	if (vertex_buffer)
 	{
-		m_vertexBuffer->Release();
-	}
-	if (m_indexBuffer)
-	{
-		m_indexBuffer->Release();
+		vertex_buffer->Release();
 	}
 }

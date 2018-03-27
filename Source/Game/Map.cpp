@@ -141,6 +141,17 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 	{
 		GetCursor(true);
 	}
+	else if (event.type == EventType::MouseClick)
+	{
+		auto tile = _tile_engine->GetTileContaining(_cursor, _zoom.major_part);
+		if (tile.IsValid())
+		{
+			auto tile_pos = tile.GetPosition();
+			auto diff = XMFLOAT2(tile_pos.x - _cursor.x, tile_pos.y - _cursor.y);
+			PRINTF(L"(%.2f, %.2f)\n", -diff.x, -diff.y);
+		}
+
+	}
 
 	if (event.code == GraphicsWindow::Event::Code::F)
 	{
@@ -170,10 +181,14 @@ void Map::_DrawTiles()
 			_renderer->DrawSquare(pos.x, pos.y, 10.0f, 0.f, 0xFF0000FF);
 		}
 	}
-	_tile_engine->PrepareDrawList();
-	if (_tile_engine->DrawListCount() > 0)
+	_tile_engine->PrepareDrawLists();
+	if (_tile_engine->DynamicFeatureDrawListCount() > 0)
 	{
-		_renderer->DrawStaticFeaturesBulk(_tile_engine->DrawListBegin(), _tile_engine->DrawListCount());
+		_renderer->DrawDynamicFeaturesBulk(_tile_engine->DynamicFeaturesDrawListBegin(), _tile_engine->DynamicFeatureDrawListCount());
+	}
+	if (_tile_engine->StaticFeatureDrawListCount() > 0)
+	{
+		_renderer->DrawStaticFeaturesBulk(_tile_engine->StaticFeaturesDrawListBegin(), _tile_engine->StaticFeatureDrawListCount());
 	}
 
 }

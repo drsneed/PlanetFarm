@@ -47,6 +47,8 @@ public:
 	void DrawTile(const Tile& tile, unsigned color);
 	void DrawGrid();
 	void DrawSquare(float x, float y, float width, float rotation, unsigned color);
+	void DrawDynamicFeature(const DynamicFeature& feature);
 	void DrawMapBounds();
 	void DrawStaticFeaturesBulk(StaticFeature* features_ptr, size_t features_count);
+	void DrawDynamicFeaturesBulk(DynamicFeature* features_ptr, size_t features_count);
 };

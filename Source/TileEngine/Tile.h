@@ -43,6 +43,15 @@ struct Tile
 	Tile(uint16_t x, uint16_t y, uint8_t z)
 		: x(x), y(y), z(z) {}
 	Tile(uint32_t key);
+
+	enum Child
+	{
+		BottomLeft,
+		BottomRight,
+		TopRight,
+		TopLeft
+	};
+
 	auto GetID() -> uint32_t;
 	auto GetQuadKey() -> std::string;
 	auto ToString() -> std::string;
@@ -58,6 +67,12 @@ struct Tile
 
 	static auto IsParentChildRelation(uint32_t parent_key, uint32_t child_key) -> bool;
 	static auto GetLevelWidth(uint8_t zoom_level) -> float;
+
+	std::vector<Tile> GetChildren() const;
 };
+
+bool operator==(const Tile& t1, const Tile& t2);
+
+bool operator!=(const Tile& t1, const Tile& t2);
 
 void RunTileTest();

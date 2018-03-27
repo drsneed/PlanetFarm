@@ -45,6 +45,16 @@ namespace
 	static uint32_t MAX_KEY = 4294967295;
 }
 
+bool operator==(const Tile& t1, const Tile& t2)
+{
+	return t1.x == t2.x && t1.y == t2.y && t1.z == t2.z;
+}
+
+bool operator!=(const Tile& t1, const Tile& t2)
+{
+	return t1.x != t2.x || t1.y != t2.y || t1.z != t2.z;
+}
+
 auto Tile::GetID() -> uint32_t
 {
 	uint32_t key = 0;
@@ -74,7 +84,7 @@ auto Tile::GetID() -> uint32_t
 Tile::Tile()
 	: x(0)
 	, y(0)
-	, z(0)
+	, z(TILE_MAX_ZOOM + 1)
 {
 
 }
@@ -122,6 +132,8 @@ auto Tile::Contains(XMFLOAT2 map_point) -> bool
 
 auto Tile::IsValid() const -> bool
 {
+	if (z > TILE_MAX_ZOOM)
+		return false;
 	auto index_limit = pow(2, z);
 	return x < index_limit && y < index_limit;
 }
@@ -175,6 +187,25 @@ auto Tile::GetQuadKey() -> std::string
 	}
 	
 	return result;
+}
+
+auto Tile::GetChildren() const -> std::vector<Tile>
+{
+	if (z == TILE_MAX_ZOOM)
+		return std::vector<Tile>();
+
+	std::vector<Tile> children(4);
+	
+	auto new_x = (x * TILE_SPAN[z + 1]) / TILE_SPAN[z];
+	auto new_y = (y * TILE_SPAN[z + 1]) / TILE_SPAN[z];
+
+	
+	children[BottomLeft] = Tile(new_x, new_y, z + 1);
+	children[BottomRight] = Tile(new_x + 1, new_y, z + 1);
+	children[TopRight] = Tile(new_x + 1, new_y + 1, z + 1);
+	children[TopLeft] = Tile(new_x, new_y + 1, z + 1);
+
+	return children;
 }
 
 auto Tile::ToString() -> std::string
