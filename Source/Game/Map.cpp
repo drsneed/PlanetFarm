@@ -51,9 +51,46 @@ void Map::_RefreshTiles()
 	_tile_engine->Refresh(_visible_area, _zoom.major_part);
 }
 
+auto Map::ZoomPoint(const MapPoint& level_0_point, uint8_t from_zoom, uint8_t to_zoom) -> MapPoint
+{
+	ASSERT(from_zoom <= TILE_MAX_ZOOM);
+	ASSERT(to_zoom <= TILE_MAX_ZOOM);
+	float offset = (((TILE_SPAN[from_zoom] * TILE_PIXEL_WIDTH) + TILE_PIXEL_WIDTH_HALF) - 
+		((TILE_SPAN[to_zoom] * TILE_PIXEL_WIDTH) + TILE_PIXEL_WIDTH_HALF)) / 2.0f;
+	return MapPoint
+	{
+		(level_0_point.x + offset),
+		(level_0_point.y + offset)
+	};
+	//return MapPoint
+	//{
+	//	(level_0_point.x * TILE_SPAN[to_zoom]) / TILE_SPAN[from_zoom],
+	//	(level_0_point.y * TILE_SPAN[to_zoom]) / TILE_SPAN[from_zoom]
+	//};
+}
+
 void Map::ZoomIn()
 {
 	_zoom.inc();
+	MapPoint adjusted_cursor = ZoomPoint(_cursor, _zoom.major_part - 1, _zoom.major_part);
+
+	MapPoint abs_center { MAP_ABSOLUTE_CENTER, MAP_ABSOLUTE_CENTER };
+	XMFLOAT2 diff{ _cursor.x - abs_center.x, _cursor.y - abs_center.y };
+	diff.x = diff.x * 2.0f;
+	diff.y = diff.y * 2.0f;
+	adjusted_cursor.x = abs_center.x + diff.x;
+	adjusted_cursor.y = abs_center.y + diff.y;
+	diff.x = adjusted_cursor.x - _cursor.x;
+	diff.y = adjusted_cursor.y - _cursor.y;
+
+	auto cam_pos = _cam->GetPosition();
+	XMFLOAT2 diff2{ (cam_pos.x - abs_center.x) * 2.0f, (cam_pos.z - abs_center.y) * 2.0f };
+	auto adjusted_cam = XMFLOAT2{ abs_center.x + diff2.x, abs_center.y + diff2.y };
+	_cam->SetPosition(adjusted_cam.x, cam_pos.y, adjusted_cam.y);
+	//auto offset = XMFLOAT2(adjusted_cursor.x - _cursor.x, adjusted_cursor.y - _cursor.y);
+
+	//auto adjusted_cam = ZoomPoint(XMFLOAT2(cam_pos.x, cam_pos.z), _zoom.major_part - 1, _zoom.major_part);
+	//_cam->SetPosition(adjusted_cam.x - offset.x, cam_pos.y, adjusted_cam.y - offset.y);
 	_RefreshTiles();
 }
 

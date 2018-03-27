@@ -98,6 +98,7 @@ public:
 	void ZoomOut();
 	void SetZoom(uint8_t major_part, uint8_t minor_part);
 	auto GetZoom() const -> ZoomLevel;
+	auto ZoomPoint(const MapPoint& level_0_point, uint8_t from_zoom, uint8_t to_zoom) -> MapPoint;
 
 	/// Returns cursor position in world space
 	MapPoint GetCursor(bool refresh = false);
