@@ -1,5 +1,5 @@
 #include "DbInterface.h"
-
+#include "FeatureGenerator.h"
 namespace
 {
 	void _CreateFeatureTable(Db::Connection& connection)
@@ -31,7 +31,7 @@ void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_
 	_CreateFeatureTable(connection);
 	if (create_test_data)
 	{
-		Feature feature(
+		/*Feature feature(
 			std::string("Outline"),
 			Tile(0, 0, 0).GetID(), // tileid
 			FeatureType::Unknown, // type
@@ -114,7 +114,9 @@ void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_
 				{ -121.63f, -105.75f },
 				{ -120.88f, -118.75f }
 			}
-		);
+		);*/
+
+		Feature feature = FeatureGenerator(171).GenerateIsland();
 		DbInterface::PutFeature(connection, feature);
 	}
 }
