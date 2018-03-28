@@ -25,6 +25,9 @@ Map::Map(std::shared_ptr<Camera> camera, const char* const db_filename)
 	, _visible_tiles_frozen(false)
 {
 	_cam->NotifyPosChange(std::bind(&Map::HandleCameraPosChangedEvent, this, std::placeholders::_1));
+	_cam->UpdateGpuBuffer();
+	GetCenterScreen(true);
+	_RefreshTiles();
 }
 
 void Map::HandleCameraPosChangedEvent(XMFLOAT3 position)
@@ -76,8 +79,6 @@ void Map::ZoomIn()
 		auto diff = XMFLOAT2{ _cursor.x - cam_pos.x, _cursor.y - cam_pos.z };
 		_cam->SetPosition(adjusted_cursor.x - diff.x, cam_pos.y, adjusted_cursor.y - diff.y, true);
 		GetCursor(true);
-		GetCenterScreen(true);
-		_RefreshTiles();
 	}
 }
 
@@ -90,8 +91,6 @@ void Map::ZoomOut()
 		auto diff = XMFLOAT2{ _cursor.x - cam_pos.x, _cursor.y - cam_pos.z };
 		_cam->SetPosition(adjusted_cursor.x - diff.x, cam_pos.y, adjusted_cursor.y - diff.y, true);
 		GetCursor(true);
-		GetCenterScreen(true);
-		_RefreshTiles();
 	}
 }
 
@@ -205,11 +204,11 @@ void Map::_DrawTiles()
 	{
 		Tile tile(id);
 		_renderer->DrawTile(tile, 0xFFFF77FF);
-		if (tile.Contains(_cursor))
-		{
-			auto pos = tile.GetPosition();
-			_renderer->DrawSquare(pos.x, pos.y, 10.0f, 0.f, 0xFF0000FF);
-		}
+		//if (tile.Contains(_cursor))
+		//{
+		//	auto pos = tile.GetPosition();
+		//	_renderer->DrawSquare(pos.x, pos.y, 10.0f, 0.f, 0xFF0000FF);
+		//}
 	}
 	_tile_engine->PrepareDrawLists();
 	if (_tile_engine->DynamicFeatureDrawListCount() > 0)

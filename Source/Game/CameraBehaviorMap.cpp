@@ -82,8 +82,8 @@ void CameraBehaviorMap::_PanningEaseOutTick(Camera* camera, float dt)
 {
 	auto acceleration = XMFLOAT2(_velocity.x * dt, _velocity.y * dt);
 	_ease_timer -= dt;
-	_velocity.x -= acceleration.x * 4.0f;
-	_velocity.y -= acceleration.y * 4.0f;
+	_velocity.x -= acceleration.x * 6.0f;
+	_velocity.y -= acceleration.y * 6.0f;
 	auto old_pos = camera->GetPosition();
 	camera->SetPosition(XMFLOAT3(old_pos.x + _velocity.x, old_pos.y, old_pos.z - _velocity.y));
 

@@ -63,6 +63,7 @@
     <ClCompile Include="Source\TileEngine\Models\DynamicFeature.cpp" />
     <ClCompile Include="Source\TileEngine\Models\StaticFeature.cpp" />
     <ClCompile Include="Source\TileEngine\ModelsManager.cpp" />
+    <ClCompile Include="Source\TileEngine\FeatureGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lib\tinyxml2.h">
@@ -161,6 +162,7 @@
     <ClInclude Include="Source\TileEngine\Models\StaticFeature.h" />
     <ClInclude Include="Source\TileEngine\Models\DynamicFeature.h" />
     <ClInclude Include="Source\TileEngine\ModelsManager.h" />
+    <ClInclude Include="Source\TileEngine\FeatureGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lib">

@@ -14,8 +14,8 @@
 // Used for custom objects not known by the renderer in advance, but will not change often. E.g. a mountain range
 
 
-
-
+#define FEATURE_VERTEX_MIN -TILE_PIXEL_WIDTH_HALF
+#define FEATURE_VERTEX_MAX TILE_PIXEL_WIDTH_HALF
 typedef int64_t FeatureID;
 
 enum class FeatureType : int

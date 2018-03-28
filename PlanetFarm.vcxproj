@@ -177,6 +177,7 @@
     <ClCompile Include="Source\Game\TextRenderer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\TileEngine\DbInterface.cpp" />
+    <ClCompile Include="Source\TileEngine\FeatureGenerator.cpp" />
     <ClCompile Include="Source\TileEngine\ModelsManager.cpp" />
     <ClCompile Include="Source\TileEngine\Models\DynamicFeature.cpp" />
     <ClCompile Include="Source\TileEngine\Models\Feature.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Source\Game\Models\Grid.h" />
     <ClInclude Include="Source\Game\Models\Square.h" />
     <ClInclude Include="Source\Game\TextRenderer.h" />
+    <ClInclude Include="Source\TileEngine\FeatureGenerator.h" />
     <ClInclude Include="Source\TileEngine\ModelsManager.h" />
     <ClInclude Include="Source\TileEngine\Models\BoundingRect.h" />
     <ClInclude Include="Source\TileEngine\DbInterface.h" />
