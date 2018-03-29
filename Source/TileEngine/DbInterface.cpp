@@ -116,7 +116,7 @@ void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_
 			}
 		);*/
 
-		Feature feature = FeatureGenerator(171).GenerateIsland();
+		Feature feature = FeatureGenerator(172).GenerateIsland();
 		DbInterface::PutFeature(connection, feature);
 	}
 }

@@ -77,42 +77,76 @@ namespace
 		}
 	}
 
-	std::vector<XMFLOAT2> GetVertices(jcv_diagram* diagram)
+	inline bool EdgeTouchesBoundary(const jcv_graphedge* edge)
 	{
+		return EqualFloats(edge->pos[0].x, FEATURE_VERTEX_MIN) || EqualFloats(edge->pos[1].x, FEATURE_VERTEX_MIN) ||
+			   EqualFloats(edge->pos[0].x, FEATURE_VERTEX_MAX) || EqualFloats(edge->pos[1].x, FEATURE_VERTEX_MAX) ||
+			   EqualFloats(edge->pos[0].y, FEATURE_VERTEX_MIN) || EqualFloats(edge->pos[1].y, FEATURE_VERTEX_MIN) ||
+			   EqualFloats(edge->pos[0].y, FEATURE_VERTEX_MAX) || EqualFloats(edge->pos[1].y, FEATURE_VERTEX_MAX);
+	}
+
+	bool IsBoundarySite(const jcv_site* site)
+	{
+		const jcv_graphedge* e = site->edges;
+		while (e)
+		{
+			if (EdgeTouchesBoundary(e))
+			{
+				return true;
+			}
+			e = e->next;
+		}
+		return false;
+	}
+
+	std::vector<XMFLOAT2> GetVertices(jcv_diagram* diagram, int seed)
+	{
+		std::default_random_engine randomizer(seed);
+
 		std::deque<XMFLOAT2> vertices;
+		std::uniform_int_distribution<int> one_in_5(0, 5);
 		const jcv_site* sites = jcv_diagram_get_sites(diagram);
 		for (int i = 0; i < diagram->numsites; ++i)
 		{
 			const jcv_site* site = &sites[i];
-			const jcv_graphedge* e = site->edges;
-			bool is_edge_site = false;
-			while (e)
+
+			if (IsBoundarySite(site))
 			{
-				auto edge_start = e->pos[0];
-				auto edge_end = e->pos[1];
-
-				if (is_edge_site)
+				const jcv_graphedge* e = site->edges;
+				bool is_edge_site = false;
+				while (e)
 				{
-					if (e->neighbor != nullptr)
+					auto edge_start = e->pos[0];
+					auto edge_end = e->pos[1];
+
+					// if neither edge endpoint lies on the boundary
+					if (!EdgeTouchesBoundary(e))
 					{
-						//TODO: Fix this bad logic. The edge neighbor could be another edge cell.
-						// in this case, we would want ignore it. We only want the inner ring.
+						if (e->neighbor != nullptr && one_in_5(randomizer) == 0)
+						{
+							// collect all neighbor edges besides this one
+							const jcv_graphedge* ne = e->neighbor->edges;
+							while (ne)
+							{
+								if (ne->neighbor != site)
+								{
+									vertices.push_front(XMFLOAT2(ne->pos[0].x, ne->pos[0].y));
+									vertices.push_front(XMFLOAT2(ne->pos[1].x, ne->pos[1].y));
+								}
+								ne = ne->next;
+							}
+							break;
+						}
+						else
+						{
+							// the edges with neighbors represent the interior ring of voronoi cells
+							vertices.push_front(XMFLOAT2(edge_start.x, edge_start.y));
+							vertices.push_front(XMFLOAT2(edge_end.x, edge_end.y));
+						}
 
-						// the edges with neighbors represent the interior ring of voronoi cells
-						vertices.push_front(XMFLOAT2(edge_start.x, edge_start.y));
-						vertices.push_front(XMFLOAT2(edge_end.x, edge_end.y));
 					}
+					e = e->next;
 				}
-				else if (edge_start.x == FEATURE_VERTEX_MIN || edge_end.x == FEATURE_VERTEX_MIN ||
-					edge_start.x == FEATURE_VERTEX_MAX || edge_end.x == FEATURE_VERTEX_MAX ||
-					edge_start.y == FEATURE_VERTEX_MIN || edge_end.y == FEATURE_VERTEX_MIN ||
-					edge_start.y == FEATURE_VERTEX_MAX || edge_end.y == FEATURE_VERTEX_MAX)
-				{
-					is_edge_site = true;
-					e = site->edges; // reset ptr to beginning of loop
-					continue; // make sure to skip ptr setting below
-				}
-				e = e->next;
 			}
 		}
 
@@ -133,11 +167,11 @@ namespace
 			else
 			{
 				auto end = result.size() - 1;
-				if (edge_start.x == result[end].x && edge_start.y == result[end].y)
+				if (EqualFloats(edge_start.x, result[end].x) && EqualFloats(edge_start.y, result[end].y))
 				{
 					result.push_back(edge_end);
 				}
-				else if (edge_end.x == result[end].x && edge_end.y == result[end].y)
+				else if (EqualFloats(edge_end.x, result[end].x) && EqualFloats(edge_end.y, result[end].y))
 				{
 					result.push_back(edge_start);
 				}
@@ -149,7 +183,7 @@ namespace
 				}
 			}
 		}
-		result.push_back(result[0]);
+		//result.push_back(result[0]);
 		return result;
 	}
 }
@@ -161,12 +195,9 @@ FeatureGenerator::FeatureGenerator(int seed)
 
 }
 
-
-
-
 Feature FeatureGenerator::GenerateIsland()
 {
-	int point_count = 16;
+	int point_count = 4000;
 	auto points = GenerateRandomPoints(FEATURE_VERTEX_MIN, FEATURE_VERTEX_MAX, point_count, _seed);
 	jcv_rect bounding_box
 	{
@@ -187,7 +218,7 @@ Feature FeatureGenerator::GenerateIsland()
 	jcv_diagram_generate(point_count, &points[0], &bounding_box, &diagram);
 
 	//TODO: Create feature from the diagram.
-	auto vertices = GetVertices(&diagram);
+	auto vertices = GetVertices(&diagram, _seed);
 	jcv_diagram_free(&diagram);
 
 	return Feature(

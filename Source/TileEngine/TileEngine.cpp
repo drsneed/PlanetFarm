@@ -62,8 +62,6 @@ TileEngine::TileEngine(const char* const db_filename)
 	, _build_draw_lists(true)
 	, _zoom(0)
 {
-	auto generator = FeatureGenerator(171);
-	generator.GenerateIsland();
 	// spawn 4 worker threads
 	_worker_threads.push_back(_threadpool.SubmitWork(WorkerThread, this));
 	_worker_threads.push_back(_threadpool.SubmitWork(WorkerThread, this));

@@ -31,3 +31,10 @@ using namespace DirectX;
 #include <memory>
 #include <random>
 #include <ctime>
+
+#define EPSILON 0.0001f
+
+inline bool EqualFloats(float a, float b)
+{
+	return fabs(a - b) < EPSILON;
+}
