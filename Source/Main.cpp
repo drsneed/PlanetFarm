@@ -31,37 +31,6 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 const char* db_name = "Data/SaveGame.db";
 
-void _TestSql()
-{
-	auto connection = Db::Connection("Data/SaveGame.db");
-	Tile t(0, 0, 1);
-	connection.Execute("DELETE FROM Entity");
-	Db::Statement statement(connection, "INSERT INTO Entity(TileID, Data) VALUES(?,?)");
-	statement.Bind(1, t.GetID());
-	
-	int data[4] = { 1, 2, 3, 4 };
-
-	statement.Bind(2, (const void*)data, sizeof(int) * 4);
-
-	statement.Execute();
-
-	//auto statement = Db::Statement(connection, "INSERT INTO Entity(TileID, Data) VALUES(?,?)", t.GetKey(), 0xFFFFFFFF);
-	auto result = Db::Statement(connection, "SELECT Data FROM Entity WHERE TileID=?", t.GetID());
-	for (auto& row : result)
-	{
-		int blob_size;
-		auto ptr_data = row.GetBlob(blob_size);
-		auto new_data = reinterpret_cast<const int*>(ptr_data);
-		int one = data[0];
-		int two = data[1];
-		int three = data[2];
-		int four = data[3];
-		OutputDebugStringA("TEST\n");
-	}
-	
-	
-}
-
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
@@ -75,7 +44,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//std::bitset<32> bits((uint32_t)((1 << 4) | (1 << 1)));
 	//PRINTF(L"%S\n", bits.to_string().c_str());
 	//PRINTF(L"%u\n", (uint32_t)((1 << 4) | (1 << 1)));
-	//_TestSql();
+
 
 	auto window = GraphicsWindow::CreateInstance(L"Planet Farm", 1366, 768, false);
 	//window->ShowCursor(false);
@@ -91,8 +60,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 
 	auto map_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorMap>());
-	map_cam->SetPosition(MAP_ABSOLUTE_CENTER, 1000.f, MAP_ABSOLUTE_CENTER);
-	//map_cam->SetPosition(0.0f, 1000.f, 0.0f);
+	//map_cam->SetPosition(MAP_ABSOLUTE_CENTER, 1000.f, MAP_ABSOLUTE_CENTER);
+	map_cam->SetPosition(0.0f, 38.f, 0.0f);
 	map_cam->Pitch(90.0f);
 
 	if (!PathFileExistsA(db_name))
@@ -106,7 +75,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//camera->Pitch(XMConvertToRadians(30.f));
 
 
-	const FLOAT bg[4] = { 0.14f, 0.34f, 0.34f, 1.0f };
+	//const FLOAT bg[4] = { 0.14f, 0.34f, 0.34f, 1.0f };
+	const FLOAT bg[4] = { 0.128f, 0.128f, 0.128f, 1.0f };
 
 	//RunTileTest();
 

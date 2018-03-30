@@ -24,6 +24,8 @@ Map::Map(std::shared_ptr<Camera> camera, const char* const db_filename)
 	, _cam(camera)
 	, _visible_tiles_frozen(false)
 {
+	LandGenerator generator{};
+	_temp_land = generator.GetLand();
 	_cam->NotifyPosChange(std::bind(&Map::HandleCameraPosChangedEvent, this, std::placeholders::_1));
 	_cam->UpdateGpuBuffer();
 	GetCenterScreen(true);
@@ -224,6 +226,8 @@ void Map::_DrawTiles()
 
 void Map::RenderScene()
 {
-	_DrawTiles();
-	_renderer->DrawMapBounds();
+	_renderer->DrawPoints(_temp_land.vertices, 0xFFFFFFFF);
+	_renderer->DrawSquare(0.f, 0.f, 20.f, 0.f, 0x00FF00FF);
+	//_DrawTiles();
+	//_renderer->DrawMapBounds();
 }

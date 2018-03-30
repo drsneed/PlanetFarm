@@ -32,6 +32,8 @@ using namespace DirectX;
 #include <random>
 #include <ctime>
 
+typedef XMFLOAT2 MapPoint;
+
 #define EPSILON 0.0001f
 
 inline bool EqualFloats(float a, float b)

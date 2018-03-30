@@ -176,12 +176,17 @@
     <ClCompile Include="Source\Game\Models\Square.cpp" />
     <ClCompile Include="Source\Game\TextRenderer.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\MapGeneration\LandGenerator.cpp" />
+    <ClCompile Include="Source\MapGeneration\Triangulator.cpp" />
+    <ClCompile Include="Source\MapGeneration\Triangulator2.cpp" />
     <ClCompile Include="Source\TileEngine\DbInterface.cpp" />
     <ClCompile Include="Source\TileEngine\FeatureGenerator.cpp" />
     <ClCompile Include="Source\TileEngine\ModelsManager.cpp" />
+    <ClCompile Include="Source\MapGeneration\DualMesh.cpp" />
     <ClCompile Include="Source\TileEngine\Models\DynamicFeature.cpp" />
     <ClCompile Include="Source\TileEngine\Models\Feature.cpp" />
     <ClCompile Include="Source\TileEngine\Models\StaticFeature.cpp" />
+    <ClCompile Include="Source\MapGeneration\DiskSampler.cpp" />
     <ClCompile Include="Source\TileEngine\TileEngine.cpp" />
     <ClCompile Include="Source\TileEngine\Tile.cpp" />
   </ItemGroup>
@@ -217,6 +222,9 @@
     <ClInclude Include="Source\Game\Models\Grid.h" />
     <ClInclude Include="Source\Game\Models\Square.h" />
     <ClInclude Include="Source\Game\TextRenderer.h" />
+    <ClInclude Include="Source\MapGeneration\LandGenerator.h" />
+    <ClInclude Include="Source\MapGeneration\Triangulator.h" />
+    <ClInclude Include="Source\MapGeneration\DualMesh.h" />
     <ClInclude Include="Source\TileEngine\FeatureGenerator.h" />
     <ClInclude Include="Source\TileEngine\ModelsManager.h" />
     <ClInclude Include="Source\TileEngine\Models\BoundingRect.h" />
@@ -224,6 +232,7 @@
     <ClInclude Include="Source\TileEngine\Models\DynamicFeature.h" />
     <ClInclude Include="Source\TileEngine\Models\StaticFeature.h" />
     <ClInclude Include="Source\TileEngine\Payload.h" />
+    <ClInclude Include="Source\MapGeneration\DiskSampler.h" />
     <ClInclude Include="Source\TileEngine\Tile.h" />
     <ClInclude Include="Source\TileEngine\Models\Feature.h" />
     <ClInclude Include="Source\TileEngine\TileEngine.h" />

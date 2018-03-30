@@ -4,7 +4,6 @@
 #include <iterator>
 #include "DbInterface.h"
 #include <sstream>
-#include "FeatureGenerator.h"
 
 namespace
 {

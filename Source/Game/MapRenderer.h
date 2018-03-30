@@ -39,6 +39,8 @@ class MapRenderer
 	Shader _static_feature_shader;
 	ID3D11InputLayout* _static_feature_input_layout;
 
+	ID3D11Buffer* _immediate_mode_buffer;
+
 	
 
 public:
@@ -47,7 +49,8 @@ public:
 	void DrawTile(const Tile& tile, unsigned color);
 	void DrawGrid();
 	void DrawSquare(float x, float y, float width, float rotation, unsigned color);
-	void DrawDynamicFeature(const DynamicFeature& feature);
+	void DrawPoints(const std::vector<XMFLOAT2>& points, unsigned color);
+	void DrawLines(const std::vector<XMFLOAT2>& points, unsigned color);
 	void DrawMapBounds();
 	void DrawStaticFeaturesBulk(StaticFeature* features_ptr, size_t features_count);
 	void DrawDynamicFeaturesBulk(DynamicFeature* features_ptr, size_t features_count);

@@ -5,8 +5,8 @@
 #include "MapRenderer.h"
 #include "Camera.h"
 #include <map>
+#include <MapGeneration/LandGenerator.h>
 
-typedef XMFLOAT2 MapPoint;
 
 extern MapPoint InvalidMapPoint;
 
@@ -86,7 +86,7 @@ private:
 	ZoomLevel _zoom;
 	MapPoint _cursor;
 	MapPoint _center_screen;
-	
+	TempLand _temp_land;
 	std::unique_ptr<TileEngine> _tile_engine;
 	std::shared_ptr<Camera> _cam;
 	std::unique_ptr<MapRenderer> _renderer;
@@ -104,6 +104,7 @@ public:
 	auto GetZoom() const -> ZoomLevel;
 	auto ZoomOutPoint(const MapPoint& point) -> MapPoint;
 	auto ZoomInPoint(const MapPoint& point)->MapPoint;
+
 	/// Returns cursor position in world space
 	MapPoint GetCursor(bool refresh = false);
 	MapPoint GetCenterScreen(bool refresh = false);

@@ -4,6 +4,8 @@
 #include <cmath>
 
 #define MAP_BOUNDS_VERTEX_COUNT 5
+#define IMMEDIATE_BUFFER_VERTEX_COUNT 1000
+
 
 MapRenderer::MapRenderer(std::shared_ptr<Camera> camera)
 	: m_gridShader(LR"(Data/Grid.fx)", Shader::Vertex | Shader::Pixel)
@@ -100,6 +102,14 @@ MapRenderer::MapRenderer(std::shared_ptr<Camera> camera)
 	if (!D3DCheck(device->CreateInputLayout(layout3, _countof(layout3), _static_feature_shader.GetByteCode(Shader::Vertex)->GetBufferPointer(),
 		_static_feature_shader.GetByteCode(Shader::Vertex)->GetBufferSize(), &_static_feature_input_layout),
 		L"ID3D11Device::CreateInputLayout (StaticFeature)")) return;
+
+	ZeroMemory(&desc, sizeof(desc));
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.ByteWidth = sizeof(XMFLOAT2) * IMMEDIATE_BUFFER_VERTEX_COUNT;
+	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	if (!D3DCheck(device->CreateBuffer(&desc, nullptr, &_immediate_mode_buffer),
+		L"ID3D11Device::CreateBuffer (MapRenderer, ImmediateModeBuffer)")) return;
 }
 
 MapRenderer::~MapRenderer()
@@ -116,6 +126,8 @@ MapRenderer::~MapRenderer()
 		_map_bounds_buffer->Release();
 	if (_map_bounds_input_layout)
 		_map_bounds_input_layout->Release();
+	if (_immediate_mode_buffer)
+		_immediate_mode_buffer->Release();
 }
 
 void MapRenderer::DrawTile(const Tile& tile, unsigned color)
@@ -166,6 +178,73 @@ void MapRenderer::_UploadPerObjectBuffer(ID3D11DeviceContext* context, const Mod
 		L"ID3D11DeviceContext::Map (MapRenderer::UploadPerObjectBuffer)")) return;
 	memcpy_s(mappedRes.pData, mappedRes.RowPitch, &perObject, sizeof(perObject));
 	context->Unmap(m_perObjectBuffer, 0);
+}
+
+void MapRenderer::DrawPoints(const std::vector<XMFLOAT2>& points, unsigned color)
+{
+	ASSERT(points.size() <= IMMEDIATE_BUFFER_VERTEX_COUNT);
+	auto context = GraphicsWindow::GetInstance()->GetContext();
+	// Update per resize buffer
+	D3D11_MAPPED_SUBRESOURCE mappedRes;
+	if (!D3DCheck(context->Map(_immediate_mode_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedRes),
+		L"ID3D11DeviceContext::Map (MapRenderer::UploadPerObjectBuffer)")) return;
+	memcpy_s(mappedRes.pData, mappedRes.RowPitch, &points[0], sizeof(XMFLOAT2) * points.size());
+	context->Unmap(_immediate_mode_buffer, 0);
+
+	__declspec(align(16)) ModelPerObjectBuffer object {};
+	object.color = ConvertColor(color);
+	auto world_mat = XMMatrixIdentity();
+	XMStoreFloat4x4(&object.world_matrix, XMMatrixTranspose(world_mat));
+
+	_UploadPerObjectBuffer(context, object);
+	context->IASetInputLayout(m_squareInputLayout);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	UINT stride = sizeof(XMFLOAT2);
+	UINT offset = 0;
+
+	context->VSSetShader(m_squareShader.GetVertexShader(), nullptr, 0);
+	context->PSSetShader(m_squareShader.GetPixelShader(), nullptr, 0);
+
+	auto cameraBuffer = _cam->GetConstantBuffer();
+	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+	context->VSSetConstantBuffers(1, 1, &m_perObjectBuffer);
+	context->IASetVertexBuffers(0, 1, &_immediate_mode_buffer, &stride, &offset);
+
+	context->Draw(points.size(), 0);
+}
+void MapRenderer::DrawLines(const std::vector<XMFLOAT2>& points, unsigned color)
+{
+	ASSERT(points.size() <= IMMEDIATE_BUFFER_VERTEX_COUNT);
+	auto context = GraphicsWindow::GetInstance()->GetContext();
+	// Update per resize buffer
+	D3D11_MAPPED_SUBRESOURCE mappedRes;
+	if (!D3DCheck(context->Map(_immediate_mode_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedRes),
+		L"ID3D11DeviceContext::Map (MapRenderer::UploadPerObjectBuffer)")) return;
+	memcpy_s(mappedRes.pData, mappedRes.RowPitch, &points[0], sizeof(XMFLOAT2) * points.size());
+	context->Unmap(_immediate_mode_buffer, 0);
+
+	__declspec(align(16)) ModelPerObjectBuffer object {};
+	object.color = ConvertColor(color);
+	auto world_mat = XMMatrixIdentity();
+	XMStoreFloat4x4(&object.world_matrix, XMMatrixTranspose(world_mat));
+
+	_UploadPerObjectBuffer(context, object);
+	context->IASetInputLayout(m_squareInputLayout);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	UINT stride = sizeof(XMFLOAT2);
+	UINT offset = 0;
+
+	context->VSSetShader(m_squareShader.GetVertexShader(), nullptr, 0);
+	context->PSSetShader(m_squareShader.GetPixelShader(), nullptr, 0);
+
+	auto cameraBuffer = _cam->GetConstantBuffer();
+	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+	context->VSSetConstantBuffers(1, 1, &m_perObjectBuffer);
+	context->IASetVertexBuffers(0, 1, &_immediate_mode_buffer, &stride, &offset);
+
+	context->Draw(points.size(), 0);
 }
 
 void MapRenderer::DrawSquare(float x, float y, float width, float rotation, unsigned color)
