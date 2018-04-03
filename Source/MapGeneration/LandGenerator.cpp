@@ -26,5 +26,7 @@ TempLand LandGenerator::GetLand()
 		{ 6.637861, 7.446990 }
 	};
 	Triangulator triangulator(values);
+	auto more = triangulator.GetTriangles();
+
 	return temp;
 }
