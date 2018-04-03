@@ -1,6 +1,7 @@
 #include "Map.h"
 #include <cmath>
 #include <TileEngine/Tile.h>
+#include <time.h>
 
 MapPoint InvalidMapPoint = XMFLOAT2(NAN, NAN);
 
@@ -24,8 +25,7 @@ Map::Map(std::shared_ptr<Camera> camera, const char* const db_filename)
 	, _cam(camera)
 	, _visible_tiles_frozen(false)
 {
-	LandGenerator generator{};
-	_temp_land = generator.GetLand();
+	_temp_land = LandGenerator().GetLand(time(NULL));
 	_cam->NotifyPosChange(std::bind(&Map::HandleCameraPosChangedEvent, this, std::placeholders::_1));
 	_cam->UpdateGpuBuffer();
 	GetCenterScreen(true);
@@ -196,6 +196,10 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 			_visible_tiles_frozen = true;
 		}	
 	}
+	else if (event.code == GraphicsWindow::Event::Code::Home)
+	{
+		_temp_land = LandGenerator().GetLand(time(NULL));
+	}
 }
 
 void Map::_DrawTiles()
@@ -228,11 +232,11 @@ void Map::RenderScene()
 {
 	for (int i = 0; i < _temp_land.tris.size(); i += 3)
 	{
-		_renderer->DrawLine(_temp_land.vertices[_temp_land.tris[i]], _temp_land.vertices[_temp_land.tris[i+1]], 0xFF0000FF);
-		_renderer->DrawLine(_temp_land.vertices[_temp_land.tris[i+1]], _temp_land.vertices[_temp_land.tris[i+2]], 0xFF0000FF);
-		_renderer->DrawLine(_temp_land.vertices[_temp_land.tris[i+2]], _temp_land.vertices[_temp_land.tris[i]], 0xFF0000FF);
+		_renderer->DrawLine(_temp_land.vertices[_temp_land.tris[i]].Shrink(), _temp_land.vertices[_temp_land.tris[i+1]].Shrink(), 0xFF0000FF);
+		_renderer->DrawLine(_temp_land.vertices[_temp_land.tris[i+1]].Shrink(), _temp_land.vertices[_temp_land.tris[i+2]].Shrink(), 0xFF0000FF);
+		_renderer->DrawLine(_temp_land.vertices[_temp_land.tris[i+2]].Shrink(), _temp_land.vertices[_temp_land.tris[i]].Shrink(), 0xFF0000FF);
 	}
-	_renderer->DrawPoints(_temp_land.vertices, 0xFFFFFFFF);
+	//_renderer->DrawPoints(_temp_land.vertices, 0xFFFFFFFF);
 	_renderer->DrawSquare(0.f, 0.f, 20.f, 0.f, 0x00FF00FF);
 	//_DrawTiles();
 	//_renderer->DrawMapBounds();

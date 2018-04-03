@@ -20,28 +20,19 @@ private:
 	T _data[N];
 };
 
-typedef Vec<float, 2> Vec2f;
+typedef Vec<double, 2> Vec2d;
 
-std::vector<XMFLOAT2> DiskSampler::GetSamples()
+std::vector<WidePoint> DiskSampler::GetSamples(uint32_t seed)
 {
 	// Setup input parameters.
-	float radius = 10.f;
-	Vec2f x_min;
-	x_min[0] = -10.f;
-	x_min[1] = -10.f;
-	Vec2f x_max;
-	x_max[0] = 10.f;
-	x_max[1] = 10.f;
+	float radius = 2.0;
+	WidePoint x_min;
+	x_min[0] = -10.0;
+	x_min[1] = -10.0;
+	WidePoint x_max;
+	x_max[0] = 10.0;
+	x_max[1] = 10.0;
 	uint32_t max_sample_attempts = 30;
-	uint32_t seed = 1981;
 
-	vector<Vec2f> samples = thinks::poissonDiskSampling(radius, x_min, x_max, max_sample_attempts, seed);
-
-	std::vector<XMFLOAT2> result(samples.size());
-	for (int i = 0; i < samples.size(); ++i)
-	{
-		result[i] = XMFLOAT2(samples[i][0], samples[i][1]);
-	}
-
-	return result;
+	return thinks::poissonDiskSampling(radius, x_min, x_max, max_sample_attempts, seed);
 }

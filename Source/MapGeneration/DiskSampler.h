@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Core/StdIncludes.h>
+#include "WidePoint.h"
 
 namespace DiskSampler
 {
-	std::vector<XMFLOAT2> GetSamples();
+	std::vector<WidePoint> GetSamples(uint32_t seed);
 }

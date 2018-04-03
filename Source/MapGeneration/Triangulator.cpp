@@ -165,8 +165,8 @@ namespace
 		node->i = i;
 		node->p = verts[i];
 		node->t = 0;
-		node->prev = nullptr;
-		node->next = nullptr;
+		node->prev = node;
+		node->next = node;
 		node->removed = false;
 
 		if (prev) 

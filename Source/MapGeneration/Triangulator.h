@@ -3,11 +3,7 @@
 #include <list>
 #include <map>
 
-struct WidePoint
-{
-	double x;
-	double y;
-};
+#include "WidePoint.h"
 
 struct HullNode
 {
