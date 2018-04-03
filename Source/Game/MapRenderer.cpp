@@ -213,15 +213,16 @@ void MapRenderer::DrawPoints(const std::vector<XMFLOAT2>& points, unsigned color
 
 	context->Draw(points.size(), 0);
 }
-void MapRenderer::DrawLines(const std::vector<XMFLOAT2>& points, unsigned color)
+void MapRenderer::DrawLine(const XMFLOAT2& from, const XMFLOAT2& to, unsigned color)
 {
-	ASSERT(points.size() <= IMMEDIATE_BUFFER_VERTEX_COUNT);
+	//ASSERT(points.size() <= IMMEDIATE_BUFFER_VERTEX_COUNT);
 	auto context = GraphicsWindow::GetInstance()->GetContext();
 	// Update per resize buffer
 	D3D11_MAPPED_SUBRESOURCE mappedRes;
+	std::vector<XMFLOAT2> data{ from, to };
 	if (!D3DCheck(context->Map(_immediate_mode_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedRes),
 		L"ID3D11DeviceContext::Map (MapRenderer::UploadPerObjectBuffer)")) return;
-	memcpy_s(mappedRes.pData, mappedRes.RowPitch, &points[0], sizeof(XMFLOAT2) * points.size());
+	memcpy_s(mappedRes.pData, mappedRes.RowPitch, &data[0], sizeof(XMFLOAT2) * data.size());
 	context->Unmap(_immediate_mode_buffer, 0);
 
 	__declspec(align(16)) ModelPerObjectBuffer object {};
@@ -244,7 +245,7 @@ void MapRenderer::DrawLines(const std::vector<XMFLOAT2>& points, unsigned color)
 	context->VSSetConstantBuffers(1, 1, &m_perObjectBuffer);
 	context->IASetVertexBuffers(0, 1, &_immediate_mode_buffer, &stride, &offset);
 
-	context->Draw(points.size(), 0);
+	context->Draw(2, 0);
 }
 
 void MapRenderer::DrawSquare(float x, float y, float width, float rotation, unsigned color)

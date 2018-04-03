@@ -226,6 +226,12 @@ void Map::_DrawTiles()
 
 void Map::RenderScene()
 {
+	for (int i = 0; i < _temp_land.tris.size(); i += 3)
+	{
+		_renderer->DrawLine(_temp_land.vertices[_temp_land.tris[i]], _temp_land.vertices[_temp_land.tris[i+1]], 0xFF0000FF);
+		_renderer->DrawLine(_temp_land.vertices[_temp_land.tris[i+1]], _temp_land.vertices[_temp_land.tris[i+2]], 0xFF0000FF);
+		_renderer->DrawLine(_temp_land.vertices[_temp_land.tris[i+2]], _temp_land.vertices[_temp_land.tris[i]], 0xFF0000FF);
+	}
 	_renderer->DrawPoints(_temp_land.vertices, 0xFFFFFFFF);
 	_renderer->DrawSquare(0.f, 0.f, 20.f, 0.f, 0x00FF00FF);
 	//_DrawTiles();

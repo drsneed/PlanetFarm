@@ -178,7 +178,6 @@
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\MapGeneration\LandGenerator.cpp" />
     <ClCompile Include="Source\MapGeneration\Triangulator.cpp" />
-    <ClCompile Include="Source\MapGeneration\Triangulator2.cpp" />
     <ClCompile Include="Source\TileEngine\DbInterface.cpp" />
     <ClCompile Include="Source\TileEngine\FeatureGenerator.cpp" />
     <ClCompile Include="Source\TileEngine\ModelsManager.cpp" />

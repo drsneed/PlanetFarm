@@ -50,7 +50,7 @@ public:
 	void DrawGrid();
 	void DrawSquare(float x, float y, float width, float rotation, unsigned color);
 	void DrawPoints(const std::vector<XMFLOAT2>& points, unsigned color);
-	void DrawLines(const std::vector<XMFLOAT2>& points, unsigned color);
+	void DrawLine(const XMFLOAT2& from, const XMFLOAT2& to, unsigned color);
 	void DrawMapBounds();
 	void DrawStaticFeaturesBulk(StaticFeature* features_ptr, size_t features_count);
 	void DrawDynamicFeaturesBulk(DynamicFeature* features_ptr, size_t features_count);

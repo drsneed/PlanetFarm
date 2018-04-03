@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <vector>
 #include <thinks/poissondisksampling.hpp>
-
+#include <Core/DebugTools.h>
 using namespace std;
 
 
@@ -25,7 +25,7 @@ typedef Vec<float, 2> Vec2f;
 std::vector<XMFLOAT2> DiskSampler::GetSamples()
 {
 	// Setup input parameters.
-	float radius = 2.f;
+	float radius = 10.f;
 	Vec2f x_min;
 	x_min[0] = -10.f;
 	x_min[1] = -10.f;

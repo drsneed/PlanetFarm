@@ -1,19 +1,29 @@
 #pragma once
 #include <Core/StdIncludes.h>
+#include <list>
+#include <map>
+
+struct WidePoint
+{
+	double x;
+	double y;
+};
 
 class Triangulator
 {
-	std::vector<MapPoint>& _input;
-	std::vector<int> _triangles;
+	std::vector<uint32_t> _ids;
+	std::vector<WidePoint> _verts;
+	WidePoint _center;
+	int _hash_size;
+	std::map<int, HullNode*> _hashes;
+	HullNode* _hull;
+	int _num_tris;
+	std::vector<int> _tris;
+
 	std::vector<int> _half_edges;
-
-	void _RemoveCollidingTriangles(const MapPoint& point, std::vector<int>& output, std::vector<int>& edges);
-	void _DeleteDuplicateEdges(std::vector<int>& edges);
-	void _DeleteInvalidTriangles(int maxValid, std::vector<int>& output);
-	void _CalculateCircumCircle(int v1, int v2, int v3, MapPoint& center, float& radius);
+	void _Link(int a, int b);
+	int _AddTriangle(int i0, int i1, int i2, int a, int b, int c);
+	int _Hash(const WidePoint& point);
 public:
-	Triangulator(std::vector<MapPoint>& input);
-
-	std::vector<int> Triangles() { return _triangles; }
-	std::vector<int> HalfEdges() { return _half_edges; }
+	Triangulator(const std::vector<WidePoint>& verts);
 };

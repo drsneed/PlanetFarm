@@ -2,223 +2,356 @@
 #include <Core/DebugTools.h>
 #include <cmath>
 #include <algorithm>
+//edges.erase(std::remove_if(edges.begin(), edges.end(),
+//	[](int& e) { return e == -1; }), edges.end());
 
-void _CalculateSuperTriangleVertices(std::vector<MapPoint>& input, MapPoint& v1, MapPoint& v2, MapPoint& v3)
+
+namespace 
 {
-	ASSERT(input.size() > 0);
-
-	auto minPt = input[0];
-	auto maxPt = minPt;
-	for (auto i = 1U; i < input.size(); ++i)
+	double dist(const WidePoint& a, const WidePoint& b)
 	{
-		if (input[i].x < minPt.x) minPt.x = input[i].x;
-		if (input[i].x > maxPt.x) maxPt.x = input[i].x;
-		if (input[i].y < minPt.y) minPt.y = input[i].y;
-		if (input[i].y > maxPt.y) maxPt.y = input[i].y;
+		auto dx = a.x - b.x;
+		auto dy = a.y - b.y;
+		auto result = dx * dx + dy * dy;
+		return result;
 	}
 
-	// determine horizontal and vertical distance between min and max
-	auto dx = maxPt.x - minPt.x;
-	auto dy = maxPt.y - minPt.y;
-
-	// record the largest distance
-	auto dmax = max(dx, dy);
-
-	// record midpoints
-	auto xmid = (maxPt.x + minPt.x) / 2.0;
-	auto ymid = (maxPt.y + minPt.y) / 2.0;
-
-	v1.x = xmid - 20 * dmax;
-	v1.y = ymid - dmax;
-	v2.x = xmid;
-	v2.y = ymid + 20 * dmax;
-	v3.x = xmid + 20 * dmax;
-	v3.y = ymid - dmax;
-}
-
-
-/// Collision test between a point and a circle. Returns true if point
-/// is within the circle or lying on the circle's circumference
-/// Note: using radius squared here
-bool _Collision(const MapPoint& point, const MapPoint& center, const float radius)
-{
-	auto dx = point.x - center.x;
-	auto dy = point.y - center.y;
-	auto drsqr = dx*dx + dy*dy;
-	return (drsqr - radius) <= FLT_EPSILON;
-}
-
-// Calculation of a circumcirle. Copied from http://paulbourke.net/papers/triangulate 
-void _CalculateCircumCircle(const MapPoint& v1, const MapPoint& v2, const MapPoint& v3, MapPoint& center, float& radius)
-{
-	float m1, m2, mx1, mx2, my1, my2;
-	float dx, dy;
-	auto abs_y1y2 = fabs(v1.y - v2.y);
-	auto abs_y2y3 = fabs(v2.y - v3.y);
-
-	/* Check for coincident points */
-	if (abs_y1y2 < FLT_EPSILON && abs_y2y3 < FLT_EPSILON)
-		return;
-
-	if (abs_y1y2 < FLT_EPSILON)
+	float area(const WidePoint& p, const WidePoint& q, const WidePoint& r)
 	{
-		m2 = -(v3.x - v2.x) / (v3.y - v2.y);
-		mx2 = (v2.x + v3.x) / 2.0;
-		my2 = (v2.y + v3.y) / 2.0;
-		center.x = (v2.x + v1.x) / 2.0;
-		center.y = m2 * (center.x - mx2) + my2;
+		return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 	}
 
-	else if (abs_y2y3 < FLT_EPSILON)
+	float circumradius(const WidePoint& a, const WidePoint& b, const WidePoint& c)
 	{
-		m1 = -(v2.x - v1.x) / (v2.y - v1.y);
-		mx1 = (v1.x + v2.x) / 2.0;
-		my1 = (v1.y + v2.y) / 2.0;
-		center.x = (v3.x + v2.x) / 2.0;
-		center.y = m1 * (center.x - mx1) + my1;
+		auto bx = b.x - a.x;
+		auto by = b.y - a.y;
+		auto cx = c.x - a.x;
+		auto cy = c.y - a.y;
+
+		auto bl = bx * bx + by * by;
+		auto cl = cx * cx + cy * cy;
+
+		if (bl == 0.0 || cl == 0.0) return  std::numeric_limits<double>::infinity();
+
+		auto d = bx * cy - by * cx;
+		if (d == 0.0) return  std::numeric_limits<double>::infinity();
+
+		auto x = (cy * bl - by * cl) * 0.5 / d;
+		auto y = (bx * cl - cx * bl) * 0.5 / d;
+
+		return x * x + y * y;
 	}
-	else
+
+	WidePoint circumcenter(const WidePoint& a, const WidePoint& b, const WidePoint& c)
 	{
-		m1 = -(v2.x - v1.x) / (v2.y - v1.y);
-		m2 = -(v3.x - v2.x) / (v3.y - v2.y);
-		mx1 = (v1.x + v2.x) / 2.0;
-		mx2 = (v2.x + v3.x) / 2.0;
-		my1 = (v1.y + v2.y) / 2.0;
-		my2 = (v2.y + v3.y) / 2.0;
-		center.x = (m1 * mx1 - m2 * mx2 + my2 - my1) / (m1 - m2);
-		if (abs_y1y2 > abs_y2y3)
+		auto bx = b.x - a.x;
+		auto by = b.y - a.y;
+		auto cx = c.x - a.x;
+		auto cy = c.y - a.y;
+
+		auto bl = bx * bx + by * by;
+		auto cl = cx * cx + cy * cy;
+
+		auto d = bx * cy - by * cx;
+
+		auto x = (cy * bl - by * cl) * 0.5 / d;
+		auto y = (bx * cl - cx * bl) * 0.5 / d;
+
+		return {
+		  a.x + x,
+		  a.y + y
+		};
+	}
+
+	// I'm skeptical about this converted routine
+	double compare(std::vector<WidePoint>& coords, uint32_t i, uint32_t j, const WidePoint& center)
+	{
+		auto d1 = dist(coords[i], center);
+		auto d2 = dist(coords[j], center);
+		double result = d1 - d2;
+		if (!isnan(result) && result != 0.0)
+			return result;
+		result = (coords[i].x - coords[j].x);
+		if (!isnan(result) && result != 0.0)
+			return result;
+		result = (coords[i].y - coords[j].y);
+		return result;
+	}
+
+	void swap(std::vector<uint32_t>& ids, int i, int j) 
+	{
+		auto tmp = ids[i];
+		ids[i] = ids[j];
+		ids[j] = tmp;
+	}
+
+	void quicksort(std::vector<uint32_t>& ids, std::vector<WidePoint>& coords, int left, int right, const WidePoint& center)
+	{
+		int i, j, temp;
+
+		if (right - left <= 20) 
 		{
-			center.y = m1 * (center.x - mx1) + my1;
-		}
-		else
-		{
-			center.y = m2 * (center.x - mx2) + my2;
-		}
-	}
-	dx = v2.x - center.x;
-	dy = v2.y - center.y;
-	radius = dx*dx + dy*dy;
-}
-
-void Triangulator::_CalculateCircumCircle(int v1, int v2, int v3, MapPoint& center, float& radius)
-{
-	::_CalculateCircumCircle(_input[v1], _input[v2], _input[v3], center, radius);
-	radius = sqrt(radius);
-}
-
-void Triangulator::_DeleteDuplicateEdges(std::vector<int>& edges)
-{
-	auto count = edges.size();
-	if (count <= 2)
-	{
-		return;
-	}
-	for (auto i = 0U; i < count - 2; i += 2)
-	{
-		for (auto j = i + 2; j < count; j += 2)
-		{
-			if (edges[i] == edges[j] && edges[i+1] == edges[j+1])
+			for (i = left + 1; i <= right; i++) 
 			{
-				edges[i] = edges[i + 1] = edges[j] = edges[j + 1] = -1;
+				temp = ids[i];
+				j = i - 1;
+				while (j >= left && compare(coords, ids[j], temp, center) > 0)
+				{
+					//ids[j + 1] = ids[j--];
+					ids[j + 1] = ids[j];
+					j--;
+				}
+				ids[j + 1] = temp;
+			}
+		}
+		else 
+		{
+			auto median = (left + right) >> 1;
+			i = left + 1;
+			j = right;
+			swap(ids, median, i);
+			if (compare(coords, ids[left], ids[right], center) > 0) swap(ids, left, right);
+			if (compare(coords, ids[i], ids[right], center) > 0) swap(ids, i, right);
+			if (compare(coords, ids[left], ids[i], center) > 0) swap(ids, left, i);
+
+			temp = ids[i];
+			while (true) 
+			{
+				do i++; while (compare(coords, ids[i], temp, center) < 0);
+				do j--; while (compare(coords, ids[j], temp, center) > 0);
+				if (j < i) break;
+				swap(ids, i, j);
+			}
+			ids[left + 1] = ids[j];
+			ids[j] = temp;
+
+			if (right - i + 1 >= j - left) 
+			{
+				quicksort(ids, coords, i, right, center);
+				quicksort(ids, coords, left, j - 1, center);
+			}
+			else 
+			{
+				quicksort(ids, coords, left, j - 1, center);
+				quicksort(ids, coords, i, right, center);
 			}
 		}
 	}
 
-	edges.erase(std::remove_if(edges.begin(), edges.end(),
-		[](int& e) { return e == -1; }), edges.end());
-}
-
-void Triangulator::_DeleteInvalidTriangles(int maxValid, std::vector<int>& output)
-{
-	for (int i = 0; i < output.size(); ++i)
+	struct HullNode
 	{
-		if (output[i] > maxValid)
-			output[i] = -1;
-	}
-	output.erase(std::remove_if(output.begin(), output.end(),
-		[](int& e) { return e == -1; }), output.end());
-}
+		int i;
+		WidePoint p;
+		int t;
+		bool removed;
+		HullNode* prev;
+		HullNode* next;
+	};
 
-void Triangulator::_RemoveCollidingTriangles(const MapPoint& point, std::vector<int>& output, std::vector<int>& edges)
-{
-	for (int i = 0; i < output.size(); i += 3)
+	// create a new node in a doubly linked list
+	HullNode* InsertNode(HullNode* node, std::vector<WidePoint> verts, int i, HullNode* prev)
 	{
-		XMFLOAT2 center = {};
-		float radius = 0.f;
+		node->i = i;
+		node->p = verts[i];
+		node->t = 0;
+		node->prev = nullptr;
+		node->next = nullptr;
+		node->removed = false;
 
-		_CalculateCircumCircle(output[i], output[i+1], output[i+2], center, radius);
-		if (_Collision(point, center, radius))
+		if (prev) 
 		{
-			//(p1, p2)
-			//(p2, p3)
-			//(p3, p1)
-			edges.push_back(output[i]);
-			edges.push_back(output[i + 1]);
-				
-			edges.push_back(output[i + 1]);
-			edges.push_back(output[i + 2]);
-				
-			edges.push_back(output[i + 2]);
-			edges.push_back(output[i]);
-
-			output[i] = -1;
-			output[i + 1] = -1;
-			output[i + 2] = -1;
+			node->next = prev->next;
+			node->prev = prev;
+			prev->next->prev = node;
+			prev->next = node;
 		}
+		return node;
 	}
-	output.erase(std::remove_if(output.begin(), output.end(),
-		[](int& e) { return e == -1; }), output.end());
+
+	HullNode* RemoveNode(HullNode* node) 
+	{
+		node->prev->next = node->next;
+		node->next->prev = node->prev;
+		node->removed = true;
+		return node->prev;
+	}
 }
 
 
+Triangulator::Triangulator(const std::vector<WidePoint>& verts)
+	: _ids(verts.size())
+	, _verts(verts)
 
-Triangulator::Triangulator(std::vector<MapPoint>& input)
-	: _input(input)
 {
-	int pointCount = static_cast<int>(input.size());
-	std::vector<int> output;
+	//for (size_t ii = 0; ii < verts.size(); ++ii)
+	//{
+	//	_verts[ii] = { static_cast<double>(verts[ii].x), 
+	//		static_cast<double>(verts[ii].y) };
+	//}
+	uint32_t n = static_cast<uint32_t>(_verts.size());
 
-	// Less than 3 = no triangles
-	if (pointCount < 3) return;
+	auto min_x = std::numeric_limits<double>::infinity();
+	auto min_y = std::numeric_limits<double>::infinity();
+	auto max_x = -std::numeric_limits<double>::infinity();
+	auto max_y = -std::numeric_limits<double>::infinity();
 
-	MapPoint super_tri_1, super_tri_2, super_tri_3;
-	_CalculateSuperTriangleVertices(input, super_tri_1, super_tri_2, super_tri_3);
-	input.push_back(super_tri_1);
-	input.push_back(super_tri_2);
-	input.push_back(super_tri_3);
-
-	// Append a new triangle (the super triangle) indices to the output list
-	output.push_back(pointCount);
-	output.push_back(pointCount+1);
-	output.push_back(pointCount+2);
+	for (size_t i = 0; i < n; i++) 
+	{
+		auto x = _verts[i].x;
+		auto y = _verts[i].y;
+		if (x < min_x) min_x = x;
+		if (y < min_y) min_y = y;
+		if (x > max_x) max_x = x;
+		if (y > max_y) max_y = y;
+		_ids[i] = i;
+	}
 	
+	WidePoint c { (min_x + max_x) / 2.0, (min_y + max_y) / 2.0 };
 
-	std::vector<int> edges;
+	auto min_dist = std::numeric_limits<double>::infinity();
+	uint32_t i0, i1, i2;
 
-	// Add each input point to the mesh and recalculate mesh
-	for (auto i = 0U; i < pointCount; ++i)
+	// pick a seed point close to the centroid
+	uint32_t i;
+	for (i = 0; i < n; i++) 
 	{
-		// Some triangles in the existing mesh need to be removed to make space for new triangles
-		_RemoveCollidingTriangles(input[i], output, edges);
-
-		// Remove duplicate edges from the edge buffer, leaving an enclosing polygon
-		_DeleteDuplicateEdges(edges);
-
-		// Create a new triangle between each edge and the new vertex
-		for (int i = 0; i < edges.size(); i += 2)
+		auto d = dist(c, _verts[i]);
+		if (d < min_dist) 
 		{
-			output.push_back(edges[i]);
-			output.push_back(edges[i + 1]);
-			output.push_back(i);
+			i0 = i;
+			min_dist = d;
 		}
-
-		// Wipe this baby clean in preparation for the next iteration
-		edges.clear();
 	}
 
-	// Delete any triangles that reference a super triangle vertex
-	_DeleteInvalidTriangles(pointCount - 1, output);
+	min_dist = std::numeric_limits<double>::infinity();
 
-	// Shrink input back to original size
-	input.resize(pointCount);
+	// find the point closest to the seed
+	for (i = 0; i < n; i++) 
+	{
+		if (i == i0) continue;
+		auto d = dist(_verts[i0] , _verts[i]);
+		if (d < min_dist && d > 0.0) 
+		{
+			i1 = i;
+			min_dist = d;
+		}
+	}
+
+	float min_radius = std::numeric_limits<float>::infinity();
+
+	// find the third point which forms the smallest circumcircle with the first two
+	for (i = 0; i < n; i++) 
+	{
+		if (i == i0 || i == i1) continue;
+
+		float r = circumradius(_verts[i0], _verts[i1], _verts[i]);
+
+		if (r < min_radius) 
+		{
+			i2 = i;
+			min_radius = r;
+		}
+	}
+
+	// throw error. no delaunay triangulation exists for this set of vertices
+	ASSERT(min_radius != std::numeric_limits<double>::infinity());
+
+	// swap the order of the seed points for counter-clockwise orientation
+	if (area(_verts[i0], _verts[i1], _verts[i2]) < 0.0)
+	{
+		auto tmp = i1;
+		i1 = i2;
+		i2 = tmp;
+	}
+
+	auto v0 = _verts[i0];
+	auto v1 = _verts[i1];
+	auto v2 = _verts[i2];
+
+	_center = circumcenter(v0, v1, v2);
+
+	quicksort(_ids, _verts, 0, n - 1, _center);
+
+	_hull = new HullNode();
+	_hull = InsertNode(_hull, _verts, i0, nullptr);
+	// initialize a circular doubly-linked list that will hold an advancing convex hull
+	_nodes.emplace_back(Node{ i0, _verts[i0], 0 });
+	_nodes.emplace_back(Node{ i1, _verts[i1], 1 });
+	_nodes.emplace_back(Node{ i2, _verts[i2], 2 });
+
+	const int max_triangles = 2 * n - 5;
+	_tris.resize(max_triangles * 3);
+	_half_edges.resize(max_triangles * 3);
+	_num_tris = 0;
+	_AddTriangle(i0, i1, i2, -1, -1, -1);
+
+	for (int k = 0, double xp, double yp; k < _ids.size(); k++) 
+	{
+		const int i = _ids[k];
+		const WidePoint p = _verts[i];
+
+		// skip duplicate points
+		if (p.x == xp && p.y == yp) continue;
+		xp = p.x;
+		yp = p.y;
+
+		// skip seed triangle points
+		if ((p.x ==  _verts[i0].x && p.y == _verts[i0].y) ||
+			(p.x ==  _verts[i1].x && p.y == _verts[i1].y) ||
+			(p.x ==  _verts[i2].x && p.y == _verts[i2].y)) continue;
+
+		// find a visible edge on the convex hull using edge hash
+		const int startKey = _Hash(p);
+		auto key = startKey;
+		Node* start;
+		do 
+		{
+			start = _hull[key];
+			key = (key + 1) % _hash_size;
+		} 
+		while ((!start || start->removed) && key != startKey);
+
+		e = start;
+		while (area(x, y, e.x, e.y, e.next.x, e.next.y) >= 0) {
+			e = e.next;
+			if (e == = start) {
+				throw new Error('Something is wrong with the input points.');
+			}
+		}
+	}
+}
+
+int Triangulator::_Hash(const WidePoint& point)
+{
+	const double dx = point.x - _center.x;
+	const double dy = point.y - _center.y;
+	// use pseudo-angle: a measure that monotonically increases
+	// with real angle, but doesn't require expensive trigonometry
+	const double p = 1.0 - dx / (abs(dx) + abs(dy));
+	return static_cast<int>(floor((2.0 + (dy < 0.0 ? -p : p)) / 4.0 * _hash_size));
+}
+
+void Triangulator::_Link(int a, int b) 
+{
+	_half_edges[a] = b;
+	if (b != -1)
+		_half_edges[b] = a;
+}
+
+// add a new triangle given vertex indices and adjacent half-edge ids
+int Triangulator::_AddTriangle(int i0, int i1, int i2, int a, int b, int c) 
+{
+	const int t = _num_tris;
+
+	_tris[t] = i0;
+	_tris[t + 1] = i1;
+	_tris[t + 2] = i2;
+
+	_Link(t, a);
+	_Link(t + 1, b);
+	_Link(t + 2, c);
+
+	_num_tris += 3;
+
+	return t;
 }

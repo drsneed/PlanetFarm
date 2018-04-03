@@ -68,7 +68,6 @@
     <ClCompile Include="Source\MapGeneration\DiskSampler.cpp" />
     <ClCompile Include="Source\MapGeneration\Triangulator.cpp" />
     <ClCompile Include="Source\MapGeneration\DualMesh.cpp" />
-    <ClCompile Include="Source\MapGeneration\Triangulator2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lib\tinyxml2.h">
