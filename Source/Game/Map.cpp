@@ -231,11 +231,15 @@ void Map::_DrawTiles()
 void Map::RenderScene()
 {
 	auto& mesh = _generator.GetMesh();
+	auto ghost_index = mesh.GetGhostIndexTris();
 	for (int i = 0; i < mesh.triangles.size(); i += 3)
 	{
-		_renderer->DrawLine(mesh.vertices[mesh.triangles[i]].Shrink(), mesh.vertices[mesh.triangles[i+1]].Shrink(), 0xFF0000FF);
-		_renderer->DrawLine(mesh.vertices[mesh.triangles[i+1]].Shrink(), mesh.vertices[mesh.triangles[i+2]].Shrink(), 0xFF0000FF);
-		_renderer->DrawLine(mesh.vertices[mesh.triangles[i+2]].Shrink(), mesh.vertices[mesh.triangles[i]].Shrink(), 0xFF0000FF);
+		unsigned color = 0xFF0000FF;
+		if ( i >= ghost_index)
+			color = 0xAAAAAAFF;
+		_renderer->DrawLine(mesh.vertices[mesh.triangles[i]].Shrink(), mesh.vertices[mesh.triangles[i+1]].Shrink(), color);
+		_renderer->DrawLine(mesh.vertices[mesh.triangles[i+1]].Shrink(), mesh.vertices[mesh.triangles[i+2]].Shrink(), color);
+		_renderer->DrawLine(mesh.vertices[mesh.triangles[i+2]].Shrink(), mesh.vertices[mesh.triangles[i]].Shrink(), color);
 	}
 	//_renderer->DrawPoints(_temp_land.vertices, 0xFFFFFFFF);
 	_renderer->DrawSquare(10.f, 10.f, 20.f, 0.f, 0x00FF00FF);

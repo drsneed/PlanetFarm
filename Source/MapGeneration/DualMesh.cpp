@@ -84,7 +84,9 @@ void DualMesh::_CheckMeshConnectivity()
 void DualMesh::_AddGhostStructure()
 {
 	int numSolidSides = triangles.size();
+	_ghost_index_tris = numSolidSides;
 	int numVerts = vertices.size();
+	_ghost_index_verts = numVerts;
 	int numHalfEdges = half_edges.size();
 	int numUnpairedSides = 0, firstUnpairedEdge = -1;
 	std::map<int, int> unpaired;
@@ -122,9 +124,9 @@ void DualMesh::_AddGhostStructure()
 		half_edges[k] = ghost_s + 2;
 		auto next_s = Next(s);
 		//TODO: 76th entry should be 2. It is 68.
-		auto half_edge = half_edges[next_s];
-		auto unpaired_half_edge = unpaired[half_edge];
-		s = unpaired[half_edges[Next(s)]];
+		auto tri = triangles[next_s];
+		auto unpaired_half_edge = unpaired[tri];
+		s = unpaired[triangles[Next(s)]];
 	}
 }
 

@@ -12,10 +12,14 @@ class DualMesh
 	void _CheckMeshConnectivity();
 	void _AddGhostStructure();
 	WidePoint _max_bounds;
+	int _ghost_index_verts;
+	int _ghost_index_tris;
 	int _num_boundary_regions;
 public:
 	std::vector<WidePoint> vertices;
 	std::vector<int> triangles;
 	std::vector<int> half_edges;
+	int GetGhostIndexVerts() { return _ghost_index_verts; }
+	int GetGhostIndexTris() { return _ghost_index_tris; }
 	DualMesh(uint32_t seed, const WidePoint& max_bounds, const double point_spacing = 2.0);
 };
