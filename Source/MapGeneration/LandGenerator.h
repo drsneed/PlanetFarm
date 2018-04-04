@@ -1,17 +1,13 @@
 #pragma once
 #include <Core/StdIncludes.h>
+#include "DualMesh.h"
 #include "WidePoint.h"
-
-struct TempLand
-{
-	std::vector<int> tris;
-	std::vector<WidePoint> vertices;
-};
 
 
 class LandGenerator
 {
+	DualMesh _mesh;
 public:
-	LandGenerator();
-	TempLand GetLand(uint32_t seed);
+	LandGenerator(uint32_t seed);
+	DualMesh& GetMesh() { return _mesh; }
 };

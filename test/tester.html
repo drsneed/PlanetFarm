@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Title of the document</title>
+<script src="delaunator.js"></script>
+<script type="text/javascript">
+	const points = [ [-6.816375, 4.808550],
+					 [5.344729, -2.469857],
+					 [-9.503366, -7.519407],
+					 [6.637861, 7.446990] ];
+
+	const delaunay = Delaunator.from(points);
+	console.log(delaunay.halfedges);
+
+	for (let i = 0; i < 20; i++) {
+		let angle = i + 0.5;
+		let index = angle | 0;
+	    console.log(i + ". " + angle + " - " + index);
+	}
+
+</script>
+</head>
+
+<body>
+[-6.816375, 4.808550]
+[5.344729, -2.469857]
+[-9.503366, -7.519407]
+[6.637861, 7.446990]
+</body>
+
+</html>

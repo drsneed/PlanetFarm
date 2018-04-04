@@ -61,7 +61,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	auto map_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorMap>());
 	//map_cam->SetPosition(MAP_ABSOLUTE_CENTER, 1000.f, MAP_ABSOLUTE_CENTER);
-	map_cam->SetPosition(0.0f, 38.f, 0.0f);
+	map_cam->SetPosition(10.0f, 38.f, 10.0f);
 	map_cam->Pitch(90.0f);
 
 	if (!PathFileExistsA(db_name))

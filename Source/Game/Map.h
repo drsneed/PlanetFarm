@@ -86,7 +86,7 @@ private:
 	ZoomLevel _zoom;
 	MapPoint _cursor;
 	MapPoint _center_screen;
-	TempLand _temp_land;
+	LandGenerator _generator;
 	std::unique_ptr<TileEngine> _tile_engine;
 	std::shared_ptr<Camera> _cam;
 	std::unique_ptr<MapRenderer> _renderer;
