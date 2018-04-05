@@ -230,6 +230,7 @@ void Map::_DrawTiles()
 
 void Map::RenderScene()
 {
+
 	auto& mesh = _generator.GetMesh();
 	auto ghost_index = mesh.GetGhostIndexTris();
 	for (int i = 0; i < mesh.triangles.size(); i += 3)
@@ -241,6 +242,23 @@ void Map::RenderScene()
 		_renderer->DrawLine(mesh.vertices[mesh.triangles[i+1]].Shrink(), mesh.vertices[mesh.triangles[i+2]].Shrink(), color);
 		_renderer->DrawLine(mesh.vertices[mesh.triangles[i+2]].Shrink(), mesh.vertices[mesh.triangles[i]].Shrink(), color);
 	}
+
+	auto region_count = mesh.GetRegionCount();
+	for (int i = 0; i < region_count; ++i)
+	{
+		std::vector<WidePoint> vertices = mesh.GetRegionVertices(i);
+
+		for (int v = 0; v < vertices.size(); ++v)
+		{
+			auto v2 = v + 1;
+			if (v2 == vertices.size())
+				v2 = 0;
+
+			_renderer->DrawLine(vertices[v].Shrink(), vertices[v2].Shrink(), 0x2255FFFF);
+		}
+	}
+
+
 	//_renderer->DrawPoints(_temp_land.vertices, 0xFFFFFFFF);
 	_renderer->DrawSquare(10.f, 10.f, 20.f, 0.f, 0x00FF00FF);
 	//_DrawTiles();

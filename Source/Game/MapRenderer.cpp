@@ -102,6 +102,7 @@ MapRenderer::MapRenderer(std::shared_ptr<Camera> camera)
 	if (!D3DCheck(device->CreateInputLayout(layout3, _countof(layout3), _static_feature_shader.GetByteCode(Shader::Vertex)->GetBufferPointer(),
 		_static_feature_shader.GetByteCode(Shader::Vertex)->GetBufferSize(), &_static_feature_input_layout),
 		L"ID3D11Device::CreateInputLayout (StaticFeature)")) return;
+	_static_feature_shader.ReleaseByteCode();
 
 	ZeroMemory(&desc, sizeof(desc));
 	desc.Usage = D3D11_USAGE_DYNAMIC;

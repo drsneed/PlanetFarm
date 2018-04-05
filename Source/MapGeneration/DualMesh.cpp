@@ -175,12 +175,50 @@ DualMesh::DualMesh(uint32_t seed, const WidePoint& max_bounds, const double poin
 	//checkPointInequality(graph);
 	_CheckTriangleInequality();
 	_AddGhostStructure();
-	PRINTF(L"GHOST TRIANGLES\n---------------------\n");
-	for (int i = tri_count; i < triangles.size(); ++i)
-	{
-		PRINTF(L"%d. (%d)\n", i, triangles[i]);
-	}
 	
 
 	//_CheckMeshConnectivity();
+
+	_regions = std::vector<int>(vertices.size(), 0);
+	for (int s = 0; s < triangles.size(); s++) 
+	{
+		if (_regions[triangles[s]] == 0)
+			_regions[triangles[s]] = s;
+	}
+
+	_tri_centers = std::vector<WidePoint>(triangles.size() / 3);
+	for (auto s = 0; s < triangles.size(); s += 3) 
+	{
+		WidePoint a = vertices[triangles[s]];
+		WidePoint b = vertices[triangles[s + 1]];
+		WidePoint c = vertices[triangles[s + 2]];
+		if (s >= _ghost_index_tris) 
+		{
+			// ghost triangle center is just outside the unpaired side
+			auto dx = b.x - a.x;
+			auto dy = b.y - a.y;
+			_tri_centers[s / 3] = { a.x + 0.5*(dx + dy), a.y + 0.5*(dy - dx) };
+		}
+		else 
+		{
+			// solid triangle center is at the centroid
+			_tri_centers[s / 3] = { (a.x + b.x + c.x) / 3.0,
+				(a.y + b.y + c.y) / 3.0 };
+		}
+	}
+}
+
+std::vector<WidePoint> DualMesh::GetRegionVertices(int region_index)
+{
+	std::vector<WidePoint> output;
+	const int s0 = _regions[region_index];
+	auto s = s0;
+	do 
+	{
+		output.push_back(_tri_centers[s_to_t(s)]);
+		s = Next(half_edges[s]);
+	} while (s != s0);
+
+	return output;
+	
 }

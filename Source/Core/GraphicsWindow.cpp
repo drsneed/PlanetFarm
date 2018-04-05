@@ -250,6 +250,10 @@ GraphicsWindow::~GraphicsWindow()
 
 	if (m_device)
 	{
+		//ID3D11Debug* debug;
+		//m_device->QueryInterface(IID_PPV_ARGS(&debug));
+		//debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+
 		m_device->Release();
 		m_device = nullptr;
 	}

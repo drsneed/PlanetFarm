@@ -105,6 +105,7 @@ public:
 	auto ZoomOutPoint(const MapPoint& point) -> MapPoint;
 	auto ZoomInPoint(const MapPoint& point)->MapPoint;
 
+
 	/// Returns cursor position in world space
 	MapPoint GetCursor(bool refresh = false);
 	MapPoint GetCenterScreen(bool refresh = false);

@@ -31,7 +31,9 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 const char* db_name = "Data/SaveGame.db";
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+
+
+int WINAPI MyMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
@@ -60,7 +62,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 
 	auto map_cam = std::make_shared<Camera>(std::make_shared<CameraBehaviorMap>());
-	//map_cam->SetPosition(MAP_ABSOLUTE_CENTER, 1000.f, MAP_ABSOLUTE_CENTER);
+	map_cam->SetPosition(MAP_ABSOLUTE_CENTER, 1000.f, MAP_ABSOLUTE_CENTER);
 	map_cam->SetPosition(10.0f, 38.f, 10.0f);
 	map_cam->Pitch(90.0f);
 
@@ -140,12 +142,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		}
 	}
 
-	/*		ID3D11Debug* debug;
-	auto device = window->GetDevice();
-	device->QueryInterface(IID_PPV_ARGS(&debug));
-	debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
-
-
 	GraphicsWindow::DestroyInstance();
 
 	if (D3DErrorOccurred())
@@ -154,4 +150,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 	return 0;
 
+}
+
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
+{
+	int result = MyMain(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+
+	return result;
 }
