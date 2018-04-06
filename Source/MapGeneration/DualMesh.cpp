@@ -33,17 +33,17 @@ void DualMesh::_CheckTriangleInequality()
 	// worried about speed right now
 
 	// TODO: consider adding circumcenters of skinny triangles to the point set
-	if (count > 0) 
-	{
-		std::stringstream ss;
-		ss << "[";
-		for (int i = 0; i < summary.size(); ++i)
-		{
-			ss << "(" << i << ": " << summary[i] << ")";	
-		}
-		ss << "]";
-		PRINTF(L"%S\n", ss.str().c_str());
-	}
+	//if (count > 0) 
+	//{
+	//	std::stringstream ss;
+	//	ss << "[";
+	//	for (int i = 0; i < summary.size(); ++i)
+	//	{
+	//		ss << "(" << i << ": " << summary[i] << ")";	
+	//	}
+	//	ss << "]";
+	//	PRINTF(L"%S\n", ss.str().c_str());
+	//}
 }
 
 void DualMesh::_CheckMeshConnectivity()
@@ -186,7 +186,7 @@ DualMesh::DualMesh(uint32_t seed, const WidePoint& max_bounds, const double poin
 			_regions[triangles[s]] = s;
 	}
 
-	_tri_centers = std::vector<WidePoint>(triangles.size() / 3);
+	region_vertices = std::vector<WidePoint>(triangles.size() / 3);
 	for (auto s = 0; s < triangles.size(); s += 3) 
 	{
 		WidePoint a = vertices[triangles[s]];
@@ -197,15 +197,35 @@ DualMesh::DualMesh(uint32_t seed, const WidePoint& max_bounds, const double poin
 			// ghost triangle center is just outside the unpaired side
 			auto dx = b.x - a.x;
 			auto dy = b.y - a.y;
-			_tri_centers[s / 3] = { a.x + 0.5*(dx + dy), a.y + 0.5*(dy - dx) };
+			region_vertices[s / 3] = { a.x + 0.5*(dx + dy), a.y + 0.5*(dy - dx) };
 		}
 		else 
 		{
 			// solid triangle center is at the centroid
-			_tri_centers[s / 3] = { (a.x + b.x + c.x) / 3.0,
+			region_vertices[s / 3] = { (a.x + b.x + c.x) / 3.0,
 				(a.y + b.y + c.y) / 3.0 };
 		}
 	}
+}
+
+bool DualMesh::IsBoundaryRegion(int region_index)
+{
+	// easy check since we put all the boundary regions at the beginning of the vertex array
+	return region_index < _num_boundary_regions;
+}
+
+std::vector<int> DualMesh::GetRegionNeighbors(int region_index)
+{
+	std::vector<int> output;
+	const int s0 = _regions[region_index];
+	auto s = s0;
+	do
+	{
+		output.push_back(triangles[Next(s)]);
+		s = Next(half_edges[s]);
+	} while (s != s0);
+
+	return output;
 }
 
 std::vector<WidePoint> DualMesh::GetRegionVertices(int region_index)
@@ -215,7 +235,7 @@ std::vector<WidePoint> DualMesh::GetRegionVertices(int region_index)
 	auto s = s0;
 	do 
 	{
-		output.push_back(_tri_centers[s_to_t(s)]);
+		output.push_back(region_vertices[s_to_t(s)]);
 		s = Next(half_edges[s]);
 	} while (s != s0);
 

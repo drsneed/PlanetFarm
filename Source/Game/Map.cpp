@@ -232,31 +232,47 @@ void Map::RenderScene()
 {
 
 	auto& mesh = _generator.GetMesh();
-	auto ghost_index = mesh.GetGhostIndexTris();
-	for (int i = 0; i < mesh.triangles.size(); i += 3)
-	{
-		unsigned color = 0xFF0000FF;
-		if ( i >= ghost_index)
-			color = 0xAAAAAAFF;
-		_renderer->DrawLine(mesh.vertices[mesh.triangles[i]].Shrink(), mesh.vertices[mesh.triangles[i+1]].Shrink(), color);
-		_renderer->DrawLine(mesh.vertices[mesh.triangles[i+1]].Shrink(), mesh.vertices[mesh.triangles[i+2]].Shrink(), color);
-		_renderer->DrawLine(mesh.vertices[mesh.triangles[i+2]].Shrink(), mesh.vertices[mesh.triangles[i]].Shrink(), color);
-	}
+	auto ghost_index_tris = mesh.GetGhostIndexTris();
+	unsigned water = 0x0094FFFF;
+	unsigned land = 0x707C4FFF;
+	unsigned coast = 0xEEEEEEFF;
+	//for (int i = 0; i < ghost_index_tris; i += 3)
+	//{
+	//	_renderer->DrawLine(mesh.vertices[mesh.triangles[i]].Shrink(), mesh.vertices[mesh.triangles[i+1]].Shrink(), color);
+	//	_renderer->DrawLine(mesh.vertices[mesh.triangles[i+1]].Shrink(), mesh.vertices[mesh.triangles[i+2]].Shrink(), color);
+	//	_renderer->DrawLine(mesh.vertices[mesh.triangles[i+2]].Shrink(), mesh.vertices[mesh.triangles[i]].Shrink(), color);
+	//}
+
+	//for (int s = 0; s < ghost_index_tris; s++) 
+	//{
+	//	auto r = mesh.triangles[s];
+	//	auto t1 = s_to_t(s);
+	//	auto t2 = s_to_t(mesh.half_edges[s]);
+	//	auto v1 = mesh.vertices[r].Shrink();
+	//	auto v2 = mesh.region_vertices[t1].Shrink();
+	//	auto v3 = mesh.region_vertices[t2].Shrink();
+	//	_renderer->DrawTriangle(v1, v2, v3, color);
+	//}
 
 	auto region_count = mesh.GetRegionCount();
-	for (int i = 0; i < region_count; ++i)
+	auto ghost_index_verts = mesh.GetGhostIndexVerts();
+	for (int i = 0; i < ghost_index_verts; ++i)
 	{
+		unsigned color = _generator.IsWater(i) ? water : _generator.IsCoast(i) ? coast : land;
 		std::vector<WidePoint> vertices = mesh.GetRegionVertices(i);
-
+		auto center = mesh.vertices[i].Shrink();
 		for (int v = 0; v < vertices.size(); ++v)
 		{
 			auto v2 = v + 1;
 			if (v2 == vertices.size())
 				v2 = 0;
 
+			_renderer->DrawTriangle(vertices[v2].Shrink(), vertices[v].Shrink(), center, color);
+
 			_renderer->DrawLine(vertices[v].Shrink(), vertices[v2].Shrink(), 0x2255FFFF);
 		}
 	}
+
 
 
 	//_renderer->DrawPoints(_temp_land.vertices, 0xFFFFFFFF);
