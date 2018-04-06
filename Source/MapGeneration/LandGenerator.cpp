@@ -8,18 +8,52 @@ namespace
 	{
 		return a * (1.0 - t) + b * t;
 	};
+
+	inline WidePoint mixp(const WidePoint& p, const WidePoint& q, double t)
+	{
+		return { mix(p.x,q.x, t), mix(p.y, q.y, t) };
+	};
+	
+
+	
 }
 
 LandGenerator::LandGenerator(uint32_t seed)
-	: _mesh(seed, { 20.0, 20.0 }, 1.0)
+	: _seed(seed)
+	, _mesh(seed, { 20, 20 }, 1.0)
 	, _water_regions(_mesh.GetRegionCount(), true)
 	, _coastal_regions(_mesh.GetRegionCount(), false)
 	, _perlin(seed)
+	, _randomizer(seed)
 {
 	_CreateNoisyEdges();
 	_AssignWaterRegions();
 	_AssignCoastalRegions();
 }
+
+
+void LandGenerator::_RecursiveSubdivide(std::vector<WidePoint>& points, double length, double amplitude, const WidePoint& a, const WidePoint& b, const WidePoint& p, const WidePoint& q)
+{
+	const int divisor = 0x10000000;
+	double dx = a.x - b.x;
+	double dy = a.y - b.y;
+	if (dx*dx + dy*dy < length*length)
+	{
+		points.push_back(b);
+		return;
+	}
+
+	auto ap = mixp(a, p, 0.5);
+	auto bp = mixp(b, p, 0.5);
+	auto aq = mixp(a, q, 0.5);
+	auto bq = mixp(b, q, 0.5);
+
+	auto division = 0.5 * (1 - amplitude) + _randomizer(divisor) / divisor * amplitude;
+	auto center = mixp(p, q, division);
+
+	_RecursiveSubdivide(points, length, amplitude, a, center, ap, aq);
+	_RecursiveSubdivide(points, length, amplitude, center, b, bp, bq);
+};
 
 double LandGenerator::_Noise(double x, double y, const std::vector<double>& amplitudes)
 {
@@ -54,42 +88,49 @@ void LandGenerator::_AssignCoastalRegions()
 	}
 }
 
+std::vector<WidePoint> LandGenerator::GetNoisyEdges(int edge_index)
+{
+	return _noisy_edges[edge_index];
+}
+
 void LandGenerator::_CreateNoisyEdges()
 {
 	auto ghost_index_tris = _mesh.GetGhostIndexTris();
+	Randomizer random_int(_seed);
+	double length = 4.0;
+	double amplitude = 0.2;
 	// numSides = triangles.size()
 	for (int s = 0; s < _mesh.triangles.size(); ++s)
 	{
-		int t0 = 0;//mesh.s_inner_t(s);
-		int t1 = 0;//mesh.s_outer_t(s);
-		int r0 = 0;// mesh.s_begin_r(s);
-		int r1 = 0;// mesh.s_end_r(s);
+		int t0 = s_to_t(s);
+		int t1 = s_to_t(_mesh.half_edges[s]);
+		int r0 =  _mesh.triangles[s];
+		int r1 = _mesh.triangles[Next(s)];
 
 		if (r0 < r1) 
 		{
 			if (s >= ghost_index_tris)
 			{
-				s_lines[s] = [mesh.t_pos([], t1)];
+				_noisy_edges[s].push_back(_mesh.region_vertices[t1]);
 			}
 			else {
-				s_lines[s] = exports.recursiveSubdivision(length, amplitude, randInt)(
-					mesh.t_pos([], t0),
-					mesh.t_pos([], t1),
-					mesh.r_pos([], r0),
-					mesh.r_pos([], r1)
+				
+				_RecursiveSubdivide(_noisy_edges[s], length, amplitude,
+					_mesh.region_vertices[t0],
+					_mesh.region_vertices[t1],
+					_mesh.vertices[r0],
+					_mesh.vertices[r1]
 					);
 			}
 			// construct line going the other way; since the line is a
 			// half-open interval with [p1, p2, p3, ..., pn] but not
 			// p0, we want to reverse all but the last element, and
 			// then append p0
-			let opposite = s_lines[s].slice(0, -1);
-			opposite.reverse();
-			opposite.push(mesh.t_pos([], t0));
-			s_lines[mesh.s_opposite_s(s)] = opposite;
+
+			_noisy_edges[_mesh.half_edges[s]] = std::vector<WidePoint>(_noisy_edges[s].rbegin()+1, _noisy_edges[s].rend());
+			_noisy_edges[_mesh.half_edges[s]].push_back(_mesh.region_vertices[t0]);
 		}
 	}
-	return s_lines;
 }
 
 void LandGenerator::_AssignWaterRegions()

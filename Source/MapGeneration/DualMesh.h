@@ -24,6 +24,7 @@ public:
 	std::vector<WidePoint> region_vertices;
 	
 	std::vector<WidePoint> GetRegionVertices(int region_index);
+	std::vector<int> GetRegionEdges(int region_index);
 	std::vector<int> GetRegionNeighbors(int region_index);
 	int GetGhostIndexVerts() { return _ghost_index_verts; }
 	int GetGhostIndexTris() { return _ghost_index_tris; }

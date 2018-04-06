@@ -228,6 +228,21 @@ std::vector<int> DualMesh::GetRegionNeighbors(int region_index)
 	return output;
 }
 
+std::vector<int> DualMesh::GetRegionEdges(int region_index)
+{
+	std::vector<int> output;
+	const int s0 = _regions[region_index];
+	auto s = s0;
+	do
+	{
+		output.push_back(s);
+		s = Next(half_edges[s]);
+	} while (s != s0);
+
+	return output;
+
+}
+
 std::vector<WidePoint> DualMesh::GetRegionVertices(int region_index)
 {
 	std::vector<WidePoint> output;

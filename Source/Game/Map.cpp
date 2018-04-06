@@ -256,9 +256,17 @@ void Map::RenderScene()
 
 	auto region_count = mesh.GetRegionCount();
 	auto ghost_index_verts = mesh.GetGhostIndexVerts();
+
+
+
 	for (int i = 0; i < ghost_index_verts; ++i)
 	{
-		unsigned color = _generator.IsWater(i) ? water : _generator.IsCoast(i) ? coast : land;
+		if (_generator.IsWater(i))
+			continue;
+		unsigned color = _generator.IsCoast(i) ? coast : land;
+
+
+		
 		std::vector<WidePoint> vertices = mesh.GetRegionVertices(i);
 		auto center = mesh.vertices[i].Shrink();
 		for (int v = 0; v < vertices.size(); ++v)
@@ -280,3 +288,56 @@ void Map::RenderScene()
 	//_DrawTiles();
 	//_renderer->DrawMapBounds();
 }
+
+//auto edges = mesh.GetRegionEdges(i);
+//for (int e = 0; e < edges.size(); ++e)
+//{
+//	auto v0 = mesh.region_vertices[s_to_t(e)];
+
+//	auto noisy_edges = _generator.GetNoisyEdges(e);
+//	//auto center = mesh.vertices[i].Shrink();
+//	if (noisy_edges.size() > 0)
+//	{
+//		_renderer->DrawLine(v0.Shrink(), noisy_edges[0].Shrink(), 0x2255FFFF);
+//		for (int v = 0; v < noisy_edges.size() - 1; ++v)
+//		{
+
+//			//_renderer->DrawTriangle(noisy_edges[v2].Shrink(), noisy_edges[v].Shrink(), center, color);
+
+//			_renderer->DrawLine(noisy_edges[v].Shrink(), noisy_edges[v+1].Shrink(), 0x2255FFFF);
+//		}
+//	}
+//	else
+//	{
+//		auto e2 = e + 1;
+//		if (e2 >= edges.size())
+//		{
+//			e2 = 0;
+//		}
+//		_renderer->DrawLine(v0.Shrink(), mesh.region_vertices[s_to_t(e)].Shrink(), 0x2255FFFF);
+//	}
+//}
+
+
+/*
+for (int r = 0; r < region_count; r++)
+{
+auto edges = mesh.GetRegionEdges(r);
+
+int last_t = mesh.s_inner_t(out_s[0]);
+ctx.fillStyle = ctx.strokeStyle = colormap.biome(map, r);
+ctx.beginPath();
+ctx.moveTo(mesh.t_x(last_t), mesh.t_y(last_t));
+for (let s of out_s) {
+if (!noisyEdge || !colormap.side(map, s).noisy) {
+let first_t = mesh.s_outer_t(s);
+ctx.lineTo(mesh.t_x(first_t), mesh.t_y(first_t));
+}
+else {
+for (let p of map.s_lines[s]) {
+ctx.lineTo(p[0], p[1]);
+}
+}
+}
+ctx.fill();
+}*/

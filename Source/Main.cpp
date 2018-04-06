@@ -79,7 +79,7 @@ int WINAPI MyMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine
 
 	//const FLOAT bg[4] = { 0.14f, 0.34f, 0.34f, 1.0f };
 	const FLOAT bg[4] = { 0.128f, 0.128f, 0.128f, 1.0f };
-
+	auto bg2 = ConvertColor(0x0094FFFF);
 	//RunTileTest();
 
 	GraphicsWindow::Event windowEvent;
