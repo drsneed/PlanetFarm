@@ -1,7 +1,12 @@
 #include "LandGenerator.h"
 #include "Triangulator.h"
 #include <Core/DebugTools.h>
+#include <set>
+#include <stack>
 
+
+//TODO: New plan to trace coastlines:
+//During map generation, build index where you can input a vertex id and it returns the nex
 namespace
 {
 	inline double mix(double a, double b, double t) 
@@ -13,21 +18,77 @@ namespace
 	{
 		return { mix(p.x,q.x, t), mix(p.y, q.y, t) };
 	};
-	
 
+	double dist(const WidePoint& a, const WidePoint& b)
+	{
+		auto dx = a.x - b.x;
+		auto dy = a.y - b.y;
+		auto result = dx * dx + dy * dy;
+		return result;
+	}
+	
+	struct AngleComparer
+	{
+		std::vector<WidePoint>& v;
+		WidePoint c;
+		AngleComparer(std::vector<WidePoint>& verts, const WidePoint& center)
+			: v(verts), c(center) {}
+		bool operator() (int i, int j)
+		{
+			/*
+
+			First, find the center of the bounding box that contains all of your vertices. We'll call this point C.
+
+			Sort your list of vertices based on each point's angle with respect to C.
+			You can use atan2(point.y - C.y, point.x - C.x) to find the angle.
+			If two or more vertices have the same angle, the one closer to C should come first.
+
+			*/
+			auto ai = atan2(v[i].y - c.y, v[i].x - c.x);
+			auto aj = atan2(v[j].y - c.y, v[j].x - c.x);
+			if (ai == aj)
+			{
+				return dist(v[i], c) > dist(v[j], c);
+			}
+			return ai > aj;
+		}
+	};
+
+
+	struct DistanceComparer
+	{
+		WidePoint last;
+		DistanceComparer(const WidePoint& seed) : last(seed) {}
+		bool operator() (const WidePoint& a, const WidePoint& b)
+		{
+			bool ret = dist(a, last) < dist(b, last);
+			last = ret ? a : b;
+			return ret;
+		}
+	};
 	
 }
 
+//s_begin_r(s) = _s_start_r[s] = triangles
+//s_end_r(s) = _s_start_r[s_next_s(s)] = triangles[Next(s)]
+//s_inner_t(s) = s_to_t(s)
+//s_outer_t(s) = s_to_t(_s_opposite_s[s]) = s_to_t(half_edges[s])
+
+
+
 LandGenerator::LandGenerator(uint32_t seed)
 	: _seed(seed)
-	, _mesh(seed, { 20, 20 }, 1.0)
+	, _max_bounds{ 20.0, 20.0 }
+	, _mesh(seed, _max_bounds, 0.5)
 	, _water_regions(_mesh.GetRegionCount(), true)
 	, _coastal_regions(_mesh.GetRegionCount(), false)
+	, _ocean_regions(_mesh.GetRegionCount(), false)
 	, _perlin(seed)
 	, _randomizer(seed)
 {
 	_CreateNoisyEdges();
 	_AssignWaterRegions();
+	_AssignOceanRegions();
 	_AssignCoastalRegions();
 }
 
@@ -55,6 +116,61 @@ void LandGenerator::_RecursiveSubdivide(std::vector<WidePoint>& points, double l
 	_RecursiveSubdivide(points, length, amplitude, center, b, bp, bq);
 };
 
+
+/*
+a region is ocean if it is a water region connected to the ghost region,
+which is outside the boundary of the map; this could be any seed set but
+for islands, the ghost region is a good seed  */
+
+void LandGenerator::_AssignOceanRegions()
+{
+	std::stack<int> unchecked_regions;
+	unchecked_regions.push(_mesh.GetGhostIndexVerts());
+
+	while (!unchecked_regions.empty()) 
+	{
+		auto r1 = unchecked_regions.top();
+		unchecked_regions.pop();
+		auto neighbors = _mesh.GetRegionNeighbors(r1);
+		for (auto& neighbor: neighbors) 
+		{
+			if (IsWater(neighbor) && !IsOcean(neighbor))
+			{
+				_ocean_regions[neighbor] = true;
+				unchecked_regions.push(neighbor);
+			}
+		}
+	}
+}
+
+
+
+
+std::vector<int> LandGenerator::GetCoastlines()
+{
+	//function find_coasts_t(mesh, r_ocean)
+	std::vector<int> coasts;
+	for (int s = 0; s < _mesh.triangles.size(); s++)
+	{
+		auto r0 = _mesh.triangles[s];
+		auto r1 = _mesh.triangles[Next(s)];
+		auto t = s_to_t(_mesh.half_edges[s]);
+		if (IsOcean(r0) && !IsOcean(r1))
+		{
+			// It might seem that we also need to check !r_ocean[r0] && r_ocean[r1]
+			// and it might seem that we have to add both t and its opposite but
+			// each t vertex shows up in *four* directed sides, so we only have to test
+			// one fourth of those conditions to get the vertex in the list once.
+			coasts.push_back(t);
+		}
+	}
+
+
+	//AngleComparer comparer(_mesh.region_vertices, { _max_bounds.x / 2.0, _max_bounds.y / 2.0 });
+	//std::sort(coasts.begin(), coasts.end(), comparer);
+	return coasts;
+}
+
 double LandGenerator::_Noise(double x, double y, const std::vector<double>& amplitudes)
 {
 	//shape: {round: 0.5, inflate: 0.4, amplitudes: [1/2, 1/4, 1/8, 1/16]},
@@ -67,6 +183,54 @@ double LandGenerator::_Noise(double x, double y, const std::vector<double>& ampl
 		sumOfAmplitudes += amplitudes[octave];
 	}
 	return sum / sumOfAmplitudes;
+}
+
+bool LandGenerator::_BordersOcean(int region, int s)
+{
+	auto r0 = _mesh.triangles[s];
+	auto r1 = _mesh.triangles[Next(s)];
+	auto t = s_to_t(_mesh.half_edges[s]);
+	bool result = (IsOcean(r0) && !IsOcean(r1));
+	return result;
+}
+
+std::vector<WidePoint> LandGenerator::GetCoastVertices(int region_index)
+{
+	std::vector<WidePoint> output;
+	std::map<int, int> verts;
+	auto my_verts = _mesh.GetRegionVerticesI(region_index);
+	for (auto& vert : my_verts)
+		verts[vert]++;
+	auto neighbors = _mesh.GetRegionNeighbors(region_index);
+	for (auto& neighbor : neighbors)
+	{
+		if (IsOcean(neighbor))
+		{
+			auto neighbor_verts = _mesh.GetRegionVerticesI(region_index);
+			for (auto& vert : neighbor_verts)
+				verts[vert]++;
+		}
+	}
+
+	for (auto it = verts.begin(); it != verts.end(); ++it)
+		if (it->second > 1)
+			output.push_back(_mesh.region_vertices[s_to_t(it->first)]);
+	//const int s0 = _mesh.regions[region_index];
+	//auto s = s0;
+	//do
+	//{
+	//	//if (_BordersOcean(s))
+	//		output.push_back(_mesh.region_vertices[s_to_t(s)]);
+	//	s = Next(_mesh.half_edges[s]);
+	//} while (s != s0);
+
+	if (output.size() > 2)
+	{
+		DistanceComparer comp(output[0]);
+		std::sort(output.begin() + 1, output.end(), comp);
+	}
+	return output;
+
 }
 
 void LandGenerator::_AssignCoastalRegions()

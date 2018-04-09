@@ -13,6 +13,8 @@ extern MapPoint InvalidMapPoint;
 static bool IsValid(const MapPoint& map_point);
 
 
+
+
 class Map
 {
 public:

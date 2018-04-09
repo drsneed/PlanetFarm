@@ -179,11 +179,11 @@ DualMesh::DualMesh(uint32_t seed, const WidePoint& max_bounds, const double poin
 
 	//_CheckMeshConnectivity();
 
-	_regions = std::vector<int>(vertices.size(), 0);
+	regions = std::vector<int>(vertices.size(), 0);
 	for (int s = 0; s < triangles.size(); s++) 
 	{
-		if (_regions[triangles[s]] == 0)
-			_regions[triangles[s]] = s;
+		if (regions[triangles[s]] == 0)
+			regions[triangles[s]] = s;
 	}
 
 	region_vertices = std::vector<WidePoint>(triangles.size() / 3);
@@ -217,7 +217,7 @@ bool DualMesh::IsBoundaryRegion(int region_index)
 std::vector<int> DualMesh::GetRegionNeighbors(int region_index)
 {
 	std::vector<int> output;
-	const int s0 = _regions[region_index];
+	const int s0 = regions[region_index];
 	auto s = s0;
 	do
 	{
@@ -231,7 +231,7 @@ std::vector<int> DualMesh::GetRegionNeighbors(int region_index)
 std::vector<int> DualMesh::GetRegionEdges(int region_index)
 {
 	std::vector<int> output;
-	const int s0 = _regions[region_index];
+	const int s0 = regions[region_index];
 	auto s = s0;
 	do
 	{
@@ -246,7 +246,7 @@ std::vector<int> DualMesh::GetRegionEdges(int region_index)
 std::vector<WidePoint> DualMesh::GetRegionVertices(int region_index)
 {
 	std::vector<WidePoint> output;
-	const int s0 = _regions[region_index];
+	const int s0 = regions[region_index];
 	auto s = s0;
 	do 
 	{
@@ -257,3 +257,19 @@ std::vector<WidePoint> DualMesh::GetRegionVertices(int region_index)
 	return output;
 	
 }
+
+std::vector<int> DualMesh::GetRegionVerticesI(int region_index)
+{
+	std::vector<int> output;
+	const int s0 = regions[region_index];
+	auto s = s0;
+	do
+	{
+		output.push_back(s_to_t(s));
+		s = Next(half_edges[s]);
+	} while (s != s0);
+
+	return output;
+
+}
+

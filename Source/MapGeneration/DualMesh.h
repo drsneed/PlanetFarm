@@ -15,15 +15,17 @@ class DualMesh
 	int _ghost_index_verts;
 	int _ghost_index_tris;
 	int _num_boundary_regions;
-	std::vector<int> _regions;
+
 
 public:
 	std::vector<WidePoint> vertices;
 	std::vector<int> triangles;
 	std::vector<int> half_edges;
 	std::vector<WidePoint> region_vertices;
+	std::vector<int> regions;
 	
 	std::vector<WidePoint> GetRegionVertices(int region_index);
+	std::vector<int> GetRegionVerticesI(int region_index);
 	std::vector<int> GetRegionEdges(int region_index);
 	std::vector<int> GetRegionNeighbors(int region_index);
 	int GetGhostIndexVerts() { return _ghost_index_verts; }
