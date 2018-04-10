@@ -3,6 +3,8 @@
 #include "Triangulator.h"
 #include <Core/DebugTools.h>
 #include <sstream>
+#include <set>
+
 
 void DualMesh::_CheckTriangleInequality() 
 {
@@ -226,6 +228,46 @@ std::vector<int> DualMesh::GetRegionNeighbors(int region_index)
 	} while (s != s0);
 
 	return output;
+}
+
+std::vector<int> DualMesh::GetRegionVertexNeighbors(int t_index)
+{
+	//t_circulate_t(out_t, t) { out_t.length = 3; for (let i = 0; i < 3; i++) { out_t[i] = this.s_outer_t(3*t+i); } return out_t; }
+	std::vector<int> output;
+	for (int i = 0; i < 3; ++i)
+	{
+		output.push_back(s_to_t(half_edges[(3 * t_index + i)]));
+	}
+
+	return output;
+
+}
+
+void DualMesh::GetFlankingRegions(int t0, int t1, int& r1, int& r2)
+{
+	std::set<int> t0_regions;
+	std::set<int> t1_regions;
+
+	for (int i = 0; i < 3; i++) 
+	{ 
+		t0_regions.insert(triangles[3 * t0 + i]);
+		t1_regions.insert(triangles[3 * t1 + i]);
+	}
+
+	std::vector<int> common_regions;
+	std::set_intersection(t0_regions.begin(), t0_regions.end(),
+		t1_regions.begin(), t1_regions.end(),
+		std::inserter(common_regions, common_regions.begin()));
+	if (common_regions.size() == 2)
+	{
+		r1 = common_regions[0];
+		r2 = common_regions[1];
+	}
+	else
+	{
+		r1 = -1;
+		r2 = -1;
+	}
 }
 
 std::vector<int> DualMesh::GetRegionEdges(int region_index)

@@ -79,17 +79,18 @@ namespace
 LandGenerator::LandGenerator(uint32_t seed)
 	: _seed(seed)
 	, _max_bounds{ 20.0, 20.0 }
-	, _mesh(seed, _max_bounds, 0.5)
+	, _mesh(seed, _max_bounds, 1.0)
 	, _water_regions(_mesh.GetRegionCount(), true)
 	, _coastal_regions(_mesh.GetRegionCount(), false)
 	, _ocean_regions(_mesh.GetRegionCount(), false)
 	, _perlin(seed)
 	, _randomizer(seed)
 {
-	_CreateNoisyEdges();
+	//_CreateNoisyEdges();
 	_AssignWaterRegions();
 	_AssignOceanRegions();
 	_AssignCoastalRegions();
+	_coastline_vertices = GetCoastlines();
 }
 
 
@@ -148,26 +149,22 @@ void LandGenerator::_AssignOceanRegions()
 
 std::vector<int> LandGenerator::GetCoastlines()
 {
-	//function find_coasts_t(mesh, r_ocean)
 	std::vector<int> coasts;
 	for (int s = 0; s < _mesh.triangles.size(); s++)
 	{
 		auto r0 = _mesh.triangles[s];
 		auto r1 = _mesh.triangles[Next(s)];
-		auto t = s_to_t(_mesh.half_edges[s]);
+		auto t0 = s_to_t(_mesh.half_edges[s]);
 		if (IsOcean(r0) && !IsOcean(r1))
 		{
 			// It might seem that we also need to check !r_ocean[r0] && r_ocean[r1]
 			// and it might seem that we have to add both t and its opposite but
 			// each t vertex shows up in *four* directed sides, so we only have to test
 			// one fourth of those conditions to get the vertex in the list once.
-			coasts.push_back(t);
+			coasts.push_back(t0);
 		}
 	}
 
-
-	//AngleComparer comparer(_mesh.region_vertices, { _max_bounds.x / 2.0, _max_bounds.y / 2.0 });
-	//std::sort(coasts.begin(), coasts.end(), comparer);
 	return coasts;
 }
 
@@ -185,50 +182,55 @@ double LandGenerator::_Noise(double x, double y, const std::vector<double>& ampl
 	return sum / sumOfAmplitudes;
 }
 
-bool LandGenerator::_BordersOcean(int region, int s)
+std::vector<int> LandGenerator::_FollowCoastline(int t0, std::set<int>& visited)
 {
-	auto r0 = _mesh.triangles[s];
-	auto r1 = _mesh.triangles[Next(s)];
-	auto t = s_to_t(_mesh.half_edges[s]);
-	bool result = (IsOcean(r0) && !IsOcean(r1));
-	return result;
+	std::vector<int> output;
+	int t = t0;
+	int last = t;
+	do
+	{
+		output.push_back(t);
+		auto neighbors = _mesh.GetRegionVertexNeighbors(t);
+		for (auto& neighbor : neighbors)
+		{
+			// If neighbor vertex borders ocean and this is the first visit or we reached home
+			if (IsCoastlineVertex(neighbor) && IsCoastEdge(t, neighbor) && (visited.insert(neighbor).second || (neighbor == t0 && t0 != last)))
+			{
+				last = t;
+				t = neighbor;
+				break;
+			}
+		}
+
+	} while (t != t0);
+
+	return output;
 }
 
-std::vector<WidePoint> LandGenerator::GetCoastVertices(int region_index)
+bool LandGenerator::IsCoastEdge(int t1, int t2)
 {
-	std::vector<WidePoint> output;
-	std::map<int, int> verts;
-	auto my_verts = _mesh.GetRegionVerticesI(region_index);
-	for (auto& vert : my_verts)
-		verts[vert]++;
-	auto neighbors = _mesh.GetRegionNeighbors(region_index);
-	for (auto& neighbor : neighbors)
+	int r1, r2;
+	_mesh.GetFlankingRegions(t1, t2, r1, r2);
+	if (r1 == -1) return false;
+	return (IsOcean(r1) && !IsOcean(r2)) || (IsOcean(r2) && !IsOcean(r1));
+}
+
+std::vector<std::vector<int>> LandGenerator::GetCoastlines2()
+{
+	std::vector<std::vector<int>> output;
+	std::set<int> visited;
+	
+	for (int j = 0; j < _coastline_vertices.size(); ++j)
 	{
-		if (IsOcean(neighbor))
+		// if it has not been visited
+		if (visited.insert(_coastline_vertices[j]).second)
 		{
-			auto neighbor_verts = _mesh.GetRegionVerticesI(region_index);
-			for (auto& vert : neighbor_verts)
-				verts[vert]++;
+			// Follow the coastline back to the start
+			std::vector<int> coastline = _FollowCoastline(_coastline_vertices[j], visited);
+			output.push_back(coastline);
 		}
 	}
 
-	for (auto it = verts.begin(); it != verts.end(); ++it)
-		if (it->second > 1)
-			output.push_back(_mesh.region_vertices[s_to_t(it->first)]);
-	//const int s0 = _mesh.regions[region_index];
-	//auto s = s0;
-	//do
-	//{
-	//	//if (_BordersOcean(s))
-	//		output.push_back(_mesh.region_vertices[s_to_t(s)]);
-	//	s = Next(_mesh.half_edges[s]);
-	//} while (s != s0);
-
-	if (output.size() > 2)
-	{
-		DistanceComparer comp(output[0]);
-		std::sort(output.begin() + 1, output.end(), comp);
-	}
 	return output;
 
 }

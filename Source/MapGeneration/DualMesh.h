@@ -27,7 +27,9 @@ public:
 	std::vector<WidePoint> GetRegionVertices(int region_index);
 	std::vector<int> GetRegionVerticesI(int region_index);
 	std::vector<int> GetRegionEdges(int region_index);
+	void GetFlankingRegions(int t0, int t1, int& r1, int& r2);
 	std::vector<int> GetRegionNeighbors(int region_index);
+	std::vector<int> GetRegionVertexNeighbors(int region_index);
 	int GetGhostIndexVerts() { return _ghost_index_verts; }
 	int GetGhostIndexTris() { return _ghost_index_tris; }
 	int GetRegionCount() { return vertices.size();  }

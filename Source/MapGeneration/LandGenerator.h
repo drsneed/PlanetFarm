@@ -4,6 +4,8 @@
 #include "WidePoint.h"
 #include <PerlinNoise.hpp>
 #include <map>
+#include <algorithm>
+#include <set>
 
 //typedef std::vector<XMFLOAT2> Polyline;
 //typedef std::vector<Polyline> Polygon;
@@ -32,24 +34,27 @@ class LandGenerator
 	std::vector<bool> _water_regions;
 	std::vector<bool> _ocean_regions;
 	std::vector<bool> _coastal_regions;
+	std::vector<int> _coastline_vertices;
 	std::map<int, std::vector<WidePoint>> _noisy_edges;
 	void _AssignWaterRegions();
 	void _AssignCoastalRegions();
 	void _AssignOceanRegions();
 	void _CreateNoisyEdges();
-	void _SortCoastline();
-	bool _BordersOcean(int region, int s);
+	
 	double _Noise(double x, double y, const std::vector<double>& amplitudes);
 	void _RecursiveSubdivide(std::vector<WidePoint>& points, double length, double amplitude, 
 		const WidePoint& a, const WidePoint& b, const WidePoint& p, const WidePoint& q);
+	std::vector<int> _FollowCoastline(int t, std::set<int>& visited);
 public:
 	LandGenerator(uint32_t seed);
 
-	std::vector<WidePoint> GetCoastVertices(int region_index);
+	std::vector<std::vector<int>> GetCoastlines2();
 	std::vector<WidePoint> GetNoisyEdges(int edge_index);
 	bool IsWater(int region_index) { return _water_regions[region_index]; }
 	bool IsOcean(int region_index) { return _ocean_regions[region_index]; }
 	bool IsCoast(int region_index) { return _coastal_regions[region_index]; }
+	bool IsCoastlineVertex(int t) { return std::find(_coastline_vertices.begin(), _coastline_vertices.end(), t) != _coastline_vertices.end(); }
+	bool IsCoastEdge(int t0, int t1);
 	DualMesh& GetMesh() { return _mesh; }
 
 	std::vector<int> GetCoastlines();
