@@ -25,11 +25,14 @@ Map::Map(std::shared_ptr<Camera> camera, const char* const db_filename)
 	, _cam(camera)
 	, _visible_tiles_frozen(false)
 	, _generator(171)
+	, _scale_test(1)
+	, _coastlines(_generator.GetCoastlines2())
 {
 	_cam->NotifyPosChange(std::bind(&Map::HandleCameraPosChangedEvent, this, std::placeholders::_1));
 	_cam->UpdateGpuBuffer();
 	GetCenterScreen(true);
 	_RefreshTiles();
+
 }
 
 void Map::HandleCameraPosChangedEvent(XMFLOAT3 position)
@@ -183,6 +186,18 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 		}
 
 	}
+	if (event.code == GraphicsWindow::Event::Code::Up && event.type == GraphicsWindow::Event::Type::KeyRelease)
+	{
+		_scale_test += 2;
+		if (_scale_test > 16)
+			_scale_test = 16;
+	}
+	if (event.code == GraphicsWindow::Event::Code::Down && event.type == GraphicsWindow::Event::Type::KeyRelease)
+	{
+		_scale_test -= 2;
+		if (_scale_test < 1)
+			_scale_test = 1;
+	}
 
 	if (event.code == GraphicsWindow::Event::Code::F)
 	{
@@ -192,6 +207,7 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 	else if (event.code == GraphicsWindow::Event::Code::Home)
 	{
 		_generator = LandGenerator(time(NULL));
+		_coastlines = _generator.GetCoastlines2();
 	}
 }
 
@@ -251,21 +267,19 @@ void Map::RenderScene()
 
 
 
-
-	if (_visible_tiles_frozen)
+	for (int i = 0; i < _coastlines.size(); ++i)
 	{
-		auto coastlines = _generator.GetCoastlines2();
-		for (int i = 0; i < coastlines.size(); ++i)
+		for (int j = 0; j < _coastlines[i].size(); j+= _scale_test)
 		{
-			for (int j = 0; j < coastlines[i].size(); ++j)
-			{
-				int j2 = j + 1;
-				if (j2 == coastlines[i].size()) j2 = 0;
-				_renderer->DrawLine(mesh.region_vertices[coastlines[i][j]].Shrink(), mesh.region_vertices[coastlines[i][j2]].Shrink(), 0xFF0000FF);
-			}
+			int j1 = j;
+			int j2 = j1 + _scale_test;
+			if (j2 >= _coastlines[i].size()) j2 = 0;
+			_renderer->DrawLine(mesh.region_vertices[_coastlines[i][j1]].Shrink(), mesh.region_vertices[_coastlines[i][j2]].Shrink(), 0xFF0000FF);
 		}
 	}
-	else
+
+	
+	if(false)
 	{
 		int r1, r2;
 		for (int i = 0; i < ghost_index_verts; ++i)

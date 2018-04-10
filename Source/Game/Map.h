@@ -92,11 +92,13 @@ private:
 	std::unique_ptr<TileEngine> _tile_engine;
 	std::shared_ptr<Camera> _cam;
 	std::unique_ptr<MapRenderer> _renderer;
+	std::vector<std::vector<int>> _coastlines;
 	BoundingRect _visible_area;
 	//std::map<TileID, TileVectorData> _data_cache;
 	bool _visible_tiles_frozen;
 	void _RefreshTiles();
 	void _DrawTiles();
+	int _scale_test;
 public:
 	Map(std::shared_ptr<Camera> camera, const char* const db_filename);
 	void RenderScene();

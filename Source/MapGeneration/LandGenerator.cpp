@@ -78,8 +78,8 @@ namespace
 
 LandGenerator::LandGenerator(uint32_t seed)
 	: _seed(seed)
-	, _max_bounds{ 20.0, 20.0 }
-	, _mesh(seed, _max_bounds, 1.0)
+	, _max_bounds{ 25.0, 25.0 }
+	, _mesh(seed, _max_bounds, 0.15)
 	, _water_regions(_mesh.GetRegionCount(), true)
 	, _coastal_regions(_mesh.GetRegionCount(), false)
 	, _ocean_regions(_mesh.GetRegionCount(), false)
