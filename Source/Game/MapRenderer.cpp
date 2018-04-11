@@ -214,6 +214,41 @@ void MapRenderer::DrawPoints(const std::vector<XMFLOAT2>& points, unsigned color
 
 	context->Draw(points.size(), 0);
 }
+
+void MapRenderer::DrawLineStrip(const std::vector<XMFLOAT2>& verts, unsigned color)
+{
+	//ASSERT(points.size() <= IMMEDIATE_BUFFER_VERTEX_COUNT);
+	auto context = GraphicsWindow::GetInstance()->GetContext();
+	// Update per resize buffer
+	D3D11_MAPPED_SUBRESOURCE mappedRes;
+	if (!D3DCheck(context->Map(_immediate_mode_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedRes),
+		L"ID3D11DeviceContext::Map (MapRenderer::UploadPerObjectBuffer)")) return;
+	memcpy_s(mappedRes.pData, mappedRes.RowPitch, &verts[0], sizeof(XMFLOAT2) * verts.size());
+	context->Unmap(_immediate_mode_buffer, 0);
+
+	__declspec(align(16)) ModelPerObjectBuffer object {};
+	object.color = ConvertColor(color);
+	auto world_mat = XMMatrixIdentity();
+	XMStoreFloat4x4(&object.world_matrix, XMMatrixTranspose(world_mat));
+
+	_UploadPerObjectBuffer(context, object);
+	context->IASetInputLayout(m_squareInputLayout);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+	UINT stride = sizeof(XMFLOAT2);
+	UINT offset = 0;
+
+	context->VSSetShader(m_squareShader.GetVertexShader(), nullptr, 0);
+	context->PSSetShader(m_squareShader.GetPixelShader(), nullptr, 0);
+
+	auto cameraBuffer = _cam->GetConstantBuffer();
+	context->VSSetConstantBuffers(0, 1, &cameraBuffer);
+	context->VSSetConstantBuffers(1, 1, &m_perObjectBuffer);
+	context->IASetVertexBuffers(0, 1, &_immediate_mode_buffer, &stride, &offset);
+
+	context->Draw(verts.size(), 0);
+}
+
 void MapRenderer::DrawLine(const XMFLOAT2& from, const XMFLOAT2& to, unsigned color)
 {
 	//ASSERT(points.size() <= IMMEDIATE_BUFFER_VERTEX_COUNT);

@@ -1,5 +1,6 @@
 #include "DbInterface.h"
-#include "FeatureGenerator.h"
+#include <MapGeneration/LandGenerator.h>
+//https://blog.mapbox.com/rendering-big-geodata-on-the-fly-with-geojson-vt-4e4d2a5dd1f2
 namespace
 {
 	void _CreateFeatureTable(Db::Connection& connection)
@@ -19,105 +20,35 @@ namespace
 	}
 }
 
-//#define PP 127.0f
-//{ -PP, -PP },
-//{ PP, -PP },
-//{ PP, PP },
-//{ -PP, PP },
-//{ -PP, -PP }
 void DbInterface::CreateSaveGameDb(const char* const filename, bool create_test_data)
 {
 	auto connection = Db::Connection(filename);
 	_CreateFeatureTable(connection);
 	if (create_test_data)
 	{
-		/*Feature feature(
-			std::string("Outline"),
-			Tile(0, 0, 0).GetID(), // tileid
-			FeatureType::Unknown, // type
-			XMFLOAT2(0.5f, 0.5f),
-			0.0f, // rot
-			{ 
-				{ -120.88f, -118.75f },
-				{ -117.50f, -117.63f },
-				{ -111.88f, -109.63f },
-				{ -110.63f, -96.00f },
-				{ -95.88f, -85.75f },
-				{ -85.63f, -89.25f },
-				{ -76.63f, -99.38f },
-				{ -72.00f, -110.75f },
-				{ -63.00f, -117.63f },
-				{ -47.00f, -115.38f },
-				{ -41.38f, -107.25f },
-				{ -36.88f, -100.38f },
-				{ -26.63f, -85.63f },
-				{ -13.00f, -74.25f },
-				{ 4.00f, -68.63f },
-				{ 15.50f, -74.25f },
-				{ 25.75f, -85.63f },
-				{ 30.25f, -99.25f },
-				{ 61.00f, -110.75f },
-				{ 86.00f, -110.75f },
-				{ 96.25f, -101.75f },
-				{ 99.75f, -86.88f },
-				{ 99.75f, -64.13f },
-				{ 91.75f, -50.38f },
-				{ 79.25f, -41.38f },
-				{ 79.25f, -30.00f },
-				{ 87.25f, -16.38f },
-				{ 102.00f, 0.75f },
-				{ 98.50f, 28.00f },
-				{ 79.25f, 41.50f },
-				{ 70.25f, 51.75f },
-				{ 69.00f, 65.50f },
-				{ 74.75f, 73.50f },
-				{ 88.25f, 80.25f },
-				{ 98.50f, 88.25f },
-				{ 106.50f, 96.25f },
-				{ 111.00f, 104.25f },
-				{ 116.75f, 115.50f },
-				{ 121.25f, 120.25f },
-				{ 112.25f, 120.25f },
-				{ 103.00f, 116.75f },
-				{ 94.00f, 112.25f },
-				{ 78.00f, 111.00f },
-				{ 71.25f, 112.25f },
-				{ 62.25f, 113.25f },
-				{ 46.25f, 116.75f },
-				{ 30.25f, 116.75f },
-				{ 21.25f, 112.25f },
-				{ 5.25f, 103.00f },
-				{ -7.63f, 98.25f },
-				{ -27.00f, 84.75f },
-				{ -32.63f, 70.00f },
-				{ -33.88f, 56.25f },
-				{ -32.63f, 38.00f },
-				{ -32.63f, 14.25f },
-				{ -38.50f, -3.13f },
-				{ -65.75f, -8.75f },
-				{ -76.00f, 3.75f },
-				{ -78.25f, 25.50f },
-				{ -78.25f, 51.50f },
-				{ -74.88f, 65.25f },
-				{ -77.13f, 85.75f },
-				{ -90.75f, 96.00f },
-				{ -118.13f, 92.50f },
-				{ -120.50f, 67.50f },
-				{ -117.00f, 38.75f },
-				{ -114.75f, 17.25f },
-				{ -113.50f, -0.00f },
-				{ -114.63f, -15.88f },
-				{ -115.75f, -43.38f },
-				{ -118.13f, -58.63f },
-				{ -120.50f, -72.38f },
-				{ -121.63f, -88.25f },
-				{ -121.63f, -105.75f },
-				{ -120.88f, -118.75f }
+		double max_bounds = static_cast<double>(MAP_WIDTH_MAX_ZOOM);
+		LandGenerator generator(time(NULL), { max_bounds, max_bounds }, MAP_WIDTH_MAX_ZOOM / 32.0);
+		auto& mesh = generator.GetMesh();
+		auto coastlines = generator.GetCoastlines();
+		for (int i = 0; i < coastlines.size(); ++i)
+		{
+			std::vector<XMFLOAT2> vertices(coastlines[i].size() + 1);
+			for (int v = 0; v < coastlines[i].size(); ++v)
+			{
+				vertices[v] = XMFLOAT2(mesh.region_vertices[coastlines[i][v]].x - MAP_ABSOLUTE_CENTER, mesh.region_vertices[coastlines[i][v]].y - MAP_ABSOLUTE_CENTER);
 			}
-		);*/
+			vertices[coastlines[i].size()] = vertices[0];
 
-		Feature feature = FeatureGenerator(172).GenerateIsland();
-		DbInterface::PutFeature(connection, feature);
+			Feature feature(
+				std::string("Island"),
+				Tile(0, 0, 0).GetID(), // tileid
+				FeatureType::Unknown, // type
+				XMFLOAT2(0.5f, 0.5f),
+				0.0f, // rot
+				vertices
+			);
+			DbInterface::PutFeature(connection, feature);
+		}
 	}
 }
 

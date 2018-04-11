@@ -24,9 +24,9 @@ Map::Map(std::shared_ptr<Camera> camera, const char* const db_filename)
 	, _zoom(0, 0)
 	, _cam(camera)
 	, _visible_tiles_frozen(false)
-	, _generator(171)
+	, _generator(time(NULL), { 256.0, 256.0 }, 8)
 	, _scale_test(1)
-	, _coastlines(_generator.GetCoastlines2())
+	, _coastlines(_generator.GetCoastlines())
 {
 	_cam->NotifyPosChange(std::bind(&Map::HandleCameraPosChangedEvent, this, std::placeholders::_1));
 	_cam->UpdateGpuBuffer();
@@ -204,10 +204,10 @@ void Map::HandleEvent(const GraphicsWindow::Event & event)
 		if (event.type == GraphicsWindow::Event::Type::KeyRelease)
 			_visible_tiles_frozen = !_visible_tiles_frozen;
 	}
-	else if (event.code == GraphicsWindow::Event::Code::Home)
+	else if (event.code == GraphicsWindow::Event::Code::Home && event.type == GraphicsWindow::Event::Type::KeyRelease)
 	{
-		_generator = LandGenerator(time(NULL));
-		_coastlines = _generator.GetCoastlines2();
+		_generator = LandGenerator(time(NULL), { 256.0, 256.0 }, 8);
+		_coastlines = _generator.GetCoastlines();
 	}
 }
 
@@ -239,91 +239,23 @@ void Map::_DrawTiles()
 
 void Map::RenderScene()
 {
-	auto& mesh = _generator.GetMesh();
-	auto ghost_index_tris = mesh.GetGhostIndexTris();
-	unsigned water = 0x0094FFFF;
-	unsigned land = 0x707C4FFF;
-	unsigned coast = 0xEEEEEEFF;
-	//for (int i = 0; i < ghost_index_tris; i += 3)
+	//auto& mesh = _generator.GetMesh();
+	//for (int i = 0; i < _coastlines.size(); ++i)
 	//{
-	//	_renderer->DrawLine(mesh.vertices[mesh.triangles[i]].Shrink(), mesh.vertices[mesh.triangles[i+1]].Shrink(), color);
-	//	_renderer->DrawLine(mesh.vertices[mesh.triangles[i+1]].Shrink(), mesh.vertices[mesh.triangles[i+2]].Shrink(), color);
-	//	_renderer->DrawLine(mesh.vertices[mesh.triangles[i+2]].Shrink(), mesh.vertices[mesh.triangles[i]].Shrink(), color);
+	//	std::vector<XMFLOAT2> verts(_coastlines[i].size() + 1);
+	//	for (int j = 0; j < _coastlines[i].size(); j++)
+	//	{
+	//		//int j1 = j;
+	//		//int j2 = j1 + _scale_test;
+	//		//if (j2 >= _coastlines[i].size()) j2 = 0;
+	//		//_renderer->DrawLine(mesh.region_vertices[_coastlines[i][j1]].Shrink(), mesh.region_vertices[_coastlines[i][j2]].Shrink(), 0xFF0000FF);
+	//		verts[j] = mesh.region_vertices[_coastlines[i][j]].Shrink();
+	//	}
+	//	verts[_coastlines[i].size()] = verts[0];
+	//	_renderer->DrawLineStrip(verts, 0xFF0000FF);
 	//}
 
-	//for (int s = 0; s < ghost_index_tris; s++) 
-	//{
-	//	auto r = mesh.triangles[s];
-	//	auto t1 = s_to_t(s);
-	//	auto t2 = s_to_t(mesh.half_edges[s]);
-	//	auto v1 = mesh.vertices[r].Shrink();
-	//	auto v2 = mesh.region_vertices[t1].Shrink();
-	//	auto v3 = mesh.region_vertices[t2].Shrink();
-	//	_renderer->DrawTriangle(v1, v2, v3, color);
-	//}
-
-	auto region_count = mesh.GetRegionCount();
-	auto ghost_index_verts = mesh.GetGhostIndexVerts();
-
-
-
-	for (int i = 0; i < _coastlines.size(); ++i)
-	{
-		for (int j = 0; j < _coastlines[i].size(); j+= _scale_test)
-		{
-			int j1 = j;
-			int j2 = j1 + _scale_test;
-			if (j2 >= _coastlines[i].size()) j2 = 0;
-			_renderer->DrawLine(mesh.region_vertices[_coastlines[i][j1]].Shrink(), mesh.region_vertices[_coastlines[i][j2]].Shrink(), 0xFF0000FF);
-		}
-	}
-
-	
-	if(false)
-	{
-		int r1, r2;
-		for (int i = 0; i < ghost_index_verts; ++i)
-		{
-			if (!_generator.IsCoast(i))
-				continue;
-			unsigned color = coast;//_generator.IsCoast(i) ? coast : land;
-
-			std::vector<int> vertices = mesh.GetRegionVerticesI(i);
-			auto center = mesh.vertices[i].Shrink();
-			for (int v = 0; v < vertices.size(); ++v)
-			{
-				auto v2 = v + 1;
-				if (v2 == vertices.size()) v2 = 0;
-				mesh.GetFlankingRegions(vertices[v], vertices[v2], r1, r2);
-				if (r1 >= 0 && r2 >= 0)
-				{
-					bool coastal = (_generator.IsWater(r1) && !_generator.IsWater(r2)) || (_generator.IsWater(r2) && !_generator.IsWater(r1));
-					if (coastal && _generator.IsCoastlineVertex(vertices[v]) && _generator.IsCoastlineVertex(vertices[v2]))
-						_renderer->DrawLine(mesh.region_vertices[vertices[v]].Shrink(), mesh.region_vertices[vertices[v2]].Shrink(), 0x2255FFFF);
-				}
-			}
-		}
-	}
-	
-
-
-
-	//std::vector<XMFLOAT2> coastline_verts(coastlines.size());
-	//std::vector<int> coastlines = _generator.GetCoastlines();
-
-	//for (int p = 0; p < coastlines.size(); ++p)
-	//{
-	//	//_renderer->DrawSquare(mesh.region_vertices[coastlines[p]].x,
-	//		//mesh.region_vertices[coastlines[p]].y, 0.25f, 0.0f, 0x00FF00FF);
-	//	//coastline_verts[p] = mesh.region_vertices[coastlines[p]].Shrink();
-	//	
-	//}
-	//_renderer->DrawPoints(coastline_verts, 0xFF0000FF);
-
-
-	//_renderer->DrawPoints(_temp_land.vertices, 0xFFFFFFFF);
-	_renderer->DrawSquare(10.f, 10.f, 20.f, 0.f, 0x00FF00FF);
-	//_DrawTiles();
+	_DrawTiles();
 	//_renderer->DrawMapBounds();
 }
 

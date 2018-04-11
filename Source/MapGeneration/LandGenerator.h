@@ -40,15 +40,16 @@ class LandGenerator
 	void _AssignCoastalRegions();
 	void _AssignOceanRegions();
 	void _CreateNoisyEdges();
+	void _StoreCoastlineVertices();
 	
 	double _Noise(double x, double y, const std::vector<double>& amplitudes);
 	void _RecursiveSubdivide(std::vector<WidePoint>& points, double length, double amplitude, 
 		const WidePoint& a, const WidePoint& b, const WidePoint& p, const WidePoint& q);
 	std::vector<int> _FollowCoastline(int t, std::set<int>& visited);
 public:
-	LandGenerator(uint32_t seed);
+	LandGenerator(uint32_t seed, const WidePoint& max_bounds, double spacing);
 
-	std::vector<std::vector<int>> GetCoastlines2();
+	std::vector<std::vector<int>> GetCoastlines();
 	std::vector<WidePoint> GetNoisyEdges(int edge_index);
 	bool IsWater(int region_index) { return _water_regions[region_index]; }
 	bool IsOcean(int region_index) { return _ocean_regions[region_index]; }
@@ -56,6 +57,4 @@ public:
 	bool IsCoastlineVertex(int t) { return std::find(_coastline_vertices.begin(), _coastline_vertices.end(), t) != _coastline_vertices.end(); }
 	bool IsCoastEdge(int t0, int t1);
 	DualMesh& GetMesh() { return _mesh; }
-
-	std::vector<int> GetCoastlines();
 };

@@ -7,7 +7,7 @@ DynamicFeature::DynamicFeature(Feature* feature, uint8_t zoom_level)
 	, position(feature->GetMapPosition())
 	, color(0x33FF33FF)
 	, rotation(0.0f)
-	, scale(pow(2.0f, ((float)zoom_level - (float)(Tile(feature->GetTileID()).z))))
+	, scale(div2(1.0f, TILE_MAX_ZOOM - zoom_level))
 {
 	ASSERT(feature->HasPoints());
 	auto& point_data = feature->GetPointsRef();

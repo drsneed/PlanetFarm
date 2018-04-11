@@ -40,3 +40,12 @@ inline bool EqualFloats(float a, float b)
 {
 	return fabs(a - b) < EPSILON;
 }
+
+inline float div2(float a, uint8_t n)
+{
+	for (uint8_t i = 0; i < n; ++i)
+	{
+		a /= 2.0f;
+	}
+	return a;
+}

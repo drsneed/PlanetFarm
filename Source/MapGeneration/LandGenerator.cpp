@@ -76,10 +76,10 @@ namespace
 
 
 
-LandGenerator::LandGenerator(uint32_t seed)
+LandGenerator::LandGenerator(uint32_t seed, const WidePoint& max_bounds, double spacing)
 	: _seed(seed)
-	, _max_bounds{ 25.0, 25.0 }
-	, _mesh(seed, _max_bounds, 0.15)
+	, _max_bounds(max_bounds)
+	, _mesh(seed, _max_bounds, spacing)
 	, _water_regions(_mesh.GetRegionCount(), true)
 	, _coastal_regions(_mesh.GetRegionCount(), false)
 	, _ocean_regions(_mesh.GetRegionCount(), false)
@@ -90,7 +90,7 @@ LandGenerator::LandGenerator(uint32_t seed)
 	_AssignWaterRegions();
 	_AssignOceanRegions();
 	_AssignCoastalRegions();
-	_coastline_vertices = GetCoastlines();
+	_StoreCoastlineVertices();
 }
 
 
@@ -144,12 +144,8 @@ void LandGenerator::_AssignOceanRegions()
 	}
 }
 
-
-
-
-std::vector<int> LandGenerator::GetCoastlines()
+void LandGenerator::_StoreCoastlineVertices()
 {
-	std::vector<int> coasts;
 	for (int s = 0; s < _mesh.triangles.size(); s++)
 	{
 		auto r0 = _mesh.triangles[s];
@@ -157,15 +153,9 @@ std::vector<int> LandGenerator::GetCoastlines()
 		auto t0 = s_to_t(_mesh.half_edges[s]);
 		if (IsOcean(r0) && !IsOcean(r1))
 		{
-			// It might seem that we also need to check !r_ocean[r0] && r_ocean[r1]
-			// and it might seem that we have to add both t and its opposite but
-			// each t vertex shows up in *four* directed sides, so we only have to test
-			// one fourth of those conditions to get the vertex in the list once.
-			coasts.push_back(t0);
+			_coastline_vertices.push_back(t0);
 		}
 	}
-
-	return coasts;
 }
 
 double LandGenerator::_Noise(double x, double y, const std::vector<double>& amplitudes)
@@ -215,7 +205,7 @@ bool LandGenerator::IsCoastEdge(int t1, int t2)
 	return (IsOcean(r1) && !IsOcean(r2)) || (IsOcean(r2) && !IsOcean(r1));
 }
 
-std::vector<std::vector<int>> LandGenerator::GetCoastlines2()
+std::vector<std::vector<int>> LandGenerator::GetCoastlines()
 {
 	std::vector<std::vector<int>> output;
 	std::set<int> visited;
