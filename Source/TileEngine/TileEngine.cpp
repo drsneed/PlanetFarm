@@ -272,13 +272,12 @@ void TileEngine::_CollectVisibleFeaturesRecursive(Tile tile, const XMFLOAT2& top
 		auto feature_ids = _tile_features[tile_id];
 		for (auto& feature_id : feature_ids)
 		{
-			//TODO: Support more than static features.
 			auto* feature = &_features[feature_id];
 			if (feature->GetTileID() != INVALID_TILE_ID)
 			{
 				if (feature->HasPoints())
 				{
-					_dynamic_feature_draw_list.push_back(DynamicFeature(feature, _zoom));
+					_dynamic_feature_draw_list.push_back(_models_manager.GetDynamicFeature(feature, _zoom));
 				}
 				else
 				{
@@ -331,7 +330,7 @@ void TileEngine::_BuildDrawLists()
 				{
 					if (feature->HasPoints())
 					{
-						_dynamic_feature_draw_list.push_back(DynamicFeature(feature, _zoom));
+						_dynamic_feature_draw_list.push_back(_models_manager.GetDynamicFeature(feature, _zoom));
 					}
 					else
 					{

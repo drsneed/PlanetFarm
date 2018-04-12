@@ -228,7 +228,7 @@ void Map::_DrawTiles()
 	_tile_engine->PrepareDrawLists();
 	if (_tile_engine->DynamicFeatureDrawListCount() > 0)
 	{
-		_renderer->DrawDynamicFeaturesBulk(_tile_engine->DynamicFeaturesDrawListBegin(), _tile_engine->DynamicFeatureDrawListCount());
+		_renderer->DrawDynamicFeaturesBulk(_tile_engine->DynamicFeaturesDrawListBegin(), _tile_engine->DynamicFeatureDrawListCount(), _zoom.major_part);
 	}
 	if (_tile_engine->StaticFeatureDrawListCount() > 0)
 	{

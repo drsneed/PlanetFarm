@@ -10,6 +10,7 @@
 #include "Tile.h"
 #include "Models/Feature.h"
 #include "Models/BoundingRect.h"
+#include "ModelsManager.h"
 using namespace moodycamel;
 
 
@@ -32,10 +33,11 @@ private:
 	std::mutex _tile_features_mutex;
 	Threadpool _threadpool;
 	BlockingConcurrentQueue<WorkItem> _job_queue;
+	ModelsManager _models_manager;
 	std::atomic<int> _job_count;
 	std::vector<PTP_WORK> _worker_threads;
 	std::vector<StaticFeature> _static_feature_draw_list;
-	std::vector<DynamicFeature> _dynamic_feature_draw_list;
+	std::vector<DynamicFeature*> _dynamic_feature_draw_list;
 	uint8_t _zoom;
 	void _ExecuteTileLoader(const std::vector<WorkItem>& work);
 	const char* const _db_filename;
@@ -63,7 +65,7 @@ public:
 	void PrepareDrawLists();
 	StaticFeature* StaticFeaturesDrawListBegin() { ASSERT(_static_feature_draw_list.size() > 0); return &_static_feature_draw_list[0]; }
 	size_t StaticFeatureDrawListCount() { return _static_feature_draw_list.size(); }
-	DynamicFeature* DynamicFeaturesDrawListBegin() { ASSERT(_dynamic_feature_draw_list.size() > 0); return &_dynamic_feature_draw_list[0]; }
+	DynamicFeature** DynamicFeaturesDrawListBegin() { ASSERT(_dynamic_feature_draw_list.size() > 0); return &_dynamic_feature_draw_list[0]; }
 	size_t DynamicFeatureDrawListCount() { return _dynamic_feature_draw_list.size(); }
 
 };
