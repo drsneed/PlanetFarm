@@ -179,7 +179,6 @@
     <ClCompile Include="Source\MapGeneration\LandGenerator.cpp" />
     <ClCompile Include="Source\MapGeneration\Triangulator.cpp" />
     <ClCompile Include="Source\TileEngine\DbInterface.cpp" />
-    <ClCompile Include="Source\TileEngine\FeatureGenerator.cpp" />
     <ClCompile Include="Source\TileEngine\ModelsManager.cpp" />
     <ClCompile Include="Source\MapGeneration\DualMesh.cpp" />
     <ClCompile Include="Source\TileEngine\Models\DynamicFeature.cpp" />
@@ -224,7 +223,6 @@
     <ClInclude Include="Source\MapGeneration\Triangulator.h" />
     <ClInclude Include="Source\MapGeneration\DualMesh.h" />
     <ClInclude Include="Source\MapGeneration\WidePoint.h" />
-    <ClInclude Include="Source\TileEngine\FeatureGenerator.h" />
     <ClInclude Include="Source\TileEngine\ModelsManager.h" />
     <ClInclude Include="Source\TileEngine\Models\BoundingRect.h" />
     <ClInclude Include="Source\TileEngine\DbInterface.h" />

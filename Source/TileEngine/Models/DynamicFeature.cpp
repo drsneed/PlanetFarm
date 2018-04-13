@@ -53,16 +53,32 @@ DynamicFeature::~DynamicFeature()
 {
 }
 
-auto DynamicFeature::GetView(TileID tile_id) -> View*
+TileID DynamicFeature::_FindViewRecursive(TileID good_)
 {
-	std::lock_guard<std::mutex> guard(_views_mutex);
-
-	if (tile_id == this->tile_id || _views.count(tile_id) == 0)
+	if (_views.count(tile_id) == 1)
 	{
-		ASSERT(this->tile_id != INVALID_TILE_ID);
-		return &_views[this->tile_id];
-	}
 
-	return &_views[tile_id];
+	}
+}
+
+auto DynamicFeature::GetView(TileID requested_tile_id) -> View*
+{
+	//std::lock_guard<std::mutex> guard(_views_mutex);
+	//There is guaranteed to be at least one view of this feature, it's own tile.
+	//If the requested tile
+	if (requested_tile_id == tile_id)
+	{
+		ASSERT(tile_id != INVALID_TILE_ID); // unitiated view
+		return &_views[tile_id];
+	}
+	else if (_views.count(requested_tile_id) == 1)
+	{
+		return &_views[tile_id];
+	}
+	else
+	{
+
+	}
+		
 	
 }

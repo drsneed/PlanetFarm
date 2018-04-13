@@ -89,5 +89,6 @@ struct DynamicFeature
 private:
 	std::mutex _views_mutex;
 	std::map<TileID, View> _views;
+	TileID _FindViewRecursive(TileID tile_id);
 
 };
