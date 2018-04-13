@@ -370,7 +370,7 @@ void MapRenderer::DrawMapBounds()
 	context->Draw(MAP_BOUNDS_VERTEX_COUNT, 0);
 }
 
-void MapRenderer::DrawDynamicFeaturesBulk(DynamicFeature** features, size_t features_count, uint8_t zoom_level)
+void MapRenderer::DrawDynamicFeaturesBulk(DynamicFeature::View** features, size_t features_count, uint8_t zoom_level)
 {
 	auto context = GraphicsWindow::GetInstance()->GetContext();
 	context->IASetInputLayout(m_squareInputLayout);

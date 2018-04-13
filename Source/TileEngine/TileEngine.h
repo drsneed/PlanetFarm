@@ -37,7 +37,7 @@ private:
 	std::atomic<int> _job_count;
 	std::vector<PTP_WORK> _worker_threads;
 	std::vector<StaticFeature> _static_feature_draw_list;
-	std::vector<DynamicFeature*> _dynamic_feature_draw_list;
+	std::set<DynamicFeature::View*> _dynamic_feature_draw_list;
 	uint8_t _zoom;
 	void _ExecuteTileLoader(const std::vector<WorkItem>& work);
 	const char* const _db_filename;
@@ -45,7 +45,7 @@ private:
 	bool _build_draw_lists;
 	void _BuildDrawLists();
 	Tile _ContainsRecursive(Tile tile, const XMFLOAT2& top_left, const XMFLOAT2& bottom_right);
-	void _CollectVisibleFeaturesRecursive(Tile tile, const XMFLOAT2& top_left, const XMFLOAT2& bottom_right);
+	void _CollectVisibleFeaturesFromParentTiles(Tile tile, const XMFLOAT2& top_left, const XMFLOAT2& bottom_right, std::vector<Feature*>& visible_features);
 	Tile _GetChildTileContaining(Tile tile, const XMFLOAT2& top_left, const XMFLOAT2& bottom_right);
 public:
 	TileEngine(const char* const db_filename);
@@ -65,7 +65,7 @@ public:
 	void PrepareDrawLists();
 	StaticFeature* StaticFeaturesDrawListBegin() { ASSERT(_static_feature_draw_list.size() > 0); return &_static_feature_draw_list[0]; }
 	size_t StaticFeatureDrawListCount() { return _static_feature_draw_list.size(); }
-	DynamicFeature** DynamicFeaturesDrawListBegin() { ASSERT(_dynamic_feature_draw_list.size() > 0); return &_dynamic_feature_draw_list[0]; }
+	DynamicFeature::View** DynamicFeaturesDrawListBegin() { ASSERT(_dynamic_feature_draw_list.size() > 0); return &_dynamic_feature_draw_list[0]; }
 	size_t DynamicFeatureDrawListCount() { return _dynamic_feature_draw_list.size(); }
 
 };

@@ -88,7 +88,8 @@ public:
 	FeatureID GetID() const { return _id;  }
 	void SetID(FeatureID id) { ASSERT(_id == 0); _id = id; }
 	std::vector<XMFLOAT2>& GetPointsRef() { return _points;  }
-	bool HasPoints() const { return _points.size() > 0; }
+	bool IsDynamic() const { return _points.size() > 0; }
+	bool IsLoaded() const { return _tile != INVALID_TILE_ID; }
 	const std::string& GetName() const { return _name; }
 };
 

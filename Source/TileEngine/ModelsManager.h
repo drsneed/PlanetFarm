@@ -11,6 +11,6 @@ public:
 	ModelsManager();
 	Cube& GetCube();
 
-	DynamicFeature* GetDynamicFeature(Feature* feature, uint8_t zoom_level);
+	DynamicFeature::View* GetDynamicFeatureView(Feature* feature, TileID tile_id);
 
 };

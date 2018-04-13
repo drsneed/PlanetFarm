@@ -262,7 +262,7 @@ Tile TileEngine::_GetChildTileContaining(Tile tile, const XMFLOAT2& top_left, co
 	return tile;
 }
 
-void TileEngine::_CollectVisibleFeaturesRecursive(Tile tile, const XMFLOAT2& top_left, const XMFLOAT2& bottom_right)
+void TileEngine::_CollectVisibleFeaturesFromParentTiles(Tile tile, const XMFLOAT2& top_left, const XMFLOAT2& bottom_right, std::vector<Feature*>& visible_features)
 {
 	auto tile_id = tile.GetID();
 
@@ -273,24 +273,15 @@ void TileEngine::_CollectVisibleFeaturesRecursive(Tile tile, const XMFLOAT2& top
 		for (auto& feature_id : feature_ids)
 		{
 			auto* feature = &_features[feature_id];
-			if (feature->GetTileID() != INVALID_TILE_ID)
-			{
-				if (feature->HasPoints())
-				{
-					_dynamic_feature_draw_list.push_back(_models_manager.GetDynamicFeature(feature, _zoom));
-				}
-				else
-				{
-					_static_feature_draw_list.push_back(StaticFeature(feature, _zoom));
-				}
-			}
+			if(feature->IsLoaded())
+				visible_features.push_back(feature);
 		}
 	}
 
 	auto next_tile = _GetChildTileContaining(tile, top_left, bottom_right);
 	if (next_tile != tile)
 	{
-		_CollectVisibleFeaturesRecursive(next_tile, top_left, bottom_right);
+		_CollectVisibleFeaturesFromParentTiles(next_tile, top_left, bottom_right, visible_features);
 	}
 }
 
@@ -312,34 +303,59 @@ void TileEngine::_BuildDrawLists()
 	std::lock_guard<std::mutex> guard(_features_mutex);
 	std::lock_guard<std::mutex> guard2(_tile_features_mutex);
 
-	_CollectVisibleFeaturesRecursive(Tile(0,0,0), top_left, bottom_right);
+	std::vector<Feature*> visible_features;
+	_CollectVisibleFeaturesFromParentTiles(Tile(0, 0, 0), top_left, bottom_right, visible_features);
+	/*
+				if (feature->IsDynamic())
+			{
+				_dynamic_feature_draw_list.push_back(_models_manager.GetDynamicFeatureView(feature, _zoom));
+			}
+			else
+			{
+				_static_feature_draw_list.push_back(StaticFeature(feature, _zoom));
+			}
+	*/
+
+	// 1. Loop through visible tiles.
+	// 2. Check for features belonging to each visible tile and add them to draw queue
+	// 3. Loop through visible features from the parent tiles
+	// 4. Add view of feature for each visible tile.
+
 	for (auto& visible_tile : _visible_tiles)
 	{
+		// add features belonging to these visible tiles
 		if (_tile_features.count(visible_tile) == 1)
 		{
 			auto feature_ids = _tile_features[visible_tile];
 			for (auto& feature_id : feature_ids)
 			{
-				//TODO: Support more than static features.
 				auto* feature = &_features[feature_id];
-				if (feature->GetTileID() == INVALID_TILE_ID)
+				ASSERT(feature->GetTileID() == visible_tile);
+				if (feature->IsLoaded())
 				{
-					all_tiles_loaded = false;
-				}
-				else
-				{
-					if (feature->HasPoints())
+					if (feature->IsDynamic())
 					{
-						_dynamic_feature_draw_list.push_back(_models_manager.GetDynamicFeature(feature, _zoom));
+						_dynamic_feature_draw_list.insert(_models_manager.GetDynamicFeatureView(feature, _zoom));
 					}
 					else
 					{
 						_static_feature_draw_list.push_back(StaticFeature(feature, _zoom));
 					}
-					
 				}
+				else
+				{
+					all_tiles_loaded = false;
+				}
+				
 			}
 		}
+
+		// add a view for each parent feature
+		for (auto* feature : visible_features)
+		{
+			_dynamic_feature_draw_list.insert(_models_manager.GetDynamicFeatureView(feature, _zoom));
+		}
+
 		
 	}
 	if(all_tiles_loaded)

@@ -38,13 +38,13 @@ DynamicFeature::DynamicFeature()
 {
 }
 
-DynamicFeature::DynamicFeature(Feature* feature, uint8_t zoom_level)
+DynamicFeature::DynamicFeature(Feature* feature)
 	: position(feature->GetMapPosition())
 	, color(0x33FF33FF)
 	, rotation(0.0f)
 	, tile_id(feature->GetTileID())
 {
-	ASSERT(feature->HasPoints());
+	ASSERT(feature->IsDynamic());
 	_views[feature->GetTileID()] = View(feature->GetPointsRef());
 	
 }
@@ -53,13 +53,13 @@ DynamicFeature::~DynamicFeature()
 {
 }
 
-TileID DynamicFeature::_FindViewRecursive(TileID good_)
-{
-	if (_views.count(tile_id) == 1)
-	{
-
-	}
-}
+//TileID DynamicFeature::_FindViewRecursive(TileID good_)
+//{
+//	if (_views.count(tile_id) == 1)
+//	{
+//
+//	}
+//}
 
 auto DynamicFeature::GetView(TileID requested_tile_id) -> View*
 {
@@ -73,11 +73,12 @@ auto DynamicFeature::GetView(TileID requested_tile_id) -> View*
 	}
 	else if (_views.count(requested_tile_id) == 1)
 	{
-		return &_views[tile_id];
+		return &_views[requested_tile_id];
 	}
 	else
 	{
-
+		//TODO: Build view of a subset of the data for this tile
+		return &_views[tile_id];
 	}
 		
 	

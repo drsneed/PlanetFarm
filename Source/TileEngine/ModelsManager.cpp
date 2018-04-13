@@ -9,14 +9,14 @@ Cube& ModelsManager::GetCube()
 	return _cube;
 }
 
-DynamicFeature* ModelsManager::GetDynamicFeature(Feature* feature, uint8_t zoom_level)
+DynamicFeature::View* ModelsManager::GetDynamicFeatureView(Feature* feature, TileID tile_id)
 {
 	auto id = feature->GetID();
 
 	if (_dynamic_features.count(id) == 0)
 	{
-		_dynamic_features[id] = DynamicFeature(feature, zoom_level);
+		_dynamic_features[id] = DynamicFeature(feature);
 	}
 	
-	return &_dynamic_features[id];
+	return _dynamic_features[id].GetView(tile_id);
 }

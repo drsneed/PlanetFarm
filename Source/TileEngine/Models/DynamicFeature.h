@@ -56,7 +56,7 @@ struct DynamicFeature
 	float rotation;
 	
 	DynamicFeature();
-	DynamicFeature(Feature* feature, uint8_t zoom_level);
+	DynamicFeature(Feature* feature);
 	~DynamicFeature();
 
 	View* GetView(TileID tile_id);
@@ -89,6 +89,6 @@ struct DynamicFeature
 private:
 	std::mutex _views_mutex;
 	std::map<TileID, View> _views;
-	TileID _FindViewRecursive(TileID tile_id);
+	//TileID _FindViewRecursive(TileID tile_id);
 
 };
