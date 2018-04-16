@@ -9,26 +9,39 @@ struct DynamicFeature
 {
 	struct View
 	{
+		DynamicFeature* parent;
 		ID3D11Buffer* vertex_buffer;
 		int vertex_count;
-		View() : vertex_buffer(nullptr), vertex_count(0) {}
-		~View() 
+		View() : vertex_buffer(nullptr), parent(nullptr), vertex_count(0) {}
+
+		View(DynamicFeature* parent, const std::vector<XMFLOAT2>& vertex_data);
+
+		View(View const& other)
 		{ 
-			if (vertex_buffer)
-				vertex_buffer->Release();
+			vertex_buffer = other.vertex_buffer;
+			vertex_count = other.vertex_count;
+			parent = other.parent;
+		}
+		View& operator=(View const& other)
+		{
+			vertex_buffer = other.vertex_buffer;
+			vertex_count = other.vertex_count;
+			parent = other.parent;
+			return *this;
 		}
 
-		View(const std::vector<XMFLOAT2>& vertex_data);
-
-		// no copying
-		View(View const&) = delete;
-		View& operator=(View const&) = delete;
+		bool operator==(const View& other)
+		{
+			return other.vertex_buffer == vertex_buffer;
+		}
 
 		// moving ok
 		View(View&& other) noexcept
 			: vertex_buffer(other.vertex_buffer)
 			, vertex_count(other.vertex_count)
+			, parent(other.parent)
 		{
+			other.parent = nullptr;
 			other.vertex_buffer = nullptr;
 			other.vertex_count = 0;
 		}
@@ -40,6 +53,8 @@ struct DynamicFeature
 
 			vertex_buffer = other.vertex_buffer;
 			vertex_count = other.vertex_count;
+			parent = other.parent;
+			other.parent = nullptr;
 			other.vertex_buffer = nullptr;
 			other.vertex_count = 0;
 			return *this;
@@ -49,17 +64,17 @@ struct DynamicFeature
 
 	};
 
+	typedef std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<DynamicFeature::View>>> ViewIterator;
 
 	TileID tile_id;
 	XMFLOAT2 position;
 	unsigned color;
-	float rotation;
 	
 	DynamicFeature();
 	DynamicFeature(Feature* feature);
 	~DynamicFeature();
 
-	View* GetView(TileID tile_id);
+	View GetView(TileID tile_id);
 
 	// no copying for now.
 	DynamicFeature(DynamicFeature const&) = delete;
@@ -70,8 +85,12 @@ struct DynamicFeature
 		: _views(std::move(other._views))
 		, position(other.position)
 		, color(other.color)
-		, rotation(other.rotation)
+		, tile_id(other.tile_id)
 	{
+		for (auto& view : _views)
+		{
+			view.second.parent = this;
+		}
 	}
 
 	inline DynamicFeature& operator=(DynamicFeature&& other) noexcept
@@ -82,7 +101,11 @@ struct DynamicFeature
 		_views = std::move(other._views);
 		position = other.position;
 		color = other.color;
-		rotation = other.rotation;
+		tile_id = other.tile_id;
+		for (auto& view : _views)
+		{
+			view.second.parent = this;
+		}
 		return *this;
 	}
 

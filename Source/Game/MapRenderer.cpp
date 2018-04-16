@@ -370,7 +370,7 @@ void MapRenderer::DrawMapBounds()
 	context->Draw(MAP_BOUNDS_VERTEX_COUNT, 0);
 }
 
-void MapRenderer::DrawDynamicFeaturesBulk(DynamicFeature::View** features, size_t features_count, uint8_t zoom_level)
+void MapRenderer::DrawDynamicFeaturesBulk(std::vector<DynamicFeature::View>& draw_list, uint8_t zoom_level)
 {
 	auto context = GraphicsWindow::GetInstance()->GetContext();
 	context->IASetInputLayout(m_squareInputLayout);
@@ -386,22 +386,21 @@ void MapRenderer::DrawDynamicFeaturesBulk(DynamicFeature::View** features, size_
 
 	float scale = div2(1.0f, TILE_MAX_ZOOM - zoom_level);
 
-	for (size_t i = 0; i < features_count; ++i)
+	for (auto& entry: draw_list)
 	{
-		object.color = ConvertColor(features[i]->color);
+		object.color = ConvertColor(entry.parent->color);
 		auto world_mat = XMMatrixIdentity() *
 			XMMatrixScaling(scale, 0.0f, scale) *
-			XMMatrixTranslation(features[i]->position.x, 1.0f, features[i]->position.y);
+			XMMatrixTranslation(entry.parent->position.x, 1.0f, entry.parent->position.y);
 
 		XMStoreFloat4x4(&object.world_matrix, XMMatrixTranspose(world_mat));
 
 		_UploadPerObjectBuffer(context, object);
-		auto* view = features[i]->GetView(0);
 
 		context->VSSetConstantBuffers(1, 1, &m_perObjectBuffer);
-		context->IASetVertexBuffers(0, 1, &view->vertex_buffer, &stride, &offset);
+		context->IASetVertexBuffers(0, 1, &(entry.vertex_buffer), &stride, &offset);
 
-		context->Draw(view->vertex_count, 0);
+		context->Draw(entry.vertex_count, 0);
 	}
 }
 

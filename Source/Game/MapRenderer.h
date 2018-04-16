@@ -55,5 +55,5 @@ public:
 	void DrawTriangle(const XMFLOAT2& a, const XMFLOAT2& b, const XMFLOAT2& c, unsigned color);
 	void DrawMapBounds();
 	void DrawStaticFeaturesBulk(StaticFeature* features_ptr, size_t features_count);
-	void DrawDynamicFeaturesBulk(DynamicFeature::View** features_ptr, size_t features_count, uint8_t zoom_level);
+	void DrawDynamicFeaturesBulk(std::vector<DynamicFeature::View>& draw_list, uint8_t zoom_level);
 };

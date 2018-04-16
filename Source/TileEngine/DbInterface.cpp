@@ -81,7 +81,7 @@ void DbInterface::PutFeature(Db::Connection& conn, Feature& feature)
 		statement.Bind(i++, pos.x);
 		statement.Bind(i++, pos.y);
 		statement.Bind(i++, feature.GetRotation());
-		if (feature.HasPoints())
+		if (feature.IsDynamic())
 		{
 			auto& points = feature.GetPointsRef();
 			statement.Bind(i++, static_cast<const void*>(&points[0]), points.size() * sizeof(points[0]));
@@ -105,7 +105,7 @@ void DbInterface::PutFeature(Db::Connection& conn, Feature& feature)
 		statement.Bind(i++, pos.x);
 		statement.Bind(i++, pos.y);
 		statement.Bind(i++, feature.GetRotation());
-		if (feature.HasPoints())
+		if (feature.IsDynamic())
 		{
 			auto& points = feature.GetPointsRef();
 			statement.Bind(i++, static_cast<const void*>(&points[0]), points.size() * sizeof(points[0]));

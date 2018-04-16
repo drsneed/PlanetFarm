@@ -1,8 +1,9 @@
 #include "Feature.h"
 #include "DynamicFeature.h"
 
-DynamicFeature::View::View(const std::vector<XMFLOAT2>& vertex_data)
+DynamicFeature::View::View(DynamicFeature* parent, const std::vector<XMFLOAT2>& vertex_data)
 	: vertex_buffer(nullptr)
+	, parent(parent)
 	, vertex_count(0)
 {
 	CreateBuffers(vertex_data);
@@ -33,7 +34,6 @@ void DynamicFeature::View::CreateBuffers(const std::vector<XMFLOAT2>& vertex_dat
 
 DynamicFeature::DynamicFeature()
 	: color(0)
-	, rotation(0.0f)
 	, tile_id(INVALID_TILE_ID)
 {
 }
@@ -41,16 +41,20 @@ DynamicFeature::DynamicFeature()
 DynamicFeature::DynamicFeature(Feature* feature)
 	: position(feature->GetMapPosition())
 	, color(0x33FF33FF)
-	, rotation(0.0f)
 	, tile_id(feature->GetTileID())
 {
 	ASSERT(feature->IsDynamic());
-	_views[feature->GetTileID()] = View(feature->GetPointsRef());
+	_views[feature->GetTileID()] = View(this, feature->GetPointsRef());
 	
 }
 
 DynamicFeature::~DynamicFeature()
 {
+	for (auto& view : _views)
+	{
+		if(view.second.vertex_buffer)
+			view.second.vertex_buffer->Release();
+	}
 }
 
 //TileID DynamicFeature::_FindViewRecursive(TileID good_)
@@ -61,25 +65,19 @@ DynamicFeature::~DynamicFeature()
 //	}
 //}
 
-auto DynamicFeature::GetView(TileID requested_tile_id) -> View*
+auto DynamicFeature::GetView(TileID requested_tile_id) -> View
 {
+
 	//std::lock_guard<std::mutex> guard(_views_mutex);
 	//There is guaranteed to be at least one view of this feature, it's own tile.
 	//If the requested tile
-	if (requested_tile_id == tile_id)
+	if (_views.count(requested_tile_id) == 1)
 	{
-		ASSERT(tile_id != INVALID_TILE_ID); // unitiated view
-		return &_views[tile_id];
-	}
-	else if (_views.count(requested_tile_id) == 1)
-	{
-		return &_views[requested_tile_id];
+		return _views[requested_tile_id];
 	}
 	else
 	{
 		//TODO: Build view of a subset of the data for this tile
-		return &_views[tile_id];
+		return _views[tile_id];
 	}
-		
-	
 }

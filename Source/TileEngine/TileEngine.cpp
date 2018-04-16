@@ -305,16 +305,6 @@ void TileEngine::_BuildDrawLists()
 
 	std::vector<Feature*> visible_features;
 	_CollectVisibleFeaturesFromParentTiles(Tile(0, 0, 0), top_left, bottom_right, visible_features);
-	/*
-				if (feature->IsDynamic())
-			{
-				_dynamic_feature_draw_list.push_back(_models_manager.GetDynamicFeatureView(feature, _zoom));
-			}
-			else
-			{
-				_static_feature_draw_list.push_back(StaticFeature(feature, _zoom));
-			}
-	*/
 
 	// 1. Loop through visible tiles.
 	// 2. Check for features belonging to each visible tile and add them to draw queue
@@ -330,12 +320,13 @@ void TileEngine::_BuildDrawLists()
 			for (auto& feature_id : feature_ids)
 			{
 				auto* feature = &_features[feature_id];
-				ASSERT(feature->GetTileID() == visible_tile);
 				if (feature->IsLoaded())
 				{
 					if (feature->IsDynamic())
 					{
-						_dynamic_feature_draw_list.insert(_models_manager.GetDynamicFeatureView(feature, _zoom));
+						auto view = _models_manager.GetDynamicFeatureView(feature, visible_tile);
+						if (std::find(_dynamic_feature_draw_list.begin(), _dynamic_feature_draw_list.end(), view) == _dynamic_feature_draw_list.end())
+							_dynamic_feature_draw_list.push_back(view);
 					}
 					else
 					{
@@ -353,10 +344,10 @@ void TileEngine::_BuildDrawLists()
 		// add a view for each parent feature
 		for (auto* feature : visible_features)
 		{
-			_dynamic_feature_draw_list.insert(_models_manager.GetDynamicFeatureView(feature, _zoom));
+			auto view = _models_manager.GetDynamicFeatureView(feature, visible_tile);
+			if(std::find(_dynamic_feature_draw_list.begin(), _dynamic_feature_draw_list.end(), view) == _dynamic_feature_draw_list.end())
+				_dynamic_feature_draw_list.push_back(view);
 		}
-
-		
 	}
 	if(all_tiles_loaded)
 		_build_draw_lists = false;
