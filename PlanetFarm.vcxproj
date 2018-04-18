@@ -182,6 +182,7 @@
     <ClCompile Include="Source\TileEngine\ModelsManager.cpp" />
     <ClCompile Include="Source\MapGeneration\DualMesh.cpp" />
     <ClCompile Include="Source\TileEngine\Models\DynamicFeature.cpp" />
+    <ClCompile Include="Source\TileEngine\Models\DynamicFeatureView.cpp" />
     <ClCompile Include="Source\TileEngine\Models\Feature.cpp" />
     <ClCompile Include="Source\TileEngine\Models\StaticFeature.cpp" />
     <ClCompile Include="Source\TileEngine\TileEngine.cpp" />
@@ -227,6 +228,7 @@
     <ClInclude Include="Source\TileEngine\Models\BoundingRect.h" />
     <ClInclude Include="Source\TileEngine\DbInterface.h" />
     <ClInclude Include="Source\TileEngine\Models\DynamicFeature.h" />
+    <ClInclude Include="Source\TileEngine\Models\DynamicFeatureView.h" />
     <ClInclude Include="Source\TileEngine\Models\StaticFeature.h" />
     <ClInclude Include="Source\TileEngine\Payload.h" />
     <ClInclude Include="Source\TileEngine\Tile.h" />

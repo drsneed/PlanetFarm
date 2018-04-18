@@ -1,70 +1,14 @@
 #pragma once
 #include <Core/StdIncludes.h>
-#include <Core/GraphicsWindow.h>
 #include <map>
 #include <mutex>
-
+#include "DynamicFeatureView.h"
 class Feature;
-struct DynamicFeature
+class DynamicFeature
 {
-	struct View
-	{
-		DynamicFeature* parent;
-		ID3D11Buffer* vertex_buffer;
-		int vertex_count;
-		View() : vertex_buffer(nullptr), parent(nullptr), vertex_count(0) {}
+public:
 
-		View(DynamicFeature* parent, const std::vector<XMFLOAT2>& vertex_data);
-
-		View(View const& other)
-		{ 
-			vertex_buffer = other.vertex_buffer;
-			vertex_count = other.vertex_count;
-			parent = other.parent;
-		}
-		View& operator=(View const& other)
-		{
-			vertex_buffer = other.vertex_buffer;
-			vertex_count = other.vertex_count;
-			parent = other.parent;
-			return *this;
-		}
-
-		bool operator==(const View& other)
-		{
-			return other.vertex_buffer == vertex_buffer;
-		}
-
-		// moving ok
-		View(View&& other) noexcept
-			: vertex_buffer(other.vertex_buffer)
-			, vertex_count(other.vertex_count)
-			, parent(other.parent)
-		{
-			other.parent = nullptr;
-			other.vertex_buffer = nullptr;
-			other.vertex_count = 0;
-		}
-
-		inline View& operator=(View&& other) noexcept
-		{
-			if (this == &other)
-				return *this;
-
-			vertex_buffer = other.vertex_buffer;
-			vertex_count = other.vertex_count;
-			parent = other.parent;
-			other.parent = nullptr;
-			other.vertex_buffer = nullptr;
-			other.vertex_count = 0;
-			return *this;
-		}
-
-		void CreateBuffers(const std::vector<XMFLOAT2>& vertex_data);
-
-	};
-
-	typedef std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<DynamicFeature::View>>> ViewIterator;
+	typedef std::_Tree_const_iterator<std::_Tree_val<std::_Tree_simple_types<DynamicFeatureView>>> ViewIterator;
 
 	TileID tile_id;
 	XMFLOAT2 position;
@@ -74,7 +18,7 @@ struct DynamicFeature
 	DynamicFeature(Feature* feature);
 	~DynamicFeature();
 
-	View GetView(TileID tile_id);
+	DynamicFeatureView GetView(TileID tile_id);
 
 	// no copying for now.
 	DynamicFeature(DynamicFeature const&) = delete;
@@ -110,8 +54,9 @@ struct DynamicFeature
 	}
 
 private:
+	void _BuildView(TileID tile_id);
 	std::mutex _views_mutex;
-	std::map<TileID, View> _views;
+	std::map<TileID, DynamicFeatureView> _views;
 	//TileID _FindViewRecursive(TileID tile_id);
 
 };

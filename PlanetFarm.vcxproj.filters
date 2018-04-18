@@ -63,10 +63,10 @@
     <ClCompile Include="Source\TileEngine\Models\DynamicFeature.cpp" />
     <ClCompile Include="Source\TileEngine\Models\StaticFeature.cpp" />
     <ClCompile Include="Source\TileEngine\ModelsManager.cpp" />
-    <ClCompile Include="Source\TileEngine\FeatureGenerator.cpp" />
     <ClCompile Include="Source\MapGeneration\LandGenerator.cpp" />
     <ClCompile Include="Source\MapGeneration\Triangulator.cpp" />
     <ClCompile Include="Source\MapGeneration\DualMesh.cpp" />
+    <ClCompile Include="Source\TileEngine\Models\DynamicFeatureView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lib\tinyxml2.h">
@@ -165,11 +165,11 @@
     <ClInclude Include="Source\TileEngine\Models\StaticFeature.h" />
     <ClInclude Include="Source\TileEngine\Models\DynamicFeature.h" />
     <ClInclude Include="Source\TileEngine\ModelsManager.h" />
-    <ClInclude Include="Source\TileEngine\FeatureGenerator.h" />
     <ClInclude Include="Source\MapGeneration\LandGenerator.h" />
     <ClInclude Include="Source\MapGeneration\Triangulator.h" />
     <ClInclude Include="Source\MapGeneration\DualMesh.h" />
     <ClInclude Include="Source\MapGeneration\WidePoint.h" />
+    <ClInclude Include="Source\TileEngine\Models\DynamicFeatureView.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lib">
