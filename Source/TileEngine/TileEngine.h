@@ -37,7 +37,7 @@ private:
 	std::atomic<int> _job_count;
 	std::vector<PTP_WORK> _worker_threads;
 	std::vector<StaticFeature> _static_feature_draw_list;
-	std::vector<DynamicFeature::View> _dynamic_feature_draw_list;
+	std::vector<DynamicFeatureView> _dynamic_feature_draw_list;
 	uint8_t _zoom;
 	void _ExecuteTileLoader(const std::vector<WorkItem>& work);
 	const char* const _db_filename;
@@ -64,7 +64,7 @@ public:
 
 	void PrepareDrawLists();
 	StaticFeature* StaticFeaturesDrawListBegin() { ASSERT(_static_feature_draw_list.size() > 0); return &_static_feature_draw_list[0]; }
-	std::vector<DynamicFeature::View>& GetDynamicFeatureDrawList() { return _dynamic_feature_draw_list; }
+	std::vector<DynamicFeatureView>& GetDynamicFeatureDrawList() { return _dynamic_feature_draw_list; }
 	size_t StaticFeatureDrawListCount() { return _static_feature_draw_list.size(); }
 	size_t DynamicFeatureDrawListCount() { return _dynamic_feature_draw_list.size(); }
 

@@ -52,7 +52,8 @@ struct Tile
 		TopLeft
 	};
 
-	auto GetID() -> uint32_t;
+	auto GetID() -> TileID;
+	auto GetParentID() -> TileID;
 	auto GetQuadKey() -> std::string;
 	auto ToString() -> std::string;
 

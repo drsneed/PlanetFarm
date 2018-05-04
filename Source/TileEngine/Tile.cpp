@@ -81,6 +81,43 @@ auto Tile::GetID() -> uint32_t
 	return (key | z32);
 }
 
+
+auto Tile::GetParentID() -> uint32_t
+{
+	uint32_t key = 0;
+	auto x32 = static_cast<uint32_t>(x);
+	auto y32 = static_cast<uint32_t>(y);
+	auto z32 = static_cast<uint32_t>(z);
+
+	if (x32 % 2 != 0)
+	{
+		x32--;
+	}
+	if (y32 % 2 != 0)
+	{
+		y32--;
+	}
+	z32--;
+	
+	ASSERT(z32 <= TILE_MAX_ZOOM + 1);
+
+	auto max_coord = pow(2, z32);
+
+	ASSERT(x32 < max_coord);
+	ASSERT(y32 < max_coord);
+
+	for (uint32_t i = z32; i > 0; --i)
+	{
+		auto mask = 1 << (i - 1);
+		auto bit_location = 32 - ((z32 - i + 1) * 2) + 1;
+		if (x32 & mask)
+			key |= 1 << (bit_location - 1);
+		if (y32 & mask)
+			key |= 1 << bit_location;
+	}
+	return (key | z32);
+}
+
 Tile::Tile()
 	: x(0)
 	, y(0)

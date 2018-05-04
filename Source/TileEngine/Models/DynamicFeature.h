@@ -19,6 +19,7 @@ public:
 	~DynamicFeature();
 
 	DynamicFeatureView GetView(TileID tile_id);
+	DynamicFeatureView GetParentView(TileID tile_id);
 
 	// no copying for now.
 	DynamicFeature(DynamicFeature const&) = delete;

@@ -41,6 +41,17 @@ void DynamicFeature::_BuildView(TileID tile_id)
 
 }
 
+auto DynamicFeature::GetParentView(TileID child_id) -> DynamicFeatureView
+{
+	TileID parent_id = Tile(child_id).GetParentID();
+	//std::lock_guard<std::mutex> guard(_views_mutex);
+	//There is guaranteed to be at least one view of this feature, it's own tile.
+	//If the requested tile
+	if (_views.count(parent_id) == 0)
+		_BuildView(parent_id);
+	return _views[parent_id];
+}
+
 auto DynamicFeature::GetView(TileID requested_tile_id) -> DynamicFeatureView
 {
 
@@ -49,5 +60,5 @@ auto DynamicFeature::GetView(TileID requested_tile_id) -> DynamicFeatureView
 	//If the requested tile
 	if (_views.count(requested_tile_id) == 0)
 		_BuildView(requested_tile_id);
-	return _views[requested_tile_id];
+	return _views[0];
 }

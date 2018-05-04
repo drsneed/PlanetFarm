@@ -9,7 +9,7 @@ Cube& ModelsManager::GetCube()
 	return _cube;
 }
 
-DynamicFeature::View ModelsManager::GetDynamicFeatureView(Feature* feature, TileID tile_id)
+DynamicFeatureView ModelsManager::GetDynamicFeatureView(Feature* feature, TileID tile_id)
 {
 	auto id = feature->GetID();
 

@@ -53,7 +53,13 @@ int WINAPI MyMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine
 	auto font = std::make_shared<Font>("Data\\Cantarell.fnt");
 	auto text_renderer = std::make_unique<TextRenderer>(font.get());
 
-
+	auto child = Tile(1, 1, 11);      //22133323002222
+	auto cqkey = child.GetQuadKey();
+	auto parent_id = child.GetParentID();
+	auto parent = Tile(parent_id);
+	auto pqkey = parent.GetQuadKey();
+	//auto parent = Tile(46, 7100, 13); //2213332300222
+	
 
 	window->Show();
 	if (D3DErrorOccurred())

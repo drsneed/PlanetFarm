@@ -11,6 +11,6 @@ public:
 	ModelsManager();
 	Cube& GetCube();
 
-	DynamicFeature::View GetDynamicFeatureView(Feature* feature, TileID tile_id);
+	DynamicFeatureView GetDynamicFeatureView(Feature* feature, TileID tile_id);
 
 };
